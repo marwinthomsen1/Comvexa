@@ -2,7 +2,7 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #0f172a;
 }
 
 @theme inline {
@@ -12,15 +12,34 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+html[data-comvexa-density="compact"] .comvexa-dashboard-main {
+  padding: 1rem;
+}
+
+html[data-comvexa-density="compact"] .comvexa-dashboard-main section {
+  margin-top: 1rem;
+}
+
+html[data-comvexa-density="compact"] .comvexa-dashboard-main p,
+html[data-comvexa-density="compact"] .comvexa-dashboard-main a,
+html[data-comvexa-density="compact"] .comvexa-dashboard-main button {
+  font-size: 0.875rem;
+}
+
+html[data-comvexa-density="spacious"] .comvexa-dashboard-main {
+  padding: 2rem;
+}
+
+html[data-comvexa-density="spacious"] .comvexa-dashboard-main section {
+  margin-top: 2rem;
 }

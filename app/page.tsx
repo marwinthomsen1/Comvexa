@@ -1,65 +1,648 @@
 import Image from "next/image";
+import Link from "next/link";
+import {
+  ArrowRight,
+  BarChart3,
+  Boxes,
+  Building2,
+  CalendarDays,
+  Check,
+  ChevronRight,
+  CreditCard,
+  FileText,
+  Globe2,
+  HandCoins,
+  Landmark,
+  Layers3,
+  ListChecks,
+  LockKeyhole,
+  ReceiptText,
+  ShieldCheck,
+  Sparkles,
+  Users,
+} from "lucide-react";
+
+const modules = [
+  { title: "Customers", text: "Profiles, notes, balances, history, and contact details.", icon: Users },
+  { title: "Employees", text: "Staff records, roles, salaries, schedules, and accountability.", icon: Building2 },
+  { title: "Bookings", text: "Appointments, field work, service times, and operational planning.", icon: CalendarDays },
+  { title: "Tasks", text: "Priorities, due dates, owners, and everyday team follow-up.", icon: ListChecks },
+  { title: "Invoices", text: "Invoice records, totals, due dates, payment status, and items.", icon: ReceiptText },
+  { title: "Payments", text: "Payment methods, payment dates, notes, and collection tracking.", icon: CreditCard },
+  { title: "Expenses", text: "Categories, vendors, tax amounts, and business cost tracking.", icon: HandCoins },
+  { title: "Documents", text: "PDF uploads, expiry dates, file types, and secure company storage.", icon: FileText },
+  { title: "Inventory", text: "Stock quantities, suppliers, units, and low-stock alerts.", icon: Boxes },
+  { title: "Reports", text: "Revenue, expenses, cash flow, profit/loss, and operations summaries.", icon: BarChart3 },
+  { title: "Branches", text: "Locations, contact numbers, and branch-level organization.", icon: Layers3 },
+  { title: "Permissions", text: "Prepare module access rules for staff, managers, and admins.", icon: LockKeyhole },
+];
+
+const useCases = [
+  "Service companies",
+  "Retail stores",
+  "Agencies",
+  "Clinics",
+  "Contractors",
+  "Salons",
+  "Maintenance teams",
+  "Field operations",
+];
+
+const plans = [
+  {
+    name: "Basic",
+    price: "$29",
+    description: "Essential tools for small businesses and freelancers.",
+    trial: "No free trial",
+    features: [
+      "Dashboard",
+      "Customer management",
+      "Services/products",
+      "Tasks",
+      "Invoices",
+      "Payments",
+      "Expenses",
+      "Customer balances",
+      "Basic reports",
+      "Company settings",
+    ],
+  },
+  {
+    name: "Pro",
+    price: "$79",
+    description: "The best starting point for growing companies with staff.",
+    trial: "3-day free trial",
+    featured: true,
+    features: [
+      "Everything in Basic",
+      "Employee management",
+      "Staff schedules",
+      "Bookings",
+      "Documents and PDF uploads",
+      "Recurring invoices",
+      "Payment reminders",
+      "WhatsApp templates",
+      "Profit and loss summary",
+      "Advanced reports",
+    ],
+  },
+  {
+    name: "Ultra",
+    price: "$149",
+    description: "Full control for companies with branches, stock, and permissions.",
+    trial: "No free trial",
+    features: [
+      "Everything in Pro",
+      "Multiple branches",
+      "Inventory management",
+      "Supplier bills",
+      "Advanced permissions",
+      "Cash flow overview",
+      "Payment reconciliation",
+      "Multi-currency records",
+      "Custom tax settings",
+      "Priority support",
+    ],
+  },
+];
+
+const faqs = [
+  {
+    question: "Can Comvexa work for any industry?",
+    answer:
+      "Yes. Comvexa is designed as a flexible company management platform for service businesses, retailers, agencies, clinics, contractors, and many other operating teams.",
+  },
+  {
+    question: "Is company data separated?",
+    answer:
+      "Yes. The database is structured around company_id so each company workspace can only access its own records when Supabase policies are applied.",
+  },
+  {
+    question: "Does Comvexa include accounting tools?",
+    answer:
+      "Comvexa includes invoices, payments, expenses, supplier bills, tax tracking fields, receivables, cash flow, and profit/loss summaries. It is built for operational accounting workflows.",
+  },
+  {
+    question: "Which plan has a free trial?",
+    answer:
+      "Only Pro includes a free trial, and the trial lasts 3 days. Basic and Ultra do not include a free trial.",
+  },
+];
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+    <main className="min-h-screen bg-[#f4f7fb] text-slate-950">
+      <header className="sticky top-0 z-20 border-b border-white/10 bg-[#071225]/95 text-white backdrop-blur-xl">
+        <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8">
+          <Link href="/" className="flex items-center gap-3 font-semibold">
             <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+              src="/logo.png"
+              alt="Comvexa logo"
+              width={44}
+              height={44}
+              className="size-11 rounded-xl bg-white object-contain p-1"
+              priority
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            <span className="text-lg">Comvexa</span>
+          </Link>
+          <div className="hidden items-center gap-7 text-sm font-medium text-slate-300 md:flex">
+            <a href="#platform" className="hover:text-white">Platform</a>
+            <a href="#accounting" className="hover:text-white">Accounting</a>
+            <a href="#pricing" className="hover:text-white">Pricing</a>
+            <a href="#faq" className="hover:text-white">FAQ</a>
+          </div>
+          <div className="flex items-center gap-3">
+            <Link href="/login" className="hidden text-sm font-semibold text-slate-300 hover:text-white sm:inline">
+              Login
+            </Link>
+            <Link
+              href="/register"
+              className="rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-950/30 hover:bg-emerald-400"
+            >
+              Start Pro Trial
+            </Link>
+          </div>
+        </nav>
+      </header>
+
+      <section className="overflow-hidden bg-[#071225] text-white">
+        <div className="mx-auto max-w-7xl px-6 py-16 lg:px-8 lg:py-24">
+          <div className="grid items-center gap-12 lg:grid-cols-[0.9fr_1.1fr]">
+            <div>
+              <p className="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-2 text-sm font-semibold text-emerald-200">
+                <Sparkles size={16} />
+                Global company management software
+              </p>
+              <h1 className="mt-6 max-w-4xl text-5xl font-semibold leading-tight tracking-normal sm:text-6xl lg:text-7xl">
+                Manage any business, anywhere.
+              </h1>
+              <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
+                Comvexa gives companies one workspace for customers, employees,
+                bookings, tasks, invoices, payments, expenses, documents,
+                reports, branches, inventory, and daily operations.
+              </p>
+              <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+                <Link
+                  href="/register"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-500 px-6 py-3 text-sm font-semibold text-white shadow-xl shadow-emerald-950/30 hover:bg-emerald-400"
+                >
+                  Create your workspace
+                  <ArrowRight size={17} />
+                </Link>
+                <a
+                  href="#platform"
+                  className="inline-flex items-center justify-center rounded-xl border border-white/15 bg-white/5 px-6 py-3 text-sm font-semibold text-white hover:bg-white/10"
+                >
+                  Explore platform
+                </a>
+              </div>
+              <div className="mt-10 grid gap-3 sm:grid-cols-3">
+                {[
+                  ["12+", "business modules"],
+                  ["3", "subscription plans"],
+                  ["3 days", "Pro free trial"],
+                ].map(([value, label]) => (
+                  <div key={label} className="rounded-2xl border border-white/10 bg-white/[0.06] p-4">
+                    <p className="text-2xl font-semibold">{value}</p>
+                    <p className="mt-1 text-sm text-slate-400">{label}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="relative">
+              <div className="relative rounded-[2rem] border border-white/10 bg-white/[0.06] p-4 shadow-2xl shadow-slate-950/40">
+                <div className="rounded-[1.5rem] bg-white p-5 text-slate-950 shadow-xl">
+                  <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+                    <div>
+                      <p className="font-semibold">Comvexa Command Center</p>
+                      <p className="text-sm text-slate-500">Live business overview</p>
+                    </div>
+                    <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                      Connected
+                    </span>
+                  </div>
+                  <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                    {[
+                      ["Revenue", "$24.6K", "bg-emerald-500"],
+                      ["Invoices", "128", "bg-sky-500"],
+                      ["Tasks", "42", "bg-amber-500"],
+                    ].map(([label, value, color]) => (
+                      <div key={label} className="rounded-2xl border border-slate-200 p-4">
+                        <p className="text-xs text-slate-500">{label}</p>
+                        <p className="mt-2 text-2xl font-semibold">{value}</p>
+                        <div className="mt-3 h-2 rounded-full bg-slate-100">
+                          <div className={`h-2 w-2/3 rounded-full ${color}`} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-5 grid gap-4 lg:grid-cols-[1fr_0.9fr]">
+                    <div className="rounded-2xl border border-slate-200">
+                      {[
+                        "Payment received",
+                        "PDF contract uploaded",
+                        "Staff schedule updated",
+                        "Supplier bill created",
+                      ].map((item) => (
+                        <div key={item} className="flex items-center justify-between border-b border-slate-100 px-4 py-3 last:border-b-0">
+                          <span className="text-sm text-slate-700">{item}</span>
+                          <span className="size-2 rounded-full bg-emerald-500" />
+                        </div>
+                      ))}
+                    </div>
+                    <div className="rounded-2xl bg-slate-950 p-4 text-white">
+                      <p className="font-semibold">Accounting snapshot</p>
+                      <div className="mt-4 space-y-3 text-sm">
+                        <div className="flex justify-between text-slate-300">
+                          <span>Income</span>
+                          <span>$18,400</span>
+                        </div>
+                        <div className="flex justify-between text-slate-300">
+                          <span>Expenses</span>
+                          <span>$6,120</span>
+                        </div>
+                        <div className="border-t border-white/10 pt-3">
+                          <div className="flex justify-between font-semibold">
+                            <span>Profit</span>
+                            <span className="text-emerald-300">$12,280</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      </main>
-    </div>
+      </section>
+
+      <section className="border-y border-slate-200 bg-white px-6 py-8 lg:px-8">
+        <div className="mx-auto grid max-w-7xl gap-4 md:grid-cols-4">
+          {[
+            ["Global-ready", "Works for teams, branches, and markets worldwide."],
+            ["Operations-first", "Customers, staff, work, invoices, and reports together."],
+            ["Plan controlled", "Only unlock the modules included in each subscription."],
+            ["Pro trial", "Try Pro for 3 days before continuing monthly."],
+          ].map(([title, text]) => (
+            <div key={title} className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+              <p className="text-sm font-semibold text-emerald-700">{title}</p>
+              <p className="mt-2 text-sm leading-6 text-slate-600">{text}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section id="platform" className="px-6 py-20 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="grid gap-8 lg:grid-cols-[0.75fr_1.25fr] lg:items-end">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-widest text-emerald-700">Platform</p>
+              <h2 className="mt-3 text-4xl font-semibold tracking-normal">Everything your company needs to operate.</h2>
+              <p className="mt-4 text-slate-600">
+                Comvexa is not a single-purpose tool. It combines operations,
+                finance, documents, people, inventory, reports, and company
+                settings in one organized workspace.
+              </p>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {useCases.map((item) => (
+                <div key={item} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 shadow-sm">
+                  {item}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {modules.map((module) => {
+              const Icon = module.icon;
+
+              return (
+                <div key={module.title} className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/70 transition hover:-translate-y-1 hover:shadow-xl">
+                  <span className="flex size-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100">
+                    <Icon size={21} />
+                  </span>
+                  <h3 className="mt-5 font-semibold text-slate-950">{module.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">{module.text}</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      <section id="accounting" className="bg-white px-6 py-20 lg:px-8">
+        <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1fr_1fr] lg:items-center">
+          <div className="rounded-[2rem] bg-slate-950 p-6 text-white">
+            <div className="grid gap-4 sm:grid-cols-2">
+              {[
+                ["Invoices", "Create and track customer invoices", ReceiptText],
+                ["Payments", "Record collection method and dates", CreditCard],
+                ["Expenses", "Track categories, vendors, and tax", HandCoins],
+                ["Supplier bills", "Monitor payables and due dates", Landmark],
+              ].map(([title, text, Icon]) => (
+                <div key={String(title)} className="rounded-2xl border border-white/10 bg-white/[0.06] p-5">
+                  <Icon className="text-emerald-300" size={22} />
+                  <h3 className="mt-4 font-semibold">{String(title)}</h3>
+                  <p className="mt-2 text-sm leading-6 text-slate-400">{String(text)}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-widest text-emerald-700">Finance and accounting</p>
+            <h2 className="mt-3 text-4xl font-semibold tracking-normal">Know where the money is going.</h2>
+            <p className="mt-4 text-slate-600">
+              Comvexa helps businesses manage the financial side of operations:
+              invoices, payments, expenses, supplier bills, taxes, receivables,
+              cash flow, and profit/loss summaries.
+            </p>
+            <div className="mt-6 grid gap-3">
+              {[
+                "Accounts receivable and unpaid invoice follow-up",
+                "Expense categories, tax amounts, vendors, and notes",
+                "Cash flow, profit/loss, income, and supplier bill reports",
+                "Accountant-ready exports planned for Ultra workflows",
+              ].map((item) => (
+                <div key={item} className="flex gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
+                  <Check className="mt-0.5 shrink-0 text-emerald-600" size={17} />
+                  <span>{item}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="px-6 py-20 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="max-w-3xl">
+            <p className="text-sm font-semibold uppercase tracking-widest text-emerald-700">Workflow</p>
+            <h2 className="mt-3 text-4xl font-semibold tracking-normal">From first customer to final report.</h2>
+          </div>
+          <div className="mt-10 grid gap-4 md:grid-cols-4">
+            {[
+              ["1", "Create company workspace", "Register, choose a plan, complete payment setup."],
+              ["2", "Add business data", "Customers, employees, services, invoices, tasks, and documents."],
+              ["3", "Run daily operations", "Assign work, schedule bookings, record payments, upload PDFs."],
+              ["4", "Review performance", "Use reports for income, expenses, cash flow, tasks, and bookings."],
+            ].map(([step, title, text]) => (
+              <div key={step} className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/70">
+                <span className="flex size-11 items-center justify-center rounded-2xl bg-slate-950 text-sm font-semibold text-white">{step}</span>
+                <h3 className="mt-5 font-semibold text-slate-950">{title}</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-600">{text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="pricing" className="bg-[#071225] px-6 py-20 text-white lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="mx-auto max-w-3xl text-center">
+            <p className="text-sm font-semibold uppercase tracking-widest text-emerald-300">Pricing</p>
+            <h2 className="mt-3 text-4xl font-semibold tracking-normal">Plans that match your operating stage.</h2>
+            <p className="mt-4 text-slate-300">
+              Users sign up first, choose a plan, then continue to payment.
+              Only Pro includes a 3-day free trial.
+            </p>
+          </div>
+          <div className="mt-12 grid gap-6 lg:grid-cols-3">
+            {plans.map((plan) => (
+              <div
+                key={plan.name}
+                className={`rounded-3xl border p-6 ${plan.featured ? "border-emerald-400 bg-white text-slate-950 shadow-2xl shadow-emerald-950/30" : "border-white/10 bg-white/[0.06] text-white"}`}
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <h3 className="text-xl font-semibold">{plan.name}</h3>
+                    <p className={`mt-2 text-sm leading-6 ${plan.featured ? "text-slate-600" : "text-slate-300"}`}>
+                      {plan.description}
+                    </p>
+                  </div>
+                  <span className={`rounded-full px-3 py-1 text-xs font-semibold ${plan.featured ? "bg-emerald-100 text-emerald-800" : "bg-white/10 text-slate-200"}`}>
+                    {plan.trial}
+                  </span>
+                </div>
+                <p className="mt-7 text-4xl font-semibold">
+                  {plan.price}
+                  <span className={`text-base font-medium ${plan.featured ? "text-slate-500" : "text-slate-400"}`}>/month</span>
+                </p>
+                <Link
+                  href="/register"
+                  className={`mt-7 block rounded-xl px-5 py-3 text-center text-sm font-semibold ${plan.featured ? "bg-emerald-600 text-white hover:bg-emerald-700" : "bg-white text-slate-950 hover:bg-slate-100"}`}
+                >
+                  Sign up first
+                </Link>
+                <ul className="mt-7 max-h-72 space-y-3 overflow-y-auto pr-2 text-sm [scrollbar-width:thin]">
+                  {plan.features.map((feature) => (
+                    <li key={feature} className="flex gap-3">
+                      <Check className="mt-0.5 shrink-0 text-emerald-400" size={16} />
+                      <span className={plan.featured ? "text-slate-700" : "text-slate-300"}>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-white px-6 py-20 lg:px-8">
+        <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-widest text-emerald-700">Security and global readiness</p>
+            <h2 className="mt-3 text-4xl font-semibold tracking-normal">Built for multi-company SaaS from the start.</h2>
+            <p className="mt-4 text-slate-600">
+              Every operational table is designed around company isolation.
+              The platform is prepared for global settings, PDF storage,
+              plan-based access, permissions, and future payment automation.
+            </p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {[
+              ["Company-isolated data", "Business records are tied to company_id.", ShieldCheck],
+              ["Global settings", "Currency, timezone, and workspace customization.", Globe2],
+              ["Plan-based modules", "Users only see modules included in their plan.", Layers3],
+              ["Secure documents", "PDFs can be stored in private Supabase Storage.", FileText],
+            ].map(([title, text, Icon]) => (
+              <div key={String(title)} className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+                <Icon className="text-emerald-700" size={22} />
+                <h3 className="mt-4 font-semibold text-slate-950">{String(title)}</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-600">{String(text)}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="faq" className="px-6 py-20 lg:px-8">
+        <div className="mx-auto max-w-5xl">
+          <div className="text-center">
+            <p className="text-sm font-semibold uppercase tracking-widest text-emerald-700">FAQ</p>
+            <h2 className="mt-3 text-4xl font-semibold tracking-normal">Questions before you start?</h2>
+          </div>
+          <div className="mt-10 grid gap-4 md:grid-cols-2">
+            {faqs.map((faq) => (
+              <div key={faq.question} className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/70">
+                <h3 className="font-semibold text-slate-950">{faq.question}</h3>
+                <p className="mt-3 text-sm leading-6 text-slate-600">{faq.answer}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-[#071225] px-6 py-20 text-white lg:px-8">
+        <div className="mx-auto grid max-w-7xl gap-8 overflow-hidden rounded-3xl border border-white/10 bg-white/[0.06] p-6 lg:grid-cols-[1fr_0.7fr] lg:p-10">
+          <div>
+            <p className="inline-flex rounded-full bg-emerald-400/10 px-4 py-2 text-sm font-semibold text-emerald-300 ring-1 ring-emerald-400/20">
+              Start with your company workspace
+            </p>
+            <h2 className="mt-6 max-w-3xl text-3xl font-semibold tracking-normal sm:text-4xl">
+              Sign up, choose your plan, complete payment setup, then open your dashboard.
+            </h2>
+            <p className="mt-4 max-w-2xl text-slate-300">
+              Comvexa is built step by step so your company can start simple,
+              then expand into accounting, operations, documents, inventory,
+              permissions, and reports.
+            </p>
+          </div>
+          <div className="flex flex-col justify-center gap-3">
+            <Link
+              href="/register"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-500 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-400"
+            >
+              Create account
+              <ChevronRight size={17} />
+            </Link>
+            <Link
+              href="/login"
+              className="inline-flex items-center justify-center rounded-xl border border-white/15 bg-white/5 px-6 py-3 text-sm font-semibold text-white hover:bg-white/10"
+            >
+              Login
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <footer className="bg-[#071225] px-6 py-10 text-white lg:px-8">
+        <div className="mx-auto max-w-7xl overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.04]">
+          <div className="grid gap-8 border-b border-white/10 p-6 lg:grid-cols-[1.1fr_0.9fr] lg:p-10">
+            <div>
+              <Link href="/" className="flex items-center gap-3 font-semibold">
+                <Image
+                  src="/logo.png"
+                  alt="Comvexa logo"
+                  width={48}
+                  height={48}
+                  className="size-12 rounded-2xl bg-white object-contain p-1"
+                />
+                <div>
+                  <span className="block text-xl">Comvexa</span>
+                  <span className="text-sm font-medium text-emerald-300">Global company management software</span>
+                </div>
+              </Link>
+              <p className="mt-6 max-w-2xl text-base leading-8 text-slate-300">
+                Run customers, staff, bookings, invoices, payments, expenses,
+                documents, inventory, branches, permissions, and reports from
+                one professional workspace built for global businesses.
+              </p>
+              <div className="mt-6 grid gap-3 sm:grid-cols-3">
+                {[
+                  ["Company data", "Separated by workspace"],
+                  ["Pro trial", "3 days included"],
+                  ["Plans", "Basic, Pro, Ultra"],
+                ].map(([title, text]) => (
+                  <div key={title} className="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
+                    <p className="text-sm font-semibold text-white">{title}</p>
+                    <p className="mt-1 text-xs text-slate-400">{text}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-3xl bg-emerald-500 p-6 text-slate-950">
+              <p className="text-sm font-semibold uppercase tracking-widest text-emerald-950/70">
+                Ready to start
+              </p>
+              <h3 className="mt-3 text-3xl font-semibold tracking-normal">
+                Create your workspace, choose Pro, and test Comvexa for 3 days.
+              </h3>
+              <p className="mt-4 text-sm leading-6 text-emerald-950/80">
+                After registration you will choose a plan, complete payment
+                setup, and unlock the dashboard modules included in that plan.
+              </p>
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                <Link
+                  href="/register"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white hover:bg-slate-800"
+                >
+                  Start Pro Trial
+                  <ArrowRight size={17} />
+                </Link>
+                <Link
+                  href="/login"
+                  className="inline-flex items-center justify-center rounded-xl border border-emerald-950/20 bg-white/80 px-5 py-3 text-sm font-semibold text-slate-950 hover:bg-white"
+                >
+                  Login
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid gap-8 p-6 sm:grid-cols-2 lg:grid-cols-4 lg:p-10">
+            <div>
+              <h3 className="text-sm font-semibold text-white">Platform</h3>
+              <div className="mt-4 grid gap-3 text-sm text-slate-400">
+                <a href="#platform" className="hover:text-emerald-300">Operations workspace</a>
+                <a href="#accounting" className="hover:text-emerald-300">Accounting tools</a>
+                <a href="#pricing" className="hover:text-emerald-300">Subscription plans</a>
+                <a href="#faq" className="hover:text-emerald-300">Questions</a>
+              </div>
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-white">Business Modules</h3>
+              <div className="mt-4 grid gap-3 text-sm text-slate-400">
+                <span>Customers and employees</span>
+                <span>Bookings and tasks</span>
+                <span>Invoices and payments</span>
+                <span>Documents and reports</span>
+              </div>
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-white">Finance</h3>
+              <div className="mt-4 grid gap-3 text-sm text-slate-400">
+                <span>Expenses and supplier bills</span>
+                <span>Cash flow overview</span>
+                <span>Profit and loss summary</span>
+                <span>Tax tracking fields</span>
+              </div>
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-white">Account</h3>
+              <div className="mt-4 grid gap-3 text-sm text-slate-400">
+                <Link href="/login" className="hover:text-emerald-300">Login</Link>
+                <Link href="/register" className="hover:text-emerald-300">Register</Link>
+                <Link href="/dashboard" className="hover:text-emerald-300">Dashboard</Link>
+                <span>Secure Supabase auth</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-3 border-t border-white/10 bg-slate-950/70 px-6 py-5 text-sm text-slate-400 md:flex-row md:items-center md:justify-between lg:px-10">
+            <p>Copyright 2026 Comvexa. All rights reserved.</p>
+            <div className="flex flex-wrap gap-4">
+              <span className="rounded-full bg-white/5 px-3 py-1">Global SaaS</span>
+              <span className="rounded-full bg-white/5 px-3 py-1">Multi-company</span>
+              <span className="rounded-full bg-white/5 px-3 py-1">Plan-based access</span>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </main>
   );
 }
+
