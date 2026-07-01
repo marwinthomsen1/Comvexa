@@ -1,10 +1,10 @@
 import { PlanGate } from "../_components/plan-gate";
-import { SupabaseCrudPage } from "../_components/supabase-crud-page";
+import { RecordCrudPage } from "../_components/record-crud-page";
 
 export default function RecurringInvoicesPage() {
   return (
     <PlanGate moduleName="Recurring Invoices">
-      <SupabaseCrudPage
+      <RecordCrudPage
         table="recurring_invoices"
         title="Recurring Invoices"
         description="Prepare recurring invoice schedules for repeat customers and subscriptions."

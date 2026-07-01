@@ -1,10 +1,10 @@
-import { SupabaseCrudPage } from "../_components/supabase-crud-page";
-import { PaymentGate } from "../_components/payment-gate";
+import { RecordCrudPage } from "../_components/record-crud-page";
+import { PlanGate } from "../_components/plan-gate";
 
 export default function PaymentsPage() {
   return (
-    <PaymentGate>
-    <SupabaseCrudPage
+    <PlanGate moduleName="Payments">
+    <RecordCrudPage
       table="payments"
       title="Payments"
       description="Record payments, methods, dates, notes, and amounts for the current company."
@@ -23,6 +23,6 @@ export default function PaymentsPage() {
         { key: "created_at", label: "Created", format: "date" },
       ]}
     />
-    </PaymentGate>
+    </PlanGate>
   );
 }

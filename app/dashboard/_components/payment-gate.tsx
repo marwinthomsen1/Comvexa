@@ -3,14 +3,23 @@
 import Link from "next/link";
 import { LockKeyhole } from "lucide-react";
 import { useEffect, useState } from "react";
-import { isPaymentSetupComplete } from "./payment-status";
+import { useSearchParams } from "next/navigation";
+import { getProTrialStatus, isWorkspaceAccessActive } from "./payment-status";
 
 export function PaymentGate({ children }: { children: React.ReactNode }) {
-  const [paymentComplete, setPaymentComplete] = useState(false);
+  const searchParams = useSearchParams();
+  const [accessActive, setAccessActive] = useState(false);
+  const [trialExpired, setTrialExpired] = useState(false);
 
   useEffect(() => {
     function loadPaymentStatus() {
-      setPaymentComplete(isPaymentSetupComplete());
+      if (searchParams.get("payment") === "success") {
+        window.localStorage.setItem("comvexa-payment-complete", "true");
+        window.dispatchEvent(new Event("comvexa-plan-change"));
+      }
+
+      setAccessActive(isWorkspaceAccessActive());
+      setTrialExpired(getProTrialStatus().expired);
     }
 
     const timeout = window.setTimeout(loadPaymentStatus, 0);
@@ -22,9 +31,9 @@ export function PaymentGate({ children }: { children: React.ReactNode }) {
       window.removeEventListener("storage", loadPaymentStatus);
       window.removeEventListener("comvexa-plan-change", loadPaymentStatus);
     };
-  }, []);
+  }, [searchParams]);
 
-  if (paymentComplete) {
+  if (accessActive) {
     return children;
   }
 
@@ -35,16 +44,18 @@ export function PaymentGate({ children }: { children: React.ReactNode }) {
           <LockKeyhole size={24} />
         </span>
         <h2 className="mt-5 text-2xl font-semibold tracking-normal text-slate-950">
-          Complete setup to open your dashboard
+          {trialExpired ? "Your Pro trial has ended" : "Choose a plan to open your dashboard"}
         </h2>
         <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-slate-600">
-          Choose a plan and complete payment setup before accessing Comvexa modules.
+          {trialExpired
+            ? "Your 3-day Pro trial can only be used once. Continue to payment to keep using Comvexa."
+            : "Start the one-time 3-day Pro trial or choose a paid plan before accessing Comvexa modules."}
         </p>
         <Link
-          href="/dashboard/subscription"
+          href={trialExpired ? "/dashboard/subscription/payment" : "/dashboard/subscription"}
           className="mt-6 inline-flex rounded-lg bg-slate-950 px-5 py-3 text-sm font-semibold text-white hover:bg-slate-800"
         >
-          Choose plan
+          {trialExpired ? "Go to payment" : "Choose plan"}
         </Link>
       </section>
     </main>

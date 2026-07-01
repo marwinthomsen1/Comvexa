@@ -3,7 +3,10 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { CheckCircle2, CreditCard, Landmark, LockKeyhole, WalletCards } from "lucide-react";
+import { CheckCircle2, LockKeyhole, ShieldCheck } from "lucide-react";
+import { supabase } from "@/src/lib/supabase/client";
+import { getProTrialStatus } from "../../_components/payment-status";
+import { CurrencySelector, CurrencyValue, useSelectedCurrency } from "../../../_components/currency-display";
 
 const planPrices: Record<string, number> = {
   Basic: 29,
@@ -11,23 +14,24 @@ const planPrices: Record<string, number> = {
   Ultra: 149,
 };
 
-const paymentMethods = [
-  { name: "Card", icon: CreditCard, description: "Visa, Mastercard, Amex" },
-  { name: "Bank", icon: Landmark, description: "Manual bank transfer" },
-  { name: "Wallet", icon: WalletCards, description: "Digital wallet ready" },
-];
-
 export default function PaymentPage() {
   const router = useRouter();
+  const currency = useSelectedCurrency();
   const [selectedPlan, setSelectedPlan] = useState("Pro");
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
-  const [paymentMethod, setPaymentMethod] = useState("Card");
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
       setSelectedPlan(window.localStorage.getItem("comvexa-selected-plan") ?? "Pro");
       const storedCycle = window.localStorage.getItem("comvexa-billing-cycle");
+      const trial = getProTrialStatus();
+
+      if (trial.active && window.localStorage.getItem("comvexa-selected-plan") === "Pro") {
+        router.push("/dashboard");
+        return;
+      }
 
       if (storedCycle === "monthly" || storedCycle === "yearly") {
         setBillingCycle(storedCycle);
@@ -35,7 +39,7 @@ export default function PaymentPage() {
     }, 0);
 
     return () => window.clearTimeout(timeout);
-  }, []);
+  }, [router]);
 
   const monthlyPrice = planPrices[selectedPlan] ?? 79;
   const total = useMemo(
@@ -43,14 +47,34 @@ export default function PaymentPage() {
     [billingCycle, monthlyPrice],
   );
 
-  function savePaymentSetup() {
+  async function savePaymentSetup() {
+    setError("");
+    setSaved(true);
     window.localStorage.setItem("comvexa-selected-plan", selectedPlan);
     window.localStorage.setItem("comvexa-billing-cycle", billingCycle);
-    window.localStorage.setItem("comvexa-payment-method", paymentMethod);
-    window.localStorage.setItem("comvexa-payment-complete", "true");
-    window.dispatchEvent(new Event("comvexa-plan-change"));
-    setSaved(true);
-    router.push("/dashboard");
+
+    const { data: sessionData } = await supabase.auth.getSession();
+    const response = await fetch("/api/lemonsqueezy/checkout", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        plan: selectedPlan,
+        billingCycle,
+        email: sessionData.session?.user.email,
+        userId: sessionData.session?.user.id,
+      }),
+    });
+    const checkout = await response.json();
+
+    if (!response.ok || !checkout.url) {
+      setSaved(false);
+      setError(checkout.error ?? "Could not open Lemon Squeezy checkout.");
+      return;
+    }
+
+    window.location.href = checkout.url;
   }
 
   return (
@@ -61,8 +85,8 @@ export default function PaymentPage() {
         </p>
         <h2 className="mt-2 text-3xl font-semibold tracking-normal text-slate-950">Payment setup</h2>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
-          Add payment details for your selected Comvexa plan. This page is ready
-          for Stripe, Paddle, or another payment gateway integration.
+          Review your selected Comvexa plan, then continue to Lemon Squeezy to
+          enter payment details securely.
         </p>
       </section>
 
@@ -73,61 +97,36 @@ export default function PaymentPage() {
               <LockKeyhole size={20} />
             </span>
             <div>
-              <h3 className="font-semibold text-slate-950">Payment method</h3>
-              <p className="text-sm text-slate-500">Choose how this company will pay.</p>
+              <h3 className="font-semibold text-slate-950">Secure Lemon Squeezy checkout</h3>
+              <p className="text-sm text-slate-500">Card and billing details are collected on Lemon Squeezy.</p>
             </div>
           </div>
 
           <div className="mt-6 grid gap-3 sm:grid-cols-3">
-            {paymentMethods.map((method) => {
-              const Icon = method.icon;
-              const isSelected = method.name === paymentMethod;
-
-              return (
-                <button
-                  key={method.name}
-                  type="button"
-                  onClick={() => setPaymentMethod(method.name)}
-                  className={`rounded-2xl border p-4 text-left ${
-                    isSelected ? "border-emerald-300 bg-emerald-50" : "border-slate-200 bg-white"
-                  }`}
-                >
-                  <Icon className={isSelected ? "text-emerald-700" : "text-slate-500"} size={22} />
-                  <span className="mt-3 block text-sm font-semibold text-slate-950">{method.name}</span>
-                  <span className="mt-1 block text-xs leading-5 text-slate-500">{method.description}</span>
-                </button>
-              );
-            })}
+            {[
+              ["One checkout", "You will enter payment details only once on Lemon Squeezy."],
+              ["Secure billing", "Comvexa does not store card numbers or CVC codes."],
+              ["Plan access", "After checkout, Comvexa opens the dashboard for this plan."],
+            ].map(([title, text]) => (
+              <div key={title} className="rounded-2xl border border-emerald-100 bg-emerald-50/60 p-4">
+                <ShieldCheck className="text-emerald-700" size={22} />
+                <p className="mt-3 text-sm font-semibold text-slate-950">{title}</p>
+                <p className="mt-1 text-xs leading-5 text-slate-600">{text}</p>
+              </div>
+            ))}
           </div>
 
-          <form className="mt-6 grid gap-4">
-            <input
-              placeholder="Cardholder name"
-              className="rounded-xl border border-slate-300 px-3 py-3 text-sm outline-none focus:border-emerald-600 focus:ring-4 focus:ring-emerald-100"
-            />
-            <input
-              placeholder="Card number"
-              className="rounded-xl border border-slate-300 px-3 py-3 text-sm outline-none focus:border-emerald-600 focus:ring-4 focus:ring-emerald-100"
-            />
-            <div className="grid grid-cols-2 gap-4">
-              <input
-                placeholder="MM/YY"
-                className="rounded-xl border border-slate-300 px-3 py-3 text-sm outline-none focus:border-emerald-600 focus:ring-4 focus:ring-emerald-100"
-              />
-              <input
-                placeholder="CVC"
-                className="rounded-xl border border-slate-300 px-3 py-3 text-sm outline-none focus:border-emerald-600 focus:ring-4 focus:ring-emerald-100"
-              />
-            </div>
-            <p className="rounded-xl bg-amber-50 px-4 py-3 text-xs leading-5 text-amber-800 ring-1 ring-amber-100">
-              This form does not charge real cards yet. Connect a payment
-              provider before processing live payments.
-            </p>
-          </form>
+          <p className="mt-6 rounded-xl bg-amber-50 px-4 py-3 text-xs leading-5 text-amber-800 ring-1 ring-amber-100">
+            The next button opens Lemon Squeezy. Complete the checkout there,
+            then you will return to Comvexa.
+          </p>
         </div>
 
         <aside className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/70">
-          <h3 className="font-semibold text-slate-950">Order summary</h3>
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="font-semibold text-slate-950">Order summary</h3>
+            <CurrencySelector tone="light" compact />
+          </div>
           <div className="mt-5 space-y-3 text-sm">
             <div className="flex justify-between">
               <span className="text-slate-500">Plan</span>
@@ -139,22 +138,32 @@ export default function PaymentPage() {
             </div>
             <div className="flex justify-between">
               <span className="text-slate-500">Free trial</span>
-              <span className="font-semibold text-slate-950">{selectedPlan === "Pro" ? "3 days" : "None"}</span>
+              <span className="font-semibold text-slate-950">
+                {selectedPlan === "Pro" ? "Used or not available now" : "None"}
+              </span>
             </div>
             <div className="border-t border-slate-200 pt-4">
               <div className="flex justify-between">
                 <span className="font-semibold text-slate-950">Due now</span>
-                <span className="text-2xl font-semibold text-slate-950">${total}</span>
+                <span className="text-2xl font-semibold text-slate-950">
+                  <CurrencyValue usd={total} currency={currency} />
+                </span>
               </div>
             </div>
           </div>
+          {error ? (
+            <p className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm leading-6 text-red-700 ring-1 ring-red-100">
+              {error}
+            </p>
+          ) : null}
           <button
             type="button"
             onClick={savePaymentSetup}
+            disabled={saved}
             className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white hover:bg-emerald-700"
           >
             <CheckCircle2 size={17} />
-            {saved ? "Opening dashboard..." : "Complete setup and open dashboard"}
+            {saved ? "Opening Lemon Squeezy..." : "Continue to Lemon Squeezy"}
           </button>
           <Link
             href="/dashboard/subscription"

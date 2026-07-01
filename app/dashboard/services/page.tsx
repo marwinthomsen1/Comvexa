@@ -1,10 +1,10 @@
-import { SupabaseCrudPage } from "../_components/supabase-crud-page";
-import { PaymentGate } from "../_components/payment-gate";
+import { RecordCrudPage } from "../_components/record-crud-page";
+import { PlanGate } from "../_components/plan-gate";
 
 export default function ServicesPage() {
   return (
-    <PaymentGate>
-    <SupabaseCrudPage
+    <PlanGate moduleName="Services">
+    <RecordCrudPage
       table="services"
       title="Services & Products"
       description="Create and manage the services or products your company sells."
@@ -24,6 +24,6 @@ export default function ServicesPage() {
         { key: "status", label: "Status" },
       ]}
     />
-    </PaymentGate>
+    </PlanGate>
   );
 }

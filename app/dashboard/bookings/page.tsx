@@ -1,10 +1,10 @@
-import { SupabaseCrudPage } from "../_components/supabase-crud-page";
+import { RecordCrudPage } from "../_components/record-crud-page";
 import { PlanGate } from "../_components/plan-gate";
 
 export default function BookingsPage() {
   return (
     <PlanGate moduleName="Bookings">
-    <SupabaseCrudPage
+    <RecordCrudPage
       table="bookings"
       title="Bookings"
       description="Create and track bookings or appointments for the current company."

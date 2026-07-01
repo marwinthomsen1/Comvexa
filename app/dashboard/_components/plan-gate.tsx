@@ -4,7 +4,19 @@ import Link from "next/link";
 import { LockKeyhole } from "lucide-react";
 import { useEffect, useState } from "react";
 import { canUseModule, defaultPlan, normalizePlan, type PlanName } from "./plan-access";
-import { isPaymentSetupComplete } from "./payment-status";
+import { getProTrialStatus, isWorkspaceAccessActive } from "./payment-status";
+
+const alwaysVisibleModules = ["Dashboard", "Subscription", "Settings"];
+
+function readWorkspaceModules() {
+  try {
+    const saved = window.localStorage.getItem("comvexa-workspace-settings");
+    const settings = saved ? JSON.parse(saved) : null;
+    return Array.isArray(settings?.modules) ? (settings.modules as string[]) : null;
+  } catch {
+    return null;
+  }
+}
 
 export function PlanGate({
   moduleName,
@@ -14,28 +26,41 @@ export function PlanGate({
   children: React.ReactNode;
 }) {
   const [plan, setPlan] = useState<PlanName>(defaultPlan);
-  const [paymentComplete, setPaymentComplete] = useState(false);
+  const [accessActive, setAccessActive] = useState(false);
+  const [trialExpired, setTrialExpired] = useState(false);
+  const [moduleVisible, setModuleVisible] = useState(true);
 
   useEffect(() => {
     function loadPlan() {
       setPlan(normalizePlan(window.localStorage.getItem("comvexa-selected-plan")));
-      setPaymentComplete(isPaymentSetupComplete());
+      setAccessActive(isWorkspaceAccessActive());
+      setTrialExpired(getProTrialStatus().expired);
+      const visibleModules = readWorkspaceModules();
+      setModuleVisible(
+        alwaysVisibleModules.includes(moduleName) ||
+          !visibleModules ||
+          visibleModules.includes(moduleName),
+      );
     }
 
     const timeout = window.setTimeout(loadPlan, 0);
     window.addEventListener("storage", loadPlan);
     window.addEventListener("comvexa-plan-change", loadPlan);
+    window.addEventListener("comvexa-settings-change", loadPlan);
 
     return () => {
       window.clearTimeout(timeout);
       window.removeEventListener("storage", loadPlan);
       window.removeEventListener("comvexa-plan-change", loadPlan);
+      window.removeEventListener("comvexa-settings-change", loadPlan);
     };
-  }, []);
+  }, [moduleName]);
 
-  if (paymentComplete && canUseModule(plan, moduleName)) {
+  if (accessActive && moduleVisible && canUseModule(plan, moduleName)) {
     return children;
   }
+
+  const hiddenBySettings = accessActive && !moduleVisible;
 
   return (
     <main className="mx-auto w-full max-w-7xl flex-1 p-6">
@@ -44,18 +69,28 @@ export function PlanGate({
           <LockKeyhole size={24} />
         </span>
         <h2 className="mt-5 text-2xl font-semibold tracking-normal text-slate-950">
-          {!paymentComplete ? "Complete payment setup first" : `${moduleName} is not included in ${plan}`}
+          {hiddenBySettings
+            ? `${moduleName} is hidden in workspace settings`
+            : !accessActive
+            ? trialExpired
+              ? "Your Pro trial has ended"
+              : "Choose a plan first"
+            : `${moduleName} is not included in ${plan}`}
         </h2>
         <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-slate-600">
-          {!paymentComplete
-            ? "Choose a plan and complete payment setup before using paid Comvexa modules."
+          {hiddenBySettings
+            ? "Turn this module back on from Module Visibility before your team can use it."
+            : !accessActive
+            ? trialExpired
+              ? "Your 3-day Pro trial can only be used once. Continue to payment to keep using this workspace."
+              : "Start the one-time 3-day Pro trial or choose a paid plan before using Comvexa modules."
             : "Upgrade your Comvexa subscription to unlock this module for your company workspace."}
         </p>
         <Link
-          href="/dashboard/subscription"
+          href={hiddenBySettings ? "/dashboard/settings" : trialExpired ? "/dashboard/subscription/payment" : "/dashboard/subscription"}
           className="mt-6 inline-flex rounded-lg bg-slate-950 px-5 py-3 text-sm font-semibold text-white hover:bg-slate-800"
         >
-          View plans
+          {hiddenBySettings ? "Open settings" : trialExpired ? "Go to payment" : "View plans"}
         </Link>
       </section>
     </main>

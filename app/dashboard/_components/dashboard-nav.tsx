@@ -27,7 +27,8 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { canUseModule, defaultPlan, normalizePlan, type PlanName } from "./plan-access";
-import { isPaymentSetupComplete } from "./payment-status";
+import { formatTrialRemaining, getProTrialStatus, isWorkspaceAccessActive } from "./payment-status";
+import { useDashboardText } from "./dashboard-i18n";
 
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: Home, group: "Workspace" },
@@ -67,14 +68,18 @@ function readWorkspaceModules() {
 
 export function DashboardNav() {
   const pathname = usePathname();
+  const { text, navLabel, groupLabel } = useDashboardText();
   const [plan, setPlan] = useState<PlanName>(defaultPlan);
-  const [paymentComplete, setPaymentComplete] = useState(false);
+  const [accessActive, setAccessActive] = useState(false);
+  const [trialLabel, setTrialLabel] = useState("");
   const [visibleModules, setVisibleModules] = useState<string[]>(defaultVisibleModules);
 
   useEffect(() => {
     function loadState() {
       setPlan(normalizePlan(window.localStorage.getItem("comvexa-selected-plan")));
-      setPaymentComplete(isPaymentSetupComplete());
+      setAccessActive(isWorkspaceAccessActive());
+      const trial = getProTrialStatus();
+      setTrialLabel(trial.active ? formatTrialRemaining(trial.remainingMs) : "");
       setVisibleModules(readWorkspaceModules());
     }
 
@@ -102,7 +107,7 @@ export function DashboardNav() {
       ].map((group) => ({
         ...group,
         items: group.items.filter((item) => {
-          if (!paymentComplete) {
+          if (!accessActive) {
             return ["Subscription", "Settings"].includes(item.label);
           }
 
@@ -113,7 +118,7 @@ export function DashboardNav() {
           return canUseModule(plan, item.label);
         }),
       })),
-    [paymentComplete, plan, visibleModules],
+    [accessActive, plan, visibleModules],
   );
 
   return (
@@ -122,7 +127,7 @@ export function DashboardNav() {
       {navGroups.map((group) => (
         <div key={group.title}>
           <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-widest text-[var(--comvexa-sidebar-muted,#bfdbfe)]">
-            {group.title}
+            {groupLabel(group.title)}
           </p>
           <div className="space-y-1">
       {group.items.map((item) => {
@@ -138,18 +143,18 @@ export function DashboardNav() {
             href={item.href}
             className={`group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
               isActive
-                ? "bg-white text-slate-950 shadow-sm ring-1 ring-white/20"
-                : "text-[var(--comvexa-sidebar-muted,#bfdbfe)] hover:bg-white/8 hover:text-white"
+                ? "bg-[var(--comvexa-nav-active-bg,#ffffff)] text-[var(--comvexa-nav-active-text,#0f172a)] shadow-sm ring-1 ring-[var(--comvexa-sidebar-border,rgba(255,255,255,0.10))]"
+                : "text-[var(--comvexa-sidebar-muted,#bfdbfe)] hover:bg-[var(--comvexa-nav-hover-bg,rgba(255,255,255,0.08))] hover:text-[var(--comvexa-sidebar-title,#ffffff)]"
             }`}
           >
             <span
               className={`flex size-8 items-center justify-center rounded-md ${
-                isActive ? "bg-[var(--comvexa-accent,#2563eb)] text-white" : "bg-white/8 text-[var(--comvexa-sidebar-muted,#bfdbfe)] group-hover:text-white"
+                isActive ? "bg-[var(--comvexa-accent,#2563eb)] text-white" : "bg-[var(--comvexa-sidebar-card,rgba(255,255,255,0.06))] text-[var(--comvexa-sidebar-muted,#bfdbfe)] group-hover:text-[var(--comvexa-sidebar-title,#ffffff)]"
               }`}
             >
               <Icon size={16} strokeWidth={2.2} />
             </span>
-            {item.label}
+            {navLabel(item.label)}
           </Link>
         );
       })}
@@ -166,10 +171,10 @@ export function DashboardNav() {
               </span>
               <div>
                 <p className="text-sm font-semibold text-[var(--comvexa-sidebar-title,#ffffff)]">
-                  {paymentComplete ? `${plan} plan` : "Setup required"}
+                  {trialLabel ? text.trial : accessActive ? `${plan} ${text.plan}` : text.setupRequired}
                 </p>
                 <p className="text-xs text-[var(--comvexa-sidebar-muted,#bfdbfe)]">
-                  {paymentComplete ? `${planModulesCount(plan)} modules` : "Payment not complete"}
+                  {trialLabel || (accessActive ? `${planModulesCount(plan)} ${text.modules}` : text.paymentOrTrialRequired)}
                 </p>
               </div>
             </div>
@@ -178,7 +183,7 @@ export function DashboardNav() {
             <div
               className="h-1.5 rounded-full bg-[var(--comvexa-accent,#2563eb)]"
               style={{
-                width: !paymentComplete ? "20%" : plan === "Basic" ? "48%" : plan === "Pro" ? "74%" : "100%",
+                width: !accessActive ? "20%" : plan === "Basic" ? "48%" : plan === "Pro" ? "74%" : "100%",
               }}
             />
           </div>
@@ -186,7 +191,7 @@ export function DashboardNav() {
             href="/dashboard/settings"
             className="mt-3 flex w-full items-center justify-center rounded-lg bg-[var(--comvexa-accent,#2563eb)] px-3 py-2 text-xs font-semibold text-white hover:opacity-90"
           >
-            Customize
+            {text.customize}
           </Link>
         </div>
       </div>

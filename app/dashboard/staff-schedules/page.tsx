@@ -1,10 +1,10 @@
 import { PlanGate } from "../_components/plan-gate";
-import { SupabaseCrudPage } from "../_components/supabase-crud-page";
+import { RecordCrudPage } from "../_components/record-crud-page";
 
 export default function StaffSchedulesPage() {
   return (
     <PlanGate moduleName="Staff Schedules">
-      <SupabaseCrudPage
+      <RecordCrudPage
         table="staff_schedules"
         title="Staff Schedules"
         description="Plan staff work dates, times, locations, and schedule notes."

@@ -2,55 +2,38 @@ export type PlanName = "Basic" | "Pro" | "Ultra";
 
 export const defaultPlan: PlanName = "Pro";
 
+const basicModules = [
+  "Dashboard",
+  "Customers",
+  "Services",
+  "Tasks",
+  "Invoices",
+  "Payments",
+  "Expenses",
+  "Reports",
+  "Subscription",
+  "Settings",
+];
+
+const proModules = [
+  ...basicModules,
+  "Employees",
+  "Bookings",
+  "Documents",
+  "Recurring Invoices",
+  "Staff Schedules",
+  "WhatsApp Templates",
+];
+
 export const planModules: Record<PlanName, string[]> = {
-  Basic: [
-    "Dashboard",
-    "Customers",
-    "Services",
-    "Tasks",
-    "Invoices",
-    "Payments",
-    "Expenses",
-    "Reports",
-    "Subscription",
-    "Settings",
-  ],
-  Pro: [
-    "Dashboard",
-    "Customers",
-    "Employees",
-    "Services",
-    "Bookings",
-    "Tasks",
-    "Invoices",
-    "Payments",
-    "Expenses",
-    "Documents",
-    "Recurring Invoices",
-    "Staff Schedules",
-    "WhatsApp Templates",
-    "Reports",
-    "Subscription",
-    "Settings",
-  ],
+  Basic: basicModules,
+  Pro: proModules,
   Ultra: [
-    "Dashboard",
-    "Customers",
-    "Employees",
-    "Services",
-    "Bookings",
-    "Tasks",
-    "Invoices",
-    "Payments",
-    "Expenses",
-    "Documents",
+    ...proModules,
     "Inventory",
     "Supplier Bills",
     "Branches",
     "Permissions",
-    "Reports",
-    "Subscription",
-    "Settings",
   ],
 };
 

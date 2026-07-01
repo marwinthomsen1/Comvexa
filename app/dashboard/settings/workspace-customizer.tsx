@@ -18,6 +18,8 @@ import {
   Sparkles,
   WalletCards,
 } from "lucide-react";
+import { languageOptions } from "../_components/dashboard-i18n";
+import { canUseModule, defaultPlan, normalizePlan, planModules, type PlanName } from "../_components/plan-access";
 
 const accents = [
   { name: "Executive Blue", value: "#2563eb" },
@@ -26,6 +28,29 @@ const accents = [
   { name: "Violet", value: "#7c3aed" },
   { name: "Rose", value: "#e11d48" },
   { name: "Amber", value: "#d97706" },
+];
+
+const themes = [
+  {
+    name: "Normal",
+    description: "Clean blue workspace for everyday operations.",
+    swatches: ["#eef3f9", "#10233f", "#2563eb"],
+  },
+  {
+    name: "Summer",
+    description: "Bright aqua, coral, and sunny panels.",
+    swatches: ["#fff7da", "#0e7490", "#ff6b4a"],
+  },
+  {
+    name: "Old School",
+    description: "Classic paper, ink, and ledger-style contrast.",
+    swatches: ["#f3ead7", "#2f2418", "#9a6b35"],
+  },
+  {
+    name: "Midnight",
+    description: "Dark focused workspace with electric blue accents.",
+    swatches: ["#0b1220", "#111827", "#38bdf8"],
+  },
 ];
 
 const industries = [
@@ -63,6 +88,7 @@ type Settings = {
   timezone: string;
   language: string;
   dateFormat: string;
+  theme: string;
   accent: string;
   dashboardStyle: string;
   density: string;
@@ -81,6 +107,8 @@ type Settings = {
   modules: string[];
 };
 
+type SettingsSection = "basics" | "appearance" | "finance" | "modules";
+
 const defaultSettings: Settings = {
   companyDisplayName: "New Company",
   industry: "General business",
@@ -88,6 +116,7 @@ const defaultSettings: Settings = {
   timezone: "UTC",
   language: "English",
   dateFormat: "MM/DD/YYYY",
+  theme: "Normal",
   accent: "#2563eb",
   dashboardStyle: "Executive",
   density: "Comfortable",
@@ -109,6 +138,8 @@ const defaultSettings: Settings = {
 export function WorkspaceCustomizer() {
   const [settings, setSettings] = useState<Settings>(defaultSettings);
   const [saved, setSaved] = useState(false);
+  const [currentPlan, setCurrentPlan] = useState<PlanName>(defaultPlan);
+  const [activeSection, setActiveSection] = useState<SettingsSection>("basics");
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
@@ -117,9 +148,25 @@ export function WorkspaceCustomizer() {
       if (stored) {
         setSettings({ ...defaultSettings, ...JSON.parse(stored) });
       }
+
+      setCurrentPlan(normalizePlan(window.localStorage.getItem("comvexa-selected-plan")));
     }, 0);
 
     return () => window.clearTimeout(timeout);
+  }, []);
+
+  useEffect(() => {
+    function syncPlan() {
+      setCurrentPlan(normalizePlan(window.localStorage.getItem("comvexa-selected-plan")));
+    }
+
+    window.addEventListener("storage", syncPlan);
+    window.addEventListener("comvexa-plan-change", syncPlan);
+
+    return () => {
+      window.removeEventListener("storage", syncPlan);
+      window.removeEventListener("comvexa-plan-change", syncPlan);
+    };
   }, []);
 
   const enabledCount = settings.modules.length;
@@ -139,6 +186,8 @@ export function WorkspaceCustomizer() {
 
   function updateSettings(nextSettings: Settings) {
     setSettings(nextSettings);
+    window.localStorage.setItem("comvexa-workspace-settings", JSON.stringify(nextSettings));
+    window.dispatchEvent(new Event("comvexa-settings-change"));
     setSaved(false);
   }
 
@@ -149,6 +198,10 @@ export function WorkspaceCustomizer() {
   }
 
   function toggleModule(module: string) {
+    if (!canUseModule(currentPlan, module)) {
+      return;
+    }
+
     const nextModules = settings.modules.includes(module)
       ? settings.modules.filter((item) => item !== module)
       : [...settings.modules, module];
@@ -159,6 +212,13 @@ export function WorkspaceCustomizer() {
   function toggleBoolean(key: keyof Pick<Settings, "showSetup" | "showFinancePulse" | "enableEmailReminders" | "enableWhatsappTemplates">) {
     updateSettings({ ...settings, [key]: !settings[key] });
   }
+
+  const sections = [
+    { id: "basics", label: "Basics", description: "Name, industry, language", icon: Building2 },
+    { id: "appearance", label: "Appearance", description: "Theme, color, layout", icon: Palette },
+    { id: "finance", label: "Finance & Workflow", description: "Currency, tax, reminders", icon: ReceiptText },
+    { id: "modules", label: "Modules", description: `${planModules[currentPlan].length} in ${currentPlan}`, icon: LayoutDashboard },
+  ] as const;
 
   return (
     <main className="mx-auto w-full max-w-[1500px] flex-1 p-4 sm:p-6">
@@ -175,8 +235,8 @@ export function WorkspaceCustomizer() {
             <p className="mt-4 max-w-3xl text-sm leading-6 text-slate-600">
               Control the company identity, regional settings, accounting
               defaults, dashboard layout, module visibility, and reminder
-              behavior from one place. These settings save locally for now and
-              are ready to become company-level database settings later.
+              behavior from one place. Changes apply immediately across the
+              dashboard so the workspace matches the way your team operates.
             </p>
 
             <div className="mt-8 grid gap-3 sm:grid-cols-3">
@@ -192,6 +252,41 @@ export function WorkspaceCustomizer() {
         </div>
       </section>
 
+      <section className="mt-6 rounded-[2rem] border border-blue-100 bg-white p-4 shadow-sm shadow-blue-100/70">
+        <div className="grid gap-3 md:grid-cols-4">
+          {sections.map((section) => {
+            const Icon = section.icon;
+            const active = activeSection === section.id;
+
+            return (
+              <button
+                key={section.id}
+                type="button"
+                onClick={() => setActiveSection(section.id)}
+                className={`flex items-center gap-3 rounded-2xl border p-4 text-left transition ${
+                  active
+                    ? "border-blue-300 bg-blue-50 text-blue-950 shadow-sm"
+                    : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                }`}
+              >
+                <span
+                  className={`flex size-10 shrink-0 items-center justify-center rounded-xl ${
+                    active ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-500"
+                  }`}
+                >
+                  <Icon size={18} />
+                </span>
+                <span className="min-w-0">
+                  <span className="block font-semibold">{section.label}</span>
+                  <span className="mt-0.5 block truncate text-xs opacity-75">{section.description}</span>
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
+      {activeSection === "basics" ? (
       <section className="mt-6 grid gap-6 xl:grid-cols-[1fr_0.9fr]">
         <SettingsCard title="Company Identity" description="How your workspace appears to staff and managers." icon={Building2}>
           <div className="grid gap-4 sm:grid-cols-2">
@@ -213,15 +308,59 @@ export function WorkspaceCustomizer() {
               onChange={(value) => updateSettings({ ...settings, startPage: value })}
             />
             <SelectInput
-              label="Language"
+              label="Display language"
               value={settings.language}
-              options={["English", "Arabic", "German", "French", "Spanish"]}
+              options={languageOptions}
               onChange={(value) => updateSettings({ ...settings, language: value })}
+              helper="Applies to the dashboard navigation, workspace header, and account controls."
             />
           </div>
         </SettingsCard>
+        <SettingsCard title="What This Changes" description="These settings control the most visible workspace identity." icon={Sparkles}>
+          <div className="grid gap-3">
+            <InfoRow title="Workspace name" text="Shown in dashboard headings and shared workspace areas." />
+            <InfoRow title="Start page" text="Sets the module your team should open first during daily work." />
+            <InfoRow title="Language" text="Updates dashboard navigation, header labels, and account controls." />
+          </div>
+        </SettingsCard>
+      </section>
+      ) : null}
 
+      {activeSection === "appearance" ? (
+      <section className="mt-6">
         <SettingsCard title="Appearance" description="Tune the visual style your team sees every day." icon={Palette}>
+          <div className="mb-5">
+            <p className="text-sm font-medium text-slate-700">Dashboard theme</p>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              {themes.map((theme) => (
+                <button
+                  key={theme.name}
+                  type="button"
+                  onClick={() => updateSettings({ ...settings, theme: theme.name })}
+                  className={`rounded-3xl border p-4 text-left transition ${
+                    settings.theme === theme.name
+                      ? "border-blue-300 bg-blue-50 text-blue-950 ring-4 ring-blue-100"
+                      : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="font-semibold">{theme.name}</span>
+                    {settings.theme === theme.name ? <Check size={16} /> : null}
+                  </div>
+                  <div className="mt-3 flex gap-2">
+                    {theme.swatches.map((swatch) => (
+                      <span
+                        key={swatch}
+                        className="size-7 rounded-full ring-1 ring-black/10"
+                        style={{ backgroundColor: swatch }}
+                      />
+                    ))}
+                  </div>
+                  <p className="mt-3 text-sm leading-6 text-slate-500">{theme.description}</p>
+                </button>
+              ))}
+            </div>
+          </div>
           <div>
             <p className="text-sm font-medium text-slate-700">Accent color</p>
             <div className="mt-3 grid gap-2 sm:grid-cols-2">
@@ -273,7 +412,9 @@ export function WorkspaceCustomizer() {
           </div>
         </SettingsCard>
       </section>
+      ) : null}
 
+      {activeSection === "finance" ? (
       <section className="mt-6 grid gap-6 xl:grid-cols-[0.9fr_1fr]">
         <SettingsCard title="Regional and Accounting Defaults" description="Set the values used by invoices, reports, and financial workflows." icon={ReceiptText}>
           <div className="grid gap-4 sm:grid-cols-2">
@@ -356,7 +497,9 @@ export function WorkspaceCustomizer() {
           </div>
         </SettingsCard>
       </section>
+      ) : null}
 
+      {activeSection === "modules" ? (
       <section className="mt-6 rounded-[2rem] border border-blue-100 bg-white p-6 shadow-sm shadow-blue-100/70">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
@@ -365,8 +508,9 @@ export function WorkspaceCustomizer() {
               Decide what your team sees in the workspace.
             </h3>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
-              These switches control local workspace visibility. Subscription
-              rules still decide which modules are allowed for the selected plan.
+              These switches control workspace visibility. Subscription rules
+              still decide which modules are allowed for the selected plan.
+              Your current plan is {currentPlan}, with {planModules[currentPlan].length} modules available.
             </p>
           </div>
           <button
@@ -376,7 +520,7 @@ export function WorkspaceCustomizer() {
             style={{ backgroundColor: settings.accent }}
           >
             <Save size={16} />
-            {saved ? "Customization saved" : "Save customization"}
+            {saved ? "Saved automatically" : "Confirm saved settings"}
           </button>
         </div>
 
@@ -387,26 +531,41 @@ export function WorkspaceCustomizer() {
               <div className="mt-4 grid gap-2">
                 {group.modules.map((module) => {
                   const enabled = settings.modules.includes(module);
+                  const allowed = canUseModule(currentPlan, module);
+                  const ultraOnly = canUseModule("Ultra", module) && !canUseModule("Pro", module);
+                  const proPlus = canUseModule("Pro", module) && !canUseModule("Basic", module);
 
                   return (
                     <button
                       key={module}
                       type="button"
                       onClick={() => toggleModule(module)}
+                      disabled={!allowed}
                       className={`flex items-center justify-between rounded-2xl border px-4 py-3 text-left text-sm font-semibold transition ${
-                        enabled
+                        !allowed
+                          ? "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400 opacity-75"
+                          : enabled
                           ? "border-blue-200 bg-white text-blue-950 shadow-sm"
                           : "border-slate-200 bg-slate-50 text-slate-500"
                       }`}
                     >
-                      {module}
+                      <span>
+                        <span className="block">{module}</span>
+                        {!allowed ? (
+                          <span className="mt-1 block text-xs font-semibold text-slate-400">
+                            {ultraOnly ? "Ultra only" : proPlus ? "Pro or Ultra" : "Not included"}
+                          </span>
+                        ) : ultraOnly ? (
+                          <span className="mt-1 block text-xs font-semibold text-blue-500">Ultra module</span>
+                        ) : null}
+                      </span>
                       <span
                         className={`flex size-6 items-center justify-center rounded-full ${
-                          enabled ? "text-white" : "bg-white text-slate-300 ring-1 ring-slate-200"
+                          enabled && allowed ? "text-white" : "bg-white text-slate-300 ring-1 ring-slate-200"
                         }`}
-                        style={enabled ? { backgroundColor: settings.accent } : undefined}
+                        style={enabled && allowed ? { backgroundColor: settings.accent } : undefined}
                       >
-                        {enabled ? <Check size={14} /> : null}
+                        {enabled && allowed ? <Check size={14} /> : null}
                       </span>
                     </button>
                   );
@@ -416,6 +575,7 @@ export function WorkspaceCustomizer() {
           ))}
         </div>
       </section>
+      ) : null}
     </main>
   );
 }
@@ -458,7 +618,7 @@ function PreviewPanel({
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs uppercase tracking-widest text-blue-100/70">{settings.dashboardStyle} dashboard</p>
-            <p className="mt-1 font-semibold">{settings.startPage} first</p>
+            <p className="mt-1 font-semibold">{settings.theme} theme - {settings.startPage} first</p>
           </div>
           <ShieldCheck size={22} className="text-cyan-200" />
         </div>
@@ -538,6 +698,15 @@ function SettingsCard({
   );
 }
 
+function InfoRow({ title, text }: { title: string; text: string }) {
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-[#f7fbff] p-4">
+      <p className="text-sm font-semibold text-slate-950">{title}</p>
+      <p className="mt-1 text-sm leading-6 text-slate-500">{text}</p>
+    </div>
+  );
+}
+
 function TextInput({
   label,
   value,
@@ -564,11 +733,13 @@ function SelectInput({
   value,
   options,
   onChange,
+  helper,
 }: {
   label: string;
   value: string;
   options: string[];
   onChange: (value: string) => void;
+  helper?: string;
 }) {
   return (
     <label>
@@ -582,6 +753,7 @@ function SelectInput({
           <option key={option}>{option}</option>
         ))}
       </select>
+      {helper ? <span className="mt-2 block text-xs leading-5 text-slate-500">{helper}</span> : null}
     </label>
   );
 }

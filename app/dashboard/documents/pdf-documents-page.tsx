@@ -197,8 +197,8 @@ export function PdfDocumentsPage() {
             </h2>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
               Upload company PDFs such as contracts, licenses, invoices,
-              policies, certificates, and reports. Files are stored in Supabase
-              Storage under the current company workspace.
+              policies, certificates, and reports. Files are kept inside the
+              current company workspace.
             </p>
           </div>
           <button

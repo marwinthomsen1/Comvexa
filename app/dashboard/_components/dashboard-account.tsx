@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
 import { supabase } from "@/src/lib/supabase/client";
+import { useDashboardText } from "./dashboard-i18n";
 
 type Workspace = {
   companyName: string;
@@ -12,6 +13,7 @@ type Workspace = {
 
 export function DashboardAccount() {
   const router = useRouter();
+  const { text } = useDashboardText();
   const [workspace, setWorkspace] = useState<Workspace>({
     companyName: "Workspace",
     fullName: "Account",
@@ -53,16 +55,16 @@ export function DashboardAccount() {
   return (
     <div className="flex items-center gap-3">
       <div className="hidden text-right sm:block">
-        <p className="text-sm font-semibold text-slate-800">{workspace.companyName}</p>
-        <p className="text-xs text-slate-500">{workspace.fullName}</p>
+        <p className="text-sm font-semibold text-[var(--comvexa-text,#1e293b)]">{workspace.companyName}</p>
+        <p className="text-xs text-[var(--comvexa-muted,#64748b)]">{workspace.fullName}</p>
       </div>
       <button
         type="button"
         onClick={handleSignOut}
-        className="inline-flex h-11 items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+        className="inline-flex h-11 items-center gap-2 rounded-lg border px-4 text-sm font-semibold shadow-sm comvexa-theme-surface hover:opacity-90"
       >
         <LogOut size={16} />
-        Sign out
+        {text.signOut}
       </button>
     </div>
   );

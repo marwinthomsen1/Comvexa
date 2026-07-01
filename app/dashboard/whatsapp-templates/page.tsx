@@ -1,10 +1,10 @@
 import { PlanGate } from "../_components/plan-gate";
-import { SupabaseCrudPage } from "../_components/supabase-crud-page";
+import { RecordCrudPage } from "../_components/record-crud-page";
 
 export default function WhatsAppTemplatesPage() {
   return (
     <PlanGate moduleName="WhatsApp Templates">
-      <SupabaseCrudPage
+      <RecordCrudPage
         table="whatsapp_templates"
         title="WhatsApp Templates"
         description="Create reusable message templates for reminders, confirmations, and customer updates."

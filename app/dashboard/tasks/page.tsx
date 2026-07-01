@@ -1,10 +1,10 @@
-import { SupabaseCrudPage } from "../_components/supabase-crud-page";
-import { PaymentGate } from "../_components/payment-gate";
+import { RecordCrudPage } from "../_components/record-crud-page";
+import { PlanGate } from "../_components/plan-gate";
 
 export default function TasksPage() {
   return (
-    <PaymentGate>
-    <SupabaseCrudPage
+    <PlanGate moduleName="Tasks">
+    <RecordCrudPage
       table="tasks"
       title="Tasks"
       description="Create and track operational tasks for the current company workspace."
@@ -24,6 +24,6 @@ export default function TasksPage() {
         { key: "created_at", label: "Created", format: "date" },
       ]}
     />
-    </PaymentGate>
+    </PlanGate>
   );
 }

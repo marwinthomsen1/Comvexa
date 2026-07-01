@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { BarChart3, Building2, CalendarDays, CircleDollarSign, ListChecks, ReceiptText, TrendingUp, WalletCards } from "lucide-react";
 import { supabase } from "@/src/lib/supabase/client";
-import { PaymentGate } from "../_components/payment-gate";
+import { formatCurrencyAmount } from "@/app/_components/currency-display";
+import { PlanGate } from "../_components/plan-gate";
 
 type AmountRow = {
   amount?: number | null;
@@ -12,15 +13,28 @@ type AmountRow = {
   payment_status?: string | null;
 };
 
-function money(value: number) {
-  return `$${value.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+const defaultReportSettings = {
+  currency: "USD",
+};
+
+function readReportSettings() {
+  try {
+    const saved = window.localStorage.getItem("comvexa-workspace-settings");
+    return saved ? { ...defaultReportSettings, ...JSON.parse(saved) } : defaultReportSettings;
+  } catch {
+    return defaultReportSettings;
+  }
+}
+
+function money(value: number, currency: string) {
+  return formatCurrencyAmount(value, currency, false, 2);
 }
 
 export default function ReportsPage() {
   return (
-    <PaymentGate>
+    <PlanGate moduleName="Reports">
       <ReportsContent />
-    </PaymentGate>
+    </PlanGate>
   );
 }
 
@@ -37,9 +51,11 @@ function ReportsContent() {
     tax: 0,
     supplierBills: 0,
   });
+  const [currency, setCurrency] = useState(defaultReportSettings.currency);
 
   useEffect(() => {
     async function loadReports() {
+      setCurrency(readReportSettings().currency);
       const { data: sessionData } = await supabase.auth.getSession();
       const user = sessionData.session?.user;
 
@@ -92,38 +108,73 @@ function ReportsContent() {
     }
 
     const timeout = window.setTimeout(loadReports, 0);
-    return () => window.clearTimeout(timeout);
+    function syncSettings() {
+      setCurrency(readReportSettings().currency);
+    }
+
+    window.addEventListener("storage", syncSettings);
+    window.addEventListener("comvexa-settings-change", syncSettings);
+
+    return () => {
+      window.clearTimeout(timeout);
+      window.removeEventListener("storage", syncSettings);
+      window.removeEventListener("comvexa-settings-change", syncSettings);
+    };
   }, []);
 
   const profit = metrics.income - metrics.expenses;
   const cashFlow = metrics.income - metrics.expenses - metrics.supplierBills;
+  const collectionRate = metrics.invoiceTotal > 0
+    ? Math.round(((metrics.invoiceTotal - metrics.unpaidInvoices) / metrics.invoiceTotal) * 100)
+    : 0;
+  const operatingLoad = metrics.tasks + metrics.bookings;
 
   const cards = [
-    ["Recorded income", money(metrics.income), "From payment records", CircleDollarSign],
-    ["Expenses", money(metrics.expenses), "Business expenses entered", WalletCards],
-    ["Profit / loss", money(profit), "Income minus expenses", TrendingUp],
-    ["Cash flow", money(cashFlow), "Income minus expenses and bills", BarChart3],
-    ["Invoice total", money(metrics.invoiceTotal), "All invoice records", ReceiptText],
-    ["Unpaid invoices", money(metrics.unpaidInvoices), "Receivables to follow up", ReceiptText],
-    ["Supplier bills", money(metrics.supplierBills), "Payables recorded", Building2],
-    ["Tax tracked", money(metrics.tax), "Tax amounts from expenses", ReceiptText],
+    ["Recorded income", money(metrics.income, currency), "From payment records", CircleDollarSign],
+    ["Expenses", money(metrics.expenses, currency), "Business expenses entered", WalletCards],
+    ["Profit / loss", money(profit, currency), "Income minus expenses", TrendingUp],
+    ["Cash flow", money(cashFlow, currency), "Income minus expenses and bills", BarChart3],
+    ["Invoice total", money(metrics.invoiceTotal, currency), "All invoice records", ReceiptText],
+    ["Unpaid invoices", money(metrics.unpaidInvoices, currency), "Receivables to follow up", ReceiptText],
+    ["Supplier bills", money(metrics.supplierBills, currency), "Payables recorded", Building2],
+    ["Tax tracked", money(metrics.tax, currency), "Tax amounts from expenses", ReceiptText],
+    ["Collection rate", `${collectionRate}%`, "Invoices marked collected", TrendingUp],
+    ["Operating load", String(operatingLoad), "Tasks plus bookings", BarChart3],
     ["Customers", String(metrics.customers), "Customer records", Building2],
     ["Tasks", String(metrics.tasks), "Operational work", ListChecks],
     ["Bookings", String(metrics.bookings), "Appointment records", CalendarDays],
   ];
 
   return (
-    <main className="mx-auto w-full max-w-7xl flex-1 p-6">
-      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/70">
-        <p className="text-xs font-semibold uppercase tracking-widest text-emerald-700">
-          Live Comvexa reports
-        </p>
-        <h2 className="mt-2 text-3xl font-semibold tracking-normal text-slate-950">Reports</h2>
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
-          Live summaries from your company records. Add invoices, payments,
-          expenses, supplier bills, bookings, tasks, and customers to build out
-          these reports.
-        </p>
+    <main className="mx-auto w-full max-w-[1500px] flex-1 p-4 sm:p-6">
+      <section className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm shadow-slate-200/70">
+        <div className="grid gap-0 xl:grid-cols-[1fr_380px]">
+          <div className="bg-gradient-to-br from-white via-slate-50 to-emerald-50/70 p-6 sm:p-8">
+            <p className="text-xs font-semibold uppercase tracking-widest text-emerald-700">
+              Business intelligence
+            </p>
+            <h2 className="mt-2 text-3xl font-semibold tracking-normal text-slate-950 sm:text-4xl">Reports</h2>
+            <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">
+              Live summaries from company records. Add invoices, payments,
+              expenses, supplier bills, bookings, tasks, and customers to build
+              out operational and finance reporting.
+            </p>
+          </div>
+          <div className="border-t border-slate-200 p-6 xl:border-l xl:border-t-0 sm:p-8">
+            <p className="text-sm font-semibold text-slate-950">Executive snapshot</p>
+            <p className="mt-4 text-4xl font-semibold tracking-normal text-slate-950" data-no-translate>
+              {isLoading ? "-" : money(profit, currency)}
+            </p>
+            <p className="mt-2 text-sm text-slate-500">Current profit / loss</p>
+            <div className="mt-5 h-2 rounded-full bg-slate-100">
+              <div
+                className={`h-2 rounded-full ${profit >= 0 ? "bg-emerald-600" : "bg-red-500"}`}
+                style={{ width: `${Math.min(100, Math.max(12, collectionRate))}%` }}
+              />
+            </div>
+            <p className="mt-3 text-sm text-slate-500">{collectionRate}% collection rate</p>
+          </div>
+        </div>
       </section>
 
       <section className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -138,7 +189,9 @@ function ReportsContent() {
               </span>
             </div>
             <p className="mt-5 text-sm font-medium text-slate-500">{String(label)}</p>
-            <p className="mt-2 text-2xl font-semibold tracking-normal text-slate-950">{String(value)}</p>
+            <p className="mt-2 text-2xl font-semibold tracking-normal text-slate-950" data-no-translate>
+              {String(value)}
+            </p>
             <p className="mt-2 text-sm text-slate-500">{String(note)}</p>
           </div>
         ))}

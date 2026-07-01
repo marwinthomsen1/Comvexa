@@ -1,10 +1,10 @@
-import { SupabaseCrudPage } from "../_components/supabase-crud-page";
-import { PaymentGate } from "../_components/payment-gate";
+import { RecordCrudPage } from "../_components/record-crud-page";
+import { PlanGate } from "../_components/plan-gate";
 
 export default function CustomersPage() {
   return (
-    <PaymentGate>
-    <SupabaseCrudPage
+    <PlanGate moduleName="Customers">
+    <RecordCrudPage
       table="customers"
       title="Customer Management"
       description="Create and manage customer profiles for the signed-in company workspace."
@@ -24,6 +24,6 @@ export default function CustomersPage() {
         { key: "created_at", label: "Created", format: "date" },
       ]}
     />
-    </PaymentGate>
+    </PlanGate>
   );
 }

@@ -36,10 +36,18 @@ create table if not exists employees (
   name text,
   phone text,
   email text,
+  employee_code text,
+  address text,
+  id_card_number text,
+  id_card_expiry date,
+  nationality text,
+  department text,
   position text,
   salary numeric,
   status text default 'active',
   start_date date,
+  emergency_contact_name text,
+  emergency_contact_phone text,
   notes text,
   created_at timestamp default now()
 );

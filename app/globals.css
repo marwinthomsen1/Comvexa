@@ -22,6 +22,619 @@ html {
   scroll-behavior: smooth;
 }
 
+.comvexa-theme-surface {
+  background: var(--comvexa-surface, #ffffff);
+  border-color: var(--comvexa-border, #dbeafe);
+  color: var(--comvexa-text, #020617);
+}
+
+.comvexa-theme-soft {
+  background: var(--comvexa-soft-surface, #f7fbff);
+  border-color: var(--comvexa-border, #dbeafe);
+  color: var(--comvexa-text, #020617);
+}
+
+.comvexa-theme-muted {
+  color: var(--comvexa-muted, #64748b);
+}
+
+.comvexa-theme-accent {
+  color: var(--comvexa-accent, #2563eb);
+}
+
+.comvexa-theme-card {
+  background: var(--comvexa-surface, #ffffff);
+  border-color: var(--comvexa-border, #dbeafe);
+  color: var(--comvexa-text, #020617);
+  box-shadow: 0 16px 40px color-mix(in srgb, var(--comvexa-accent, #2563eb) 12%, transparent);
+}
+
+.comvexa-dashboard-area {
+  position: relative;
+}
+
+.comvexa-dashboard-area > * {
+  position: relative;
+}
+
+html[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area,
+.comvexa-theme-root[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area,
+html[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area h1,
+html[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area h2,
+html[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area h3,
+html[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area h4,
+.comvexa-theme-root[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area h1,
+.comvexa-theme-root[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area h2,
+.comvexa-theme-root[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area h3,
+.comvexa-theme-root[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area h4 {
+  color: var(--comvexa-text, #020617);
+}
+
+html[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area [class~="bg-white"],
+html[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area [class*="bg-[#f7fbff]"],
+html[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area [class~="bg-slate-50"],
+.comvexa-theme-root[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area [class~="bg-white"],
+.comvexa-theme-root[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area [class*="bg-[#f7fbff]"],
+.comvexa-theme-root[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area [class~="bg-slate-50"] {
+  background: var(--comvexa-surface, #ffffff) !important;
+  color: var(--comvexa-text, #020617);
+}
+
+html[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area [class~="bg-blue-50"],
+html[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area [class~="bg-emerald-50"],
+html[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area [class~="bg-slate-100"],
+.comvexa-theme-root[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area [class~="bg-blue-50"],
+.comvexa-theme-root[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area [class~="bg-emerald-50"],
+.comvexa-theme-root[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area [class~="bg-slate-100"] {
+  background: var(--comvexa-accent-soft, #eff6ff) !important;
+}
+
+html[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area [class*="border-blue-"],
+html[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area [class*="border-slate-"],
+.comvexa-theme-root[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area [class*="border-blue-"],
+.comvexa-theme-root[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area [class*="border-slate-"] {
+  border-color: var(--comvexa-border, #dbeafe) !important;
+}
+
+html[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area [class*="text-slate-5"],
+html[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area [class*="text-slate-6"],
+html[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area [class*="text-slate-7"],
+html[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area [class*="text-slate-8"],
+html[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area [class*="text-slate-9"],
+html[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area [class*="text-slate-950"],
+.comvexa-theme-root[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area [class*="text-slate-5"],
+.comvexa-theme-root[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area [class*="text-slate-6"],
+.comvexa-theme-root[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area [class*="text-slate-7"],
+.comvexa-theme-root[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area [class*="text-slate-8"],
+.comvexa-theme-root[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area [class*="text-slate-9"],
+.comvexa-theme-root[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area [class*="text-slate-950"] {
+  color: var(--comvexa-text, #020617) !important;
+}
+
+html[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area p[class*="text-slate-5"],
+html[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area p[class*="text-slate-6"],
+html[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area span[class*="text-slate-5"],
+html[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area span[class*="text-slate-6"],
+.comvexa-theme-root[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area p[class*="text-slate-5"],
+.comvexa-theme-root[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area p[class*="text-slate-6"],
+.comvexa-theme-root[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area span[class*="text-slate-5"],
+.comvexa-theme-root[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area span[class*="text-slate-6"] {
+  color: var(--comvexa-muted, #64748b) !important;
+}
+
+html[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area [class*="text-blue-7"],
+html[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area [class*="text-emerald-7"],
+.comvexa-theme-root[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area [class*="text-blue-7"],
+.comvexa-theme-root[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area [class*="text-emerald-7"] {
+  color: var(--comvexa-accent, #2563eb) !important;
+}
+
+html[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) table thead,
+html[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area [class~="divide-slate-100"] > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--comvexa-border, #dbeafe) !important;
+}
+
+html[data-comvexa-theme="Summer"] .comvexa-dashboard-area,
+.comvexa-theme-root[data-comvexa-theme="Summer"] .comvexa-dashboard-area {
+  background-image:
+    radial-gradient(circle at 82% 6%, rgba(255, 207, 90, 0.36), transparent 16rem),
+    radial-gradient(circle at 10% 18%, rgba(34, 211, 238, 0.22), transparent 18rem);
+}
+
+html[data-comvexa-theme="Summer"] .comvexa-dashboard-area::before,
+.comvexa-theme-root[data-comvexa-theme="Summer"] .comvexa-dashboard-area::before {
+  position: absolute;
+  top: 2rem;
+  right: 5%;
+  z-index: 0;
+  width: 9rem;
+  aspect-ratio: 1;
+  content: "";
+  pointer-events: none;
+  border-radius: 9999px;
+  background:
+    radial-gradient(circle at 35% 35%, #fff8bc 0 18%, #ffd45a 19% 58%, #ff9447 59% 100%);
+  box-shadow: 0 0 0 1rem rgba(255, 207, 90, 0.16), 0 0 4rem rgba(255, 142, 66, 0.22);
+  animation: summer-sun-pulse 5s ease-in-out infinite;
+  opacity: 0.85;
+}
+
+html[data-comvexa-theme="Summer"] .comvexa-dashboard-area::after,
+.comvexa-theme-root[data-comvexa-theme="Summer"] .comvexa-dashboard-area::after {
+  position: absolute;
+  left: -10%;
+  bottom: -3rem;
+  z-index: 0;
+  width: 120%;
+  height: 8rem;
+  content: "";
+  pointer-events: none;
+  border-radius: 50% 50% 0 0 / 70% 70% 0 0;
+  background: linear-gradient(90deg, rgba(34, 211, 238, 0.16), rgba(255, 255, 255, 0.42), rgba(255, 107, 74, 0.12));
+  animation: summer-wave 8s ease-in-out infinite;
+}
+
+html[data-comvexa-theme="Summer"] .comvexa-theme-card,
+html[data-comvexa-theme="Summer"] .comvexa-theme-surface,
+.comvexa-theme-root[data-comvexa-theme="Summer"] .comvexa-theme-card,
+.comvexa-theme-root[data-comvexa-theme="Summer"] .comvexa-theme-surface {
+  box-shadow: 0 18px 45px rgba(14, 116, 144, 0.12);
+}
+
+html[data-comvexa-theme="Old School"] .comvexa-dashboard-area,
+.comvexa-theme-root[data-comvexa-theme="Old School"] .comvexa-dashboard-area {
+  background-image:
+    linear-gradient(rgba(47, 36, 24, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(47, 36, 24, 0.035) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+html[data-comvexa-theme="Old School"] .comvexa-dashboard-area::before,
+.comvexa-theme-root[data-comvexa-theme="Old School"] .comvexa-dashboard-area::before {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  content: "";
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 20% 15%, rgba(154, 107, 53, 0.12), transparent 18rem),
+    radial-gradient(circle at 82% 70%, rgba(47, 36, 24, 0.08), transparent 22rem),
+    repeating-linear-gradient(0deg, rgba(47, 36, 24, 0.025) 0 1px, transparent 1px 6px);
+  mix-blend-mode: multiply;
+  animation: old-school-paper 7s steps(2, end) infinite;
+}
+
+html[data-comvexa-theme="Old School"] .comvexa-theme-surface,
+html[data-comvexa-theme="Old School"] .comvexa-theme-card,
+.comvexa-theme-root[data-comvexa-theme="Old School"] .comvexa-theme-surface,
+.comvexa-theme-root[data-comvexa-theme="Old School"] .comvexa-theme-card {
+  border-width: 2px;
+  box-shadow: 6px 6px 0 rgba(47, 36, 24, 0.14);
+}
+
+html[data-comvexa-theme="Old School"] .comvexa-dashboard-area h1,
+html[data-comvexa-theme="Old School"] .comvexa-dashboard-area h2,
+html[data-comvexa-theme="Old School"] .comvexa-dashboard-area h3,
+.comvexa-theme-root[data-comvexa-theme="Old School"] .comvexa-dashboard-area h1,
+.comvexa-theme-root[data-comvexa-theme="Old School"] .comvexa-dashboard-area h2,
+.comvexa-theme-root[data-comvexa-theme="Old School"] .comvexa-dashboard-area h3 {
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+html[data-comvexa-theme="Old School"] .comvexa-dashboard-area button,
+html[data-comvexa-theme="Old School"] .comvexa-dashboard-area a,
+.comvexa-theme-root[data-comvexa-theme="Old School"] .comvexa-dashboard-area button,
+.comvexa-theme-root[data-comvexa-theme="Old School"] .comvexa-dashboard-area a {
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+html[data-comvexa-theme="Old School"] .comvexa-dashboard-area button:hover,
+html[data-comvexa-theme="Old School"] .comvexa-dashboard-area a:hover,
+.comvexa-theme-root[data-comvexa-theme="Old School"] .comvexa-dashboard-area button:hover,
+.comvexa-theme-root[data-comvexa-theme="Old School"] .comvexa-dashboard-area a:hover {
+  transform: translate(-1px, -1px);
+}
+
+html[data-comvexa-theme="Midnight"] .comvexa-theme-surface,
+html[data-comvexa-theme="Midnight"] .comvexa-theme-card,
+.comvexa-theme-root[data-comvexa-theme="Midnight"] .comvexa-theme-surface,
+.comvexa-theme-root[data-comvexa-theme="Midnight"] .comvexa-theme-card {
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
+}
+
+html[data-comvexa-theme="Midnight"] input,
+html[data-comvexa-theme="Midnight"] select,
+html[data-comvexa-theme="Midnight"] textarea {
+  color-scheme: dark;
+}
+
+html[data-comvexa-theme="Midnight"] .comvexa-dashboard-area input,
+html[data-comvexa-theme="Midnight"] .comvexa-dashboard-area select,
+html[data-comvexa-theme="Midnight"] .comvexa-dashboard-area textarea,
+.comvexa-theme-root[data-comvexa-theme="Midnight"] .comvexa-dashboard-area input,
+.comvexa-theme-root[data-comvexa-theme="Midnight"] .comvexa-dashboard-area select,
+.comvexa-theme-root[data-comvexa-theme="Midnight"] .comvexa-dashboard-area textarea {
+  background: #0f172a !important;
+  border-color: var(--comvexa-border, #26354f) !important;
+  color: var(--comvexa-text, #f8fafc) !important;
+}
+
+html[data-comvexa-theme="Midnight"] .comvexa-dashboard-area,
+.comvexa-theme-root[data-comvexa-theme="Midnight"] .comvexa-dashboard-area {
+  background-image:
+    radial-gradient(circle at 80% 0%, rgba(56, 189, 248, 0.18), transparent 18rem),
+    radial-gradient(circle at 8% 20%, rgba(37, 99, 235, 0.18), transparent 16rem);
+}
+
+html[data-comvexa-theme="Midnight"] .comvexa-dashboard-area *,
+.comvexa-theme-root[data-comvexa-theme="Midnight"] .comvexa-dashboard-area * {
+  border-color: var(--comvexa-border, #26354f);
+}
+
+html[data-comvexa-theme="Midnight"] .comvexa-dashboard-area h1,
+html[data-comvexa-theme="Midnight"] .comvexa-dashboard-area h2,
+html[data-comvexa-theme="Midnight"] .comvexa-dashboard-area h3,
+html[data-comvexa-theme="Midnight"] .comvexa-dashboard-area h4,
+html[data-comvexa-theme="Midnight"] .comvexa-dashboard-area label,
+html[data-comvexa-theme="Midnight"] .comvexa-dashboard-area strong,
+.comvexa-theme-root[data-comvexa-theme="Midnight"] .comvexa-dashboard-area h1,
+.comvexa-theme-root[data-comvexa-theme="Midnight"] .comvexa-dashboard-area h2,
+.comvexa-theme-root[data-comvexa-theme="Midnight"] .comvexa-dashboard-area h3,
+.comvexa-theme-root[data-comvexa-theme="Midnight"] .comvexa-dashboard-area h4,
+.comvexa-theme-root[data-comvexa-theme="Midnight"] .comvexa-dashboard-area label,
+.comvexa-theme-root[data-comvexa-theme="Midnight"] .comvexa-dashboard-area strong {
+  color: var(--comvexa-text, #f8fafc) !important;
+}
+
+html[data-comvexa-theme="Midnight"] .comvexa-dashboard-area [class*="text-black"],
+.comvexa-theme-root[data-comvexa-theme="Midnight"] .comvexa-dashboard-area [class*="text-black"] {
+  color: var(--comvexa-text, #f8fafc) !important;
+}
+
+.summer-hero {
+  min-height: calc(100vh - 84px);
+  background:
+    radial-gradient(circle at 80% 18%, rgba(255, 203, 67, 0.55), transparent 12rem),
+    radial-gradient(circle at 15% 25%, rgba(56, 189, 248, 0.22), transparent 16rem),
+    linear-gradient(135deg, #fff3a8 0%, #ffd37b 34%, #6ee7f7 78%, #37c9d7 100%);
+}
+
+.summer-hero::before {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  content: "";
+  background-image:
+    radial-gradient(circle, rgba(255, 255, 255, 0.72) 0 2px, transparent 3px),
+    radial-gradient(circle, rgba(255, 126, 87, 0.28) 0 3px, transparent 4px);
+  background-position: 0 0, 46px 38px;
+  background-size: 92px 92px, 128px 128px;
+  animation: summer-sparkle 18s linear infinite;
+  opacity: 0.5;
+}
+
+.summer-sun {
+  position: absolute;
+  top: 6.5rem;
+  right: clamp(1.5rem, 8vw, 9rem);
+  width: clamp(7rem, 13vw, 13rem);
+  aspect-ratio: 1;
+  z-index: -1;
+  border-radius: 9999px;
+  background:
+    radial-gradient(circle at 35% 35%, #fff8bc 0 18%, #ffd45a 19% 52%, #ff9f43 53% 100%);
+  box-shadow:
+    0 0 0 1rem rgba(255, 207, 90, 0.22),
+    0 0 4rem rgba(255, 142, 66, 0.45);
+  animation: summer-sun-pulse 4s ease-in-out infinite;
+}
+
+.summer-sun span {
+  position: absolute;
+  inset: -1.6rem;
+  z-index: -1;
+  border-radius: inherit;
+  background: repeating-conic-gradient(from 8deg, rgba(255, 171, 64, 0.42) 0 9deg, transparent 9deg 18deg);
+  animation: summer-spin 22s linear infinite;
+}
+
+.summer-cloud {
+  position: absolute;
+  z-index: -1;
+  width: 9rem;
+  height: 3.5rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.72);
+  filter: drop-shadow(0 1.2rem 1.4rem rgba(14, 116, 144, 0.14));
+  animation: summer-cloud-drift 16s ease-in-out infinite alternate;
+}
+
+.summer-cloud::before,
+.summer-cloud::after {
+  position: absolute;
+  content: "";
+  border-radius: 9999px;
+  background: inherit;
+}
+
+.summer-cloud::before {
+  left: 1.2rem;
+  top: -1.3rem;
+  width: 3.8rem;
+  height: 3.8rem;
+}
+
+.summer-cloud::after {
+  right: 1.2rem;
+  top: -2rem;
+  width: 5rem;
+  height: 5rem;
+}
+
+.summer-cloud-one {
+  top: 12rem;
+  left: 6vw;
+}
+
+.summer-cloud-two {
+  top: 21rem;
+  right: 20vw;
+  width: 7rem;
+  transform: scale(0.82);
+  animation-delay: -6s;
+}
+
+.summer-float {
+  position: absolute;
+  z-index: -1;
+  border-radius: 9999px;
+  animation: summer-bob 5s ease-in-out infinite;
+}
+
+.summer-float-one {
+  left: 47%;
+  top: 12rem;
+  width: 4rem;
+  aspect-ratio: 1;
+  background: rgba(255, 107, 74, 0.22);
+}
+
+.summer-float-two {
+  left: 3rem;
+  bottom: 8rem;
+  width: 7rem;
+  aspect-ratio: 1;
+  background: rgba(34, 211, 238, 0.24);
+  animation-delay: -1.6s;
+}
+
+.summer-float-three {
+  right: 4rem;
+  bottom: 10rem;
+  width: 3rem;
+  aspect-ratio: 1;
+  background: rgba(255, 207, 90, 0.42);
+  animation-delay: -2.8s;
+}
+
+.summer-wave {
+  position: absolute;
+  left: -10%;
+  width: 120%;
+  height: 7rem;
+  border-radius: 50% 50% 0 0 / 70% 70% 0 0;
+  pointer-events: none;
+}
+
+.summer-wave-back {
+  bottom: -2.9rem;
+  background: rgba(255, 255, 255, 0.48);
+  animation: summer-wave 9s ease-in-out infinite;
+}
+
+.summer-wave-front {
+  bottom: -4.2rem;
+  background: #fff7da;
+  animation: summer-wave 7s ease-in-out infinite reverse;
+}
+
+.summer-rise {
+  animation: summer-rise 700ms ease-out both;
+}
+
+.summer-rise-delay {
+  animation-delay: 140ms;
+}
+
+.summer-stat {
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.summer-stat:hover {
+  transform: translateY(-4px) rotate(-1deg);
+  box-shadow: 0 24px 50px rgba(251, 146, 60, 0.22);
+}
+
+@keyframes summer-rise {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes summer-sun-pulse {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.04) rotate(2deg);
+  }
+}
+
+@keyframes summer-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes summer-cloud-drift {
+  from {
+    transform: translateX(-14px);
+  }
+  to {
+    transform: translateX(28px);
+  }
+}
+
+@keyframes summer-bob {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-18px);
+  }
+}
+
+@keyframes summer-wave {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(3%);
+  }
+}
+
+@keyframes summer-sparkle {
+  to {
+    background-position: 92px 92px, 174px 166px;
+  }
+}
+
+@keyframes old-school-paper {
+  0%, 100% {
+    opacity: 0.72;
+    transform: translate(0, 0);
+  }
+  50% {
+    opacity: 0.9;
+    transform: translate(1px, -1px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .summer-hero::before,
+  .summer-sun,
+  .summer-sun span,
+  .summer-cloud,
+  .summer-float,
+  .summer-wave,
+  .summer-rise,
+  html[data-comvexa-theme="Old School"] .comvexa-dashboard-area::before,
+  .comvexa-theme-root[data-comvexa-theme="Old School"] .comvexa-dashboard-area::before {
+    animation: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .summer-hero {
+    min-height: auto;
+  }
+
+  .summer-sun {
+    top: 7rem;
+    right: -1.5rem;
+    opacity: 0.72;
+  }
+
+  .summer-cloud-two,
+  .summer-float-one,
+  .summer-float-three {
+    display: none;
+  }
+}
+
+.summer-auth {
+  background:
+    radial-gradient(circle at 78% 15%, rgba(255, 207, 90, 0.48), transparent 12rem),
+    radial-gradient(circle at 15% 72%, rgba(34, 211, 238, 0.32), transparent 18rem),
+    linear-gradient(135deg, #fff8df 0%, #ffe4a3 36%, #b9f7ff 100%);
+}
+
+.summer-auth::before {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  content: "";
+  background-image:
+    radial-gradient(circle, rgba(255, 255, 255, 0.75) 0 2px, transparent 3px),
+    radial-gradient(circle, rgba(255, 107, 74, 0.18) 0 3px, transparent 4px);
+  background-position: 0 0, 40px 36px;
+  background-size: 96px 96px, 132px 132px;
+  animation: summer-sparkle 20s linear infinite;
+}
+
+.summer-auth-sun {
+  position: absolute;
+  right: clamp(1rem, 8vw, 8rem);
+  top: clamp(1rem, 8vh, 5rem);
+  width: clamp(6rem, 12vw, 10rem);
+  aspect-ratio: 1;
+  z-index: -1;
+  border-radius: 9999px;
+  background: radial-gradient(circle at 35% 35%, #fff8bc 0 18%, #ffd45a 19% 58%, #ff9447 59% 100%);
+  box-shadow: 0 0 0 1rem rgba(255, 207, 90, 0.18), 0 0 4rem rgba(255, 142, 66, 0.36);
+  animation: summer-sun-pulse 4.5s ease-in-out infinite;
+}
+
+.summer-auth-cloud {
+  position: absolute;
+  z-index: -1;
+  width: 8rem;
+  height: 3rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.68);
+  filter: drop-shadow(0 1rem 1.4rem rgba(14, 116, 144, 0.12));
+  animation: summer-cloud-drift 18s ease-in-out infinite alternate;
+}
+
+.summer-auth-cloud::before,
+.summer-auth-cloud::after {
+  position: absolute;
+  content: "";
+  border-radius: 9999px;
+  background: inherit;
+}
+
+.summer-auth-cloud::before {
+  left: 1rem;
+  top: -1.1rem;
+  width: 3.4rem;
+  height: 3.4rem;
+}
+
+.summer-auth-cloud::after {
+  right: 1rem;
+  top: -1.7rem;
+  width: 4.4rem;
+  height: 4.4rem;
+}
+
+.summer-auth-cloud-one {
+  left: 8vw;
+  top: 12vh;
+}
+
+.summer-auth-cloud-two {
+  right: 22vw;
+  bottom: 12vh;
+  transform: scale(0.82);
+  animation-delay: -7s;
+}
+
 html[data-comvexa-density="compact"] .comvexa-dashboard-main {
   padding: 1rem;
 }
@@ -43,3 +656,4 @@ html[data-comvexa-density="spacious"] .comvexa-dashboard-main {
 html[data-comvexa-density="spacious"] .comvexa-dashboard-main section {
   margin-top: 2rem;
 }
+

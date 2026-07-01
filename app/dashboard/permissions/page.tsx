@@ -1,10 +1,10 @@
 import { PlanGate } from "../_components/plan-gate";
-import { SupabaseCrudPage } from "../_components/supabase-crud-page";
+import { RecordCrudPage } from "../_components/record-crud-page";
 
 export default function PermissionsPage() {
   return (
     <PlanGate moduleName="Permissions">
-      <SupabaseCrudPage
+      <RecordCrudPage
         table="user_permissions"
         title="User Permissions"
         description="Prepare module-level access rules for staff and managers."

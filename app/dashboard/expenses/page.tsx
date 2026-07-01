@@ -1,10 +1,10 @@
-import { SupabaseCrudPage } from "../_components/supabase-crud-page";
-import { PaymentGate } from "../_components/payment-gate";
+import { RecordCrudPage } from "../_components/record-crud-page";
+import { PlanGate } from "../_components/plan-gate";
 
 export default function ExpensesPage() {
   return (
-    <PaymentGate>
-    <SupabaseCrudPage
+    <PlanGate moduleName="Expenses">
+    <RecordCrudPage
       table="expenses"
       title="Expenses"
       description="Record business expenses, categories, tax amounts, vendors, payment methods, and notes."
@@ -28,6 +28,6 @@ export default function ExpensesPage() {
         { key: "expense_date", label: "Date", format: "date" },
       ]}
     />
-    </PaymentGate>
+    </PlanGate>
   );
 }

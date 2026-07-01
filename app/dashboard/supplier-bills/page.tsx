@@ -1,10 +1,10 @@
 import { PlanGate } from "../_components/plan-gate";
-import { SupabaseCrudPage } from "../_components/supabase-crud-page";
+import { RecordCrudPage } from "../_components/record-crud-page";
 
 export default function SupplierBillsPage() {
   return (
     <PlanGate moduleName="Supplier Bills">
-      <SupabaseCrudPage
+      <RecordCrudPage
         table="supplier_bills"
         title="Supplier Bills"
         description="Track supplier bills, due dates, payment status, and payable amounts."

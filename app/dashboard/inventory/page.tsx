@@ -1,10 +1,10 @@
-import { SupabaseCrudPage } from "../_components/supabase-crud-page";
+import { RecordCrudPage } from "../_components/record-crud-page";
 import { PlanGate } from "../_components/plan-gate";
 
 export default function InventoryPage() {
   return (
     <PlanGate moduleName="Inventory">
-    <SupabaseCrudPage
+    <RecordCrudPage
       table="inventory_items"
       title="Inventory"
       description="Manage stock items, units, supplier names, and low-stock alert levels."

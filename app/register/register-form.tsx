@@ -57,7 +57,7 @@ export function RegisterForm() {
   return (
     <form onSubmit={handleSubmit} className="mt-8 grid gap-5 sm:grid-cols-2">
       <div>
-        <label htmlFor="fullName" className="text-sm font-medium text-slate-700">
+        <label htmlFor="fullName" className="text-sm font-semibold text-slate-800">
           Full name
         </label>
         <input
@@ -65,11 +65,11 @@ export function RegisterForm() {
           name="fullName"
           type="text"
           required
-          className="mt-2 w-full rounded-md border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-600 focus:ring-4 focus:ring-emerald-100"
+          className="mt-2 w-full rounded-2xl border border-cyan-900/15 bg-white px-4 py-3.5 text-sm shadow-sm outline-none transition placeholder:text-slate-400 hover:border-cyan-500/50 focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100"
         />
       </div>
       <div>
-        <label htmlFor="companyName" className="text-sm font-medium text-slate-700">
+        <label htmlFor="companyName" className="text-sm font-semibold text-slate-800">
           Company name
         </label>
         <input
@@ -77,11 +77,11 @@ export function RegisterForm() {
           name="companyName"
           type="text"
           required
-          className="mt-2 w-full rounded-md border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-600 focus:ring-4 focus:ring-emerald-100"
+          className="mt-2 w-full rounded-2xl border border-cyan-900/15 bg-white px-4 py-3.5 text-sm shadow-sm outline-none transition placeholder:text-slate-400 hover:border-cyan-500/50 focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100"
         />
       </div>
       <div>
-        <label htmlFor="email" className="text-sm font-medium text-slate-700">
+        <label htmlFor="email" className="text-sm font-semibold text-slate-800">
           Email
         </label>
         <input
@@ -89,11 +89,11 @@ export function RegisterForm() {
           name="email"
           type="email"
           required
-          className="mt-2 w-full rounded-md border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-600 focus:ring-4 focus:ring-emerald-100"
+          className="mt-2 w-full rounded-2xl border border-cyan-900/15 bg-white px-4 py-3.5 text-sm shadow-sm outline-none transition placeholder:text-slate-400 hover:border-cyan-500/50 focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100"
         />
       </div>
       <div>
-        <label htmlFor="phone" className="text-sm font-medium text-slate-700">
+        <label htmlFor="phone" className="text-sm font-semibold text-slate-800">
           Phone
         </label>
         <input
@@ -101,11 +101,11 @@ export function RegisterForm() {
           name="phone"
           type="tel"
           required
-          className="mt-2 w-full rounded-md border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-600 focus:ring-4 focus:ring-emerald-100"
+          className="mt-2 w-full rounded-2xl border border-cyan-900/15 bg-white px-4 py-3.5 text-sm shadow-sm outline-none transition placeholder:text-slate-400 hover:border-cyan-500/50 focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100"
         />
       </div>
       <div className="sm:col-span-2">
-        <label htmlFor="password" className="text-sm font-medium text-slate-700">
+        <label htmlFor="password" className="text-sm font-semibold text-slate-800">
           Password
         </label>
         <input
@@ -114,23 +114,23 @@ export function RegisterForm() {
           type="password"
           required
           minLength={6}
-          className="mt-2 w-full rounded-md border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-600 focus:ring-4 focus:ring-emerald-100"
+          className="mt-2 w-full rounded-2xl border border-cyan-900/15 bg-white px-4 py-3.5 text-sm shadow-sm outline-none transition placeholder:text-slate-400 hover:border-cyan-500/50 focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100"
         />
       </div>
       {error ? (
-        <p className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 sm:col-span-2">
+        <p className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700 sm:col-span-2">
           {error}
         </p>
       ) : null}
       {message ? (
-        <p className="rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 sm:col-span-2">
+        <p className="rounded-2xl border border-cyan-200 bg-cyan-50 px-4 py-3 text-sm font-medium text-cyan-800 sm:col-span-2">
           {message}
         </p>
       ) : null}
       <button
         type="submit"
         disabled={isLoading}
-        className="rounded-md bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-emerald-300 sm:col-span-2"
+        className="rounded-2xl bg-[#ff6b4a] px-5 py-3.5 text-sm font-semibold text-white shadow-xl shadow-orange-200/70 transition hover:-translate-y-0.5 hover:bg-[#ff5633] disabled:cursor-not-allowed disabled:bg-slate-400 disabled:shadow-none disabled:hover:translate-y-0 sm:col-span-2"
       >
         {isLoading ? "Creating account..." : "Create account"}
       </button>

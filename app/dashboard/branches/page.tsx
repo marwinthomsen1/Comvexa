@@ -1,10 +1,10 @@
 import { PlanGate } from "../_components/plan-gate";
-import { SupabaseCrudPage } from "../_components/supabase-crud-page";
+import { RecordCrudPage } from "../_components/record-crud-page";
 
 export default function BranchesPage() {
   return (
     <PlanGate moduleName="Branches">
-      <SupabaseCrudPage
+      <RecordCrudPage
         table="branches"
         title="Branches"
         description="Manage multiple branch locations, addresses, and contact details."
