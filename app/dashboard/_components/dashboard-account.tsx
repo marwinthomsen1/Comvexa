@@ -11,7 +11,7 @@ type Workspace = {
   fullName: string;
 };
 
-export function DashboardAccount() {
+export function DashboardAccount({ compact = false }: { compact?: boolean }) {
   const router = useRouter();
   const { text } = useDashboardText();
   const [workspace, setWorkspace] = useState<Workspace>({
@@ -54,17 +54,18 @@ export function DashboardAccount() {
 
   return (
     <div className="flex items-center gap-3">
-      <div className="hidden text-right sm:block">
+      <div className={compact ? "hidden" : "hidden text-right sm:block"}>
         <p className="text-sm font-semibold text-[var(--comvexa-text,#1e293b)]">{workspace.companyName}</p>
         <p className="text-xs text-[var(--comvexa-muted,#64748b)]">{workspace.fullName}</p>
       </div>
       <button
         type="button"
         onClick={handleSignOut}
-        className="inline-flex h-11 items-center gap-2 rounded-lg border px-4 text-sm font-semibold shadow-sm comvexa-theme-surface hover:opacity-90"
+        className={`${compact ? "size-10 justify-center px-0" : "h-11 px-4"} inline-flex items-center gap-2 rounded-lg border text-sm font-semibold shadow-sm comvexa-theme-surface hover:opacity-90`}
+        aria-label={text.signOut}
       >
         <LogOut size={16} />
-        {text.signOut}
+        <span className={compact ? "sr-only" : ""}>{text.signOut}</span>
       </button>
     </div>
   );
