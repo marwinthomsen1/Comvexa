@@ -10,6 +10,7 @@ import {
   getPendingPaidPlan,
   getProTrialStatus,
   setPendingPaidPlan,
+  syncProTrialStatus,
   type TrialStatus,
 } from "../_components/payment-status";
 import { CurrencySelector, CurrencyValue, formatCurrencyAmount, useSelectedCurrency } from "../../_components/currency-display";
@@ -90,6 +91,7 @@ export default function SubscriptionPage() {
   const [selectedPlan, setSelectedPlan] = useState("Pro");
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
   const [isStartingTrial, setIsStartingTrial] = useState(false);
+  const [isCheckingTrial, setIsCheckingTrial] = useState(true);
   const [trialError, setTrialError] = useState("");
   const [trialStatus, setTrialStatus] = useState<TrialStatus>({
     used: false,
@@ -101,7 +103,7 @@ export default function SubscriptionPage() {
   });
 
   useEffect(() => {
-    const timeout = window.setTimeout(() => {
+    async function loadSubscriptionState() {
       const pending = getPendingPaidPlan();
       const storedPlan = pending.plan ?? window.localStorage.getItem("comvexa-selected-plan");
       const storedCycle = pending.billingCycle ?? window.localStorage.getItem("comvexa-billing-cycle");
@@ -114,10 +116,38 @@ export default function SubscriptionPage() {
         setBillingCycle(storedCycle);
       }
 
-      setTrialStatus(getProTrialStatus());
-    }, 0);
+      try {
+        const { data: sessionData } = await supabase.auth.getSession();
+        const accessToken = sessionData.session?.access_token;
 
-    return () => window.clearTimeout(timeout);
+        if (!accessToken) {
+          setTrialStatus(getProTrialStatus());
+          setIsCheckingTrial(false);
+          return;
+        }
+
+        const response = await fetch("/api/subscription/trial", {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+        const trial = await response.json();
+
+        if (!response.ok) {
+          setTrialStatus(getProTrialStatus());
+          setIsCheckingTrial(false);
+          return;
+        }
+
+        setTrialStatus(syncProTrialStatus(trial.used, trial.startsAt, trial.endsAt));
+      } catch {
+        setTrialStatus(getProTrialStatus());
+      } finally {
+        setIsCheckingTrial(false);
+      }
+    }
+
+    void loadSubscriptionState();
   }, []);
 
   const plan = useMemo(
@@ -132,7 +162,9 @@ export default function SubscriptionPage() {
   const trialText =
     selectedPlan !== "Pro"
       ? "No free trial on this plan"
-      : proTrialActive
+      : isCheckingTrial
+        ? "Checking trial eligibility..."
+        : proTrialActive
         ? formatTrialRemaining(trialStatus.remainingMs)
         : proTrialExpired
           ? "Trial already used"
@@ -355,11 +387,13 @@ export default function SubscriptionPage() {
           <button
             type="button"
             onClick={continueToPayment}
-            disabled={isStartingTrial}
+            disabled={isStartingTrial || isCheckingTrial}
             className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700"
             data-no-translate
           >
-            {isStartingTrial
+            {isCheckingTrial
+              ? "Checking trial..."
+              : isStartingTrial
               ? "Starting trial..."
               : selectedPlan === "Pro" && proTrialAvailable
               ? "Start 3-day trial"

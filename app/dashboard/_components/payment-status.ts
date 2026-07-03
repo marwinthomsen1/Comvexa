@@ -159,6 +159,26 @@ export function activateProTrial(startsAtIso: string, endsAtIso: string) {
   return getProTrialStatus();
 }
 
+export function clearProTrialStatus() {
+  if (typeof window === "undefined") {
+    return getProTrialStatus();
+  }
+
+  window.localStorage.removeItem("comvexa-pro-trial-used");
+  window.localStorage.removeItem("comvexa-pro-trial-starts-at");
+  window.localStorage.removeItem("comvexa-pro-trial-ends-at");
+
+  return getProTrialStatus();
+}
+
+export function syncProTrialStatus(used: boolean, startsAtIso: string | null, endsAtIso: string | null) {
+  if (!used || !startsAtIso || !endsAtIso) {
+    return clearProTrialStatus();
+  }
+
+  return activateProTrial(startsAtIso, endsAtIso);
+}
+
 export function isWorkspaceAccessActive() {
   return isPaymentSetupComplete() || getProTrialStatus().active;
 }
