@@ -12,9 +12,8 @@ import {
   Sparkles,
   X,
 } from "lucide-react";
-import { isWorkspaceAccessActive } from "./payment-status";
-
 const tutorialStorageKey = "comvexa-first-plan-tutorial-v1-complete";
+export const firstPlanUnlockedEvent = "comvexa-first-plan-unlocked";
 
 const steps = [
   {
@@ -52,10 +51,11 @@ export function FirstPlanTutorial() {
   const [stepIndex, setStepIndex] = useState(0);
 
   useEffect(() => {
-    function maybeOpenTutorial() {
+    function openOnFirstUnlock() {
       const completed = window.localStorage.getItem(tutorialStorageKey) === "true";
 
-      if (!completed && isWorkspaceAccessActive()) {
+      if (!completed) {
+        setStepIndex(0);
         setIsOpen(true);
       }
     }
@@ -65,15 +65,11 @@ export function FirstPlanTutorial() {
       setIsOpen(true);
     }
 
-    const timeout = window.setTimeout(maybeOpenTutorial, 350);
-    window.addEventListener("storage", maybeOpenTutorial);
-    window.addEventListener("comvexa-plan-change", maybeOpenTutorial);
+    window.addEventListener(firstPlanUnlockedEvent, openOnFirstUnlock);
     window.addEventListener("comvexa-open-first-plan-tutorial", openTutorial);
 
     return () => {
-      window.clearTimeout(timeout);
-      window.removeEventListener("storage", maybeOpenTutorial);
-      window.removeEventListener("comvexa-plan-change", maybeOpenTutorial);
+      window.removeEventListener(firstPlanUnlockedEvent, openOnFirstUnlock);
       window.removeEventListener("comvexa-open-first-plan-tutorial", openTutorial);
     };
   }, []);

@@ -6,6 +6,7 @@ const pendingBillingCycleKey = "comvexa-pending-billing-cycle";
 const paymentCompleteKey = "comvexa-payment-complete";
 const paymentProviderKey = "comvexa-payment-provider";
 const paymentConfirmedAtKey = "comvexa-payment-confirmed-at";
+const firstPlanUnlockedEvent = "comvexa-first-plan-unlocked";
 
 export type BillingCycle = "monthly" | "yearly";
 
@@ -67,6 +68,7 @@ export function activatePaidPlanFromPending() {
   window.localStorage.removeItem(pendingPlanKey);
   window.localStorage.removeItem(pendingBillingCycleKey);
   window.dispatchEvent(new Event("comvexa-plan-change"));
+  window.dispatchEvent(new Event(firstPlanUnlockedEvent));
 }
 
 export type TrialStatus = {
@@ -155,6 +157,7 @@ export function activateProTrial(startsAtIso: string, endsAtIso: string) {
   window.localStorage.removeItem(paymentProviderKey);
   window.localStorage.removeItem(paymentConfirmedAtKey);
   window.dispatchEvent(new Event("comvexa-plan-change"));
+  window.dispatchEvent(new Event(firstPlanUnlockedEvent));
 
   return getProTrialStatus();
 }
