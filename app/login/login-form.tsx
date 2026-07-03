@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import { isAdminEmail } from "@/src/lib/admin/access";
 import { supabase } from "@/src/lib/supabase/client";
 
 export function LoginForm() {
@@ -30,7 +31,7 @@ export function LoginForm() {
       return;
     }
 
-    router.push("/dashboard");
+    router.push(isAdminEmail(email) ? "/admin" : "/dashboard");
     router.refresh();
   }
 
