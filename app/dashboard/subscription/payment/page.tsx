@@ -35,7 +35,7 @@ export default function PaymentPage() {
       const storedCycle = pending.billingCycle;
       const trial = getProTrialStatus();
 
-      if (trial.active && window.localStorage.getItem("comvexa-selected-plan") === "Pro") {
+      if (!pending.plan && trial.active && window.localStorage.getItem("comvexa-selected-plan") === "Pro") {
         router.push("/dashboard");
         return;
       }
