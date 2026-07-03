@@ -1,11 +1,72 @@
 const threeDaysMs = 3 * 24 * 60 * 60 * 1000;
+const selectedPlanKey = "comvexa-selected-plan";
+const selectedBillingCycleKey = "comvexa-billing-cycle";
+const pendingPlanKey = "comvexa-pending-plan";
+const pendingBillingCycleKey = "comvexa-pending-billing-cycle";
+const paymentCompleteKey = "comvexa-payment-complete";
+const paymentProviderKey = "comvexa-payment-provider";
+const paymentConfirmedAtKey = "comvexa-payment-confirmed-at";
+
+export type BillingCycle = "monthly" | "yearly";
 
 export function isPaymentSetupComplete() {
   if (typeof window === "undefined") {
     return false;
   }
 
-  return window.localStorage.getItem("comvexa-payment-complete") === "true";
+  return (
+    window.localStorage.getItem(paymentCompleteKey) === "true" &&
+    window.localStorage.getItem(paymentProviderKey) === "paddle" &&
+    Boolean(window.localStorage.getItem(paymentConfirmedAtKey))
+  );
+}
+
+export function setPendingPaidPlan(plan: string, billingCycle: BillingCycle) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.localStorage.setItem(pendingPlanKey, plan);
+  window.localStorage.setItem(pendingBillingCycleKey, billingCycle);
+}
+
+export function getPendingPaidPlan() {
+  if (typeof window === "undefined") {
+    return {
+      plan: null,
+      billingCycle: null,
+    };
+  }
+
+  const billingCycle = window.localStorage.getItem(pendingBillingCycleKey);
+
+  return {
+    plan: window.localStorage.getItem(pendingPlanKey),
+    billingCycle: billingCycle === "monthly" || billingCycle === "yearly" ? billingCycle : null,
+  };
+}
+
+export function activatePaidPlanFromPending() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const pending = getPendingPaidPlan();
+
+  if (pending.plan) {
+    window.localStorage.setItem(selectedPlanKey, pending.plan);
+  }
+
+  if (pending.billingCycle) {
+    window.localStorage.setItem(selectedBillingCycleKey, pending.billingCycle);
+  }
+
+  window.localStorage.setItem(paymentCompleteKey, "true");
+  window.localStorage.setItem(paymentProviderKey, "paddle");
+  window.localStorage.setItem(paymentConfirmedAtKey, new Date().toISOString());
+  window.localStorage.removeItem(pendingPlanKey);
+  window.localStorage.removeItem(pendingBillingCycleKey);
+  window.dispatchEvent(new Event("comvexa-plan-change"));
 }
 
 export type TrialStatus = {
@@ -61,12 +122,14 @@ export function startProTrial() {
   const startsAt = Date.now();
   const endsAt = startsAt + threeDaysMs;
 
-  window.localStorage.setItem("comvexa-selected-plan", "Pro");
-  window.localStorage.setItem("comvexa-billing-cycle", "monthly");
+  window.localStorage.setItem(selectedPlanKey, "Pro");
+  window.localStorage.setItem(selectedBillingCycleKey, "monthly");
   window.localStorage.setItem("comvexa-pro-trial-used", "true");
   window.localStorage.setItem("comvexa-pro-trial-starts-at", String(startsAt));
   window.localStorage.setItem("comvexa-pro-trial-ends-at", String(endsAt));
-  window.localStorage.setItem("comvexa-payment-complete", "false");
+  window.localStorage.setItem(paymentCompleteKey, "false");
+  window.localStorage.removeItem(paymentProviderKey);
+  window.localStorage.removeItem(paymentConfirmedAtKey);
 
   return getProTrialStatus();
 }

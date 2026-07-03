@@ -3,7 +3,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Check, ReceiptText } from "lucide-react";
-import { formatTrialRemaining, getProTrialStatus, startProTrial, type TrialStatus } from "../_components/payment-status";
+import {
+  formatTrialRemaining,
+  getPendingPaidPlan,
+  getProTrialStatus,
+  setPendingPaidPlan,
+  startProTrial,
+  type TrialStatus,
+} from "../_components/payment-status";
 import { CurrencySelector, CurrencyValue, formatCurrencyAmount, useSelectedCurrency } from "../../_components/currency-display";
 
 const plans = [
@@ -92,8 +99,9 @@ export default function SubscriptionPage() {
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
-      const storedPlan = window.localStorage.getItem("comvexa-selected-plan");
-      const storedCycle = window.localStorage.getItem("comvexa-billing-cycle");
+      const pending = getPendingPaidPlan();
+      const storedPlan = pending.plan ?? window.localStorage.getItem("comvexa-selected-plan");
+      const storedCycle = pending.billingCycle ?? window.localStorage.getItem("comvexa-billing-cycle");
 
       if (storedPlan) {
         setSelectedPlan(storedPlan);
@@ -129,9 +137,6 @@ export default function SubscriptionPage() {
   const dueNow = selectedPlan === "Pro" && (proTrialAvailable || proTrialActive) ? 0 : subtotal;
 
   function continueToPayment() {
-    window.localStorage.setItem("comvexa-selected-plan", selectedPlan);
-    window.localStorage.setItem("comvexa-billing-cycle", billingCycle);
-
     if (selectedPlan === "Pro" && !trialStatus.used) {
       startProTrial();
       window.dispatchEvent(new Event("comvexa-plan-change"));
@@ -145,7 +150,7 @@ export default function SubscriptionPage() {
       return;
     }
 
-    window.dispatchEvent(new Event("comvexa-plan-change"));
+    setPendingPaidPlan(selectedPlan, billingCycle);
     router.push("/dashboard/subscription/payment");
   }
 

@@ -5,6 +5,10 @@ import { useState } from "react";
 import { Check } from "lucide-react";
 import { supabase } from "@/src/lib/supabase/client";
 import { openPaddleCheckout } from "@/src/lib/paddle/browser-checkout";
+import {
+  activatePaidPlanFromPending,
+  setPendingPaidPlan,
+} from "../dashboard/_components/payment-status";
 import { CurrencySelector, CurrencyValue, useSelectedCurrency } from "./currency-display";
 import { LanguageSelector, useHomeText } from "./language-display";
 
@@ -33,8 +37,7 @@ export function PricingCards({ plans }: { plans: Plan[] }) {
   async function openCheckout(plan: Plan) {
     setError("");
     setPendingPlan(plan.name);
-    window.localStorage.setItem("comvexa-selected-plan", plan.name);
-    window.localStorage.setItem("comvexa-billing-cycle", billing);
+    setPendingPaidPlan(plan.name, billing);
 
     const { data: sessionData } = await supabase.auth.getSession();
 
@@ -64,7 +67,11 @@ export function PricingCards({ plans }: { plans: Plan[] }) {
         return;
       }
 
-      await openPaddleCheckout(checkout.transactionId, checkout.url);
+      await openPaddleCheckout(checkout.transactionId, checkout.url, (event) => {
+        if (event.name === "checkout.completed") {
+          activatePaidPlanFromPending();
+        }
+      });
       setPendingPlan("");
     } catch (checkoutError) {
       setPendingPlan("");

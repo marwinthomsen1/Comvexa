@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CheckCircle2, Loader2 } from "lucide-react";
 import { openPaddleCheckout } from "@/src/lib/paddle/browser-checkout";
+import { activatePaidPlanFromPending } from "../dashboard/_components/payment-status";
 
 export function PaddleCheckoutLauncher() {
   const router = useRouter();
@@ -20,7 +21,7 @@ export function PaddleCheckoutLauncher() {
 
     openPaddleCheckout(transactionId, undefined, (event) => {
       if (event.name === "checkout.completed") {
-        window.localStorage.setItem("comvexa-payment-complete", "true");
+        activatePaidPlanFromPending();
         router.push("/dashboard?payment=success");
       }
     })

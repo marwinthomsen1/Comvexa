@@ -6,7 +6,12 @@ import { useEffect, useMemo, useState } from "react";
 import { CheckCircle2, LockKeyhole, ShieldCheck } from "lucide-react";
 import { supabase } from "@/src/lib/supabase/client";
 import { openPaddleCheckout } from "@/src/lib/paddle/browser-checkout";
-import { getProTrialStatus } from "../../_components/payment-status";
+import {
+  activatePaidPlanFromPending,
+  getPendingPaidPlan,
+  getProTrialStatus,
+  setPendingPaidPlan,
+} from "../../_components/payment-status";
 import { CurrencySelector, CurrencyValue, useSelectedCurrency } from "../../../_components/currency-display";
 
 const planPrices: Record<string, number> = {
@@ -25,8 +30,9 @@ export default function PaymentPage() {
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
-      setSelectedPlan(window.localStorage.getItem("comvexa-selected-plan") ?? "Pro");
-      const storedCycle = window.localStorage.getItem("comvexa-billing-cycle");
+      const pending = getPendingPaidPlan();
+      setSelectedPlan(pending.plan ?? "Pro");
+      const storedCycle = pending.billingCycle;
       const trial = getProTrialStatus();
 
       if (trial.active && window.localStorage.getItem("comvexa-selected-plan") === "Pro") {
@@ -51,8 +57,7 @@ export default function PaymentPage() {
   async function savePaymentSetup() {
     setError("");
     setSaved(true);
-    window.localStorage.setItem("comvexa-selected-plan", selectedPlan);
-    window.localStorage.setItem("comvexa-billing-cycle", billingCycle);
+    setPendingPaidPlan(selectedPlan, billingCycle);
 
     try {
       const { data: sessionData } = await supabase.auth.getSession();
@@ -76,7 +81,11 @@ export default function PaymentPage() {
         return;
       }
 
-      await openPaddleCheckout(checkout.transactionId, checkout.url);
+      await openPaddleCheckout(checkout.transactionId, checkout.url, (event) => {
+        if (event.name === "checkout.completed") {
+          activatePaidPlanFromPending();
+        }
+      });
       setSaved(false);
     } catch (checkoutError) {
       setSaved(false);

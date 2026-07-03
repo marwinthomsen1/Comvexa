@@ -3,21 +3,14 @@
 import Link from "next/link";
 import { LockKeyhole } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { getProTrialStatus, isWorkspaceAccessActive } from "./payment-status";
 
 export function PaymentGate({ children }: { children: React.ReactNode }) {
-  const searchParams = useSearchParams();
   const [accessActive, setAccessActive] = useState(false);
   const [trialExpired, setTrialExpired] = useState(false);
 
   useEffect(() => {
     function loadPaymentStatus() {
-      if (searchParams.get("payment") === "success") {
-        window.localStorage.setItem("comvexa-payment-complete", "true");
-        window.dispatchEvent(new Event("comvexa-plan-change"));
-      }
-
       setAccessActive(isWorkspaceAccessActive());
       setTrialExpired(getProTrialStatus().expired);
     }
@@ -31,7 +24,7 @@ export function PaymentGate({ children }: { children: React.ReactNode }) {
       window.removeEventListener("storage", loadPaymentStatus);
       window.removeEventListener("comvexa-plan-change", loadPaymentStatus);
     };
-  }, [searchParams]);
+  }, []);
 
   if (accessActive) {
     return children;
