@@ -8,6 +8,11 @@ create table if not exists companies (
   address text,
   logo_url text,
   plan text default 'basic',
+  subscription_status text default 'inactive',
+  payment_provider text,
+  paddle_customer_id text,
+  paddle_subscription_id text,
+  billing_cycle text,
   created_at timestamp default now()
 );
 

@@ -1,8 +1,10 @@
 "use client";
 
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Check } from "lucide-react";
+import { supabase } from "@/src/lib/supabase/client";
+import { openPaddleCheckout } from "@/src/lib/paddle/browser-checkout";
 import { CurrencySelector, CurrencyValue, useSelectedCurrency } from "./currency-display";
 import { LanguageSelector, useHomeText } from "./language-display";
 
@@ -16,13 +18,62 @@ type Plan = {
 };
 
 export function PricingCards({ plans }: { plans: Plan[] }) {
+  const router = useRouter();
   const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
+  const [pendingPlan, setPendingPlan] = useState("");
+  const [error, setError] = useState("");
   const currency = useSelectedCurrency();
   const text = useHomeText();
 
   function priceFor(plan: Plan) {
     const yearly = plan.priceUsd * 10;
     return billing === "monthly" ? plan.priceUsd : yearly;
+  }
+
+  async function openCheckout(plan: Plan) {
+    setError("");
+    setPendingPlan(plan.name);
+    window.localStorage.setItem("comvexa-selected-plan", plan.name);
+    window.localStorage.setItem("comvexa-billing-cycle", billing);
+
+    const { data: sessionData } = await supabase.auth.getSession();
+
+    if (!sessionData.session) {
+      router.push("/register");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/paddle/checkout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          plan: plan.name,
+          billingCycle: billing,
+          email: sessionData.session.user.email,
+          userId: sessionData.session.user.id,
+        }),
+      });
+      const checkout = await response.json();
+
+      if (!response.ok || !checkout.transactionId) {
+        setPendingPlan("");
+        setError(checkout.error ?? "Could not open Paddle checkout.");
+        return;
+      }
+
+      await openPaddleCheckout(checkout.transactionId, checkout.url);
+      setPendingPlan("");
+    } catch (checkoutError) {
+      setPendingPlan("");
+      setError(
+        checkoutError instanceof Error
+          ? checkoutError.message
+          : "Could not open Paddle checkout.",
+      );
+    }
   }
 
   return (
@@ -50,6 +101,11 @@ export function PricingCards({ plans }: { plans: Plan[] }) {
       <p className="mt-3 text-center text-sm text-amber-200">
         {billing === "yearly" ? text.yearlyNote : text.monthlyNote}
       </p>
+      {error ? (
+        <p className="mx-auto mt-3 max-w-lg rounded-xl bg-red-50 px-4 py-3 text-center text-sm text-red-700">
+          {error}
+        </p>
+      ) : null}
 
       <div className="mt-8 grid gap-6 lg:grid-cols-3">
         {plans.map((plan) => (
@@ -79,12 +135,14 @@ export function PricingCards({ plans }: { plans: Plan[] }) {
                 {text.equivalent} <CurrencyValue usd={priceFor(plan) / 12} currency={currency} />/{text.month}.
               </p>
             ) : null}
-            <Link
-              href="/register"
-              className={`mt-7 block rounded-xl px-5 py-3 text-center text-sm font-semibold ${plan.featured ? "bg-[#ff7a59] text-white hover:bg-[#ff6741]" : "bg-white text-slate-950 hover:bg-slate-100"}`}
+            <button
+              type="button"
+              onClick={() => openCheckout(plan)}
+              disabled={pendingPlan === plan.name}
+              className={`mt-7 block w-full rounded-xl px-5 py-3 text-center text-sm font-semibold ${plan.featured ? "bg-[#ff7a59] text-white hover:bg-[#ff6741]" : "bg-white text-slate-950 hover:bg-slate-100"}`}
             >
-              {text.signUpFirst}
-            </Link>
+              {pendingPlan === plan.name ? "Opening Paddle..." : "Checkout with Paddle"}
+            </button>
             <ul className="mt-7 max-h-72 space-y-3 overflow-y-auto pr-2 text-sm [scrollbar-width:thin]">
               {plan.features.map((feature) => (
                 <li key={feature} className="flex gap-3">
