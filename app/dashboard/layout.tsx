@@ -5,6 +5,7 @@ import { WorkspaceSettingsProvider } from "./_components/workspace-settings-prov
 import { DashboardHeader } from "./_components/dashboard-header";
 import { DashboardBrandSubtitle } from "./_components/dashboard-brand-subtitle";
 import { FirstPlanTutorial } from "./_components/first-plan-tutorial";
+import { AiSupportChat } from "./_components/ai-support-chat";
 
 export default function DashboardLayout({
   children,
@@ -39,6 +40,7 @@ export default function DashboardLayout({
         <DashboardAuthGuard>
           {children}
           <FirstPlanTutorial />
+          <AiSupportChat />
         </DashboardAuthGuard>
       </div>
     </div>
