@@ -134,6 +134,31 @@ export function startProTrial() {
   return getProTrialStatus();
 }
 
+export function activateProTrial(startsAtIso: string, endsAtIso: string) {
+  if (typeof window === "undefined") {
+    return getProTrialStatus();
+  }
+
+  const startsAt = new Date(startsAtIso).getTime();
+  const endsAt = new Date(endsAtIso).getTime();
+
+  if (!Number.isFinite(startsAt) || !Number.isFinite(endsAt)) {
+    return getProTrialStatus();
+  }
+
+  window.localStorage.setItem(selectedPlanKey, "Pro");
+  window.localStorage.setItem(selectedBillingCycleKey, "monthly");
+  window.localStorage.setItem("comvexa-pro-trial-used", "true");
+  window.localStorage.setItem("comvexa-pro-trial-starts-at", String(startsAt));
+  window.localStorage.setItem("comvexa-pro-trial-ends-at", String(endsAt));
+  window.localStorage.setItem(paymentCompleteKey, "false");
+  window.localStorage.removeItem(paymentProviderKey);
+  window.localStorage.removeItem(paymentConfirmedAtKey);
+  window.dispatchEvent(new Event("comvexa-plan-change"));
+
+  return getProTrialStatus();
+}
+
 export function isWorkspaceAccessActive() {
   return isPaymentSetupComplete() || getProTrialStatus().active;
 }

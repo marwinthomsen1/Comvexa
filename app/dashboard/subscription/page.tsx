@@ -3,12 +3,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Check, ReceiptText } from "lucide-react";
+import { supabase } from "@/src/lib/supabase/client";
 import {
+  activateProTrial,
   formatTrialRemaining,
   getPendingPaidPlan,
   getProTrialStatus,
   setPendingPaidPlan,
-  startProTrial,
   type TrialStatus,
 } from "../_components/payment-status";
 import { CurrencySelector, CurrencyValue, formatCurrencyAmount, useSelectedCurrency } from "../../_components/currency-display";
@@ -88,6 +89,8 @@ export default function SubscriptionPage() {
   const currency = useSelectedCurrency();
   const [selectedPlan, setSelectedPlan] = useState("Pro");
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
+  const [isStartingTrial, setIsStartingTrial] = useState(false);
+  const [trialError, setTrialError] = useState("");
   const [trialStatus, setTrialStatus] = useState<TrialStatus>({
     used: false,
     active: false,
@@ -136,11 +139,47 @@ export default function SubscriptionPage() {
           : "One-time 3-day free trial available";
   const dueNow = selectedPlan === "Pro" && (proTrialAvailable || proTrialActive) ? 0 : subtotal;
 
+  async function startServerTrial() {
+    setTrialError("");
+    setIsStartingTrial(true);
+
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData.session?.access_token;
+
+      if (!accessToken) {
+        setTrialError("Sign in before starting the Pro trial.");
+        setIsStartingTrial(false);
+        return;
+      }
+
+      const response = await fetch("/api/subscription/trial", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      const trial = await response.json();
+
+      if (!response.ok) {
+        setTrialError(trial.error ?? "Could not start the Pro trial.");
+        setTrialStatus(getProTrialStatus());
+        setIsStartingTrial(false);
+        return;
+      }
+
+      activateProTrial(trial.startsAt, trial.endsAt);
+      setIsStartingTrial(false);
+      router.push("/dashboard");
+    } catch {
+      setTrialError("Could not start the Pro trial.");
+      setIsStartingTrial(false);
+    }
+  }
+
   function continueToPayment() {
     if (selectedPlan === "Pro" && !trialStatus.used) {
-      startProTrial();
-      window.dispatchEvent(new Event("comvexa-plan-change"));
-      router.push("/dashboard");
+      void startServerTrial();
       return;
     }
 
@@ -308,13 +347,21 @@ export default function SubscriptionPage() {
               ) : null}
             </div>
           </div>
+          {trialError ? (
+            <p className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm leading-6 text-red-700 ring-1 ring-red-100">
+              {trialError}
+            </p>
+          ) : null}
           <button
             type="button"
             onClick={continueToPayment}
+            disabled={isStartingTrial}
             className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700"
             data-no-translate
           >
-            {selectedPlan === "Pro" && proTrialAvailable
+            {isStartingTrial
+              ? "Starting trial..."
+              : selectedPlan === "Pro" && proTrialAvailable
               ? "Start 3-day trial"
               : selectedPlan === "Pro" && proTrialActive
                 ? "Open dashboard"

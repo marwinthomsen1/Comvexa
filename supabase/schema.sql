@@ -13,6 +13,8 @@ create table if not exists companies (
   paddle_customer_id text,
   paddle_subscription_id text,
   billing_cycle text,
+  trial_started_at timestamp,
+  trial_ends_at timestamp,
   created_at timestamp default now()
 );
 
