@@ -188,10 +188,10 @@ export function DashboardNav() {
             />
           </div>
           <Link
-            href="/dashboard/settings"
+            href={accessActive ? "/dashboard/settings" : "/dashboard/subscription"}
             className="mt-3 flex w-full items-center justify-center rounded-lg bg-[var(--comvexa-accent,#2563eb)] px-3 py-2 text-xs font-semibold text-white hover:opacity-90"
           >
-            {text.customize}
+            {accessActive ? text.customize : trialLabel ? "Open dashboard" : "Choose plan"}
           </Link>
         </div>
       </div>
