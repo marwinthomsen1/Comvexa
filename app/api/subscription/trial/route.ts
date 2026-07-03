@@ -1,10 +1,37 @@
-import { createSupabaseAdminClient } from "@/src/lib/supabase/admin";
+import { createClient } from "@supabase/supabase-js";
 
 const trialLengthMs = 3 * 24 * 60 * 60 * 1000;
 
+function trialErrorResponse(error: unknown, fallback: string) {
+  console.error(fallback, error);
+
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "message" in error &&
+    typeof error.message === "string" &&
+    error.message.includes("trial_")
+  ) {
+    return Response.json(
+      { error: "Trial database fields are missing. Apply the Supabase billing migration." },
+      { status: 500 },
+    );
+  }
+
+  return Response.json({ error: fallback }, { status: 500 });
+}
+
 async function getSessionCompany(request: Request) {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   const authHeader = request.headers.get("authorization");
   const token = authHeader?.startsWith("Bearer ") ? authHeader.slice("Bearer ".length) : null;
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return {
+      error: Response.json({ error: "Supabase is not configured." }, { status: 500 }),
+    };
+  }
 
   if (!token) {
     return {
@@ -12,8 +39,18 @@ async function getSessionCompany(request: Request) {
     };
   }
 
-  const supabase = createSupabaseAdminClient();
-  const { data: userData, error: userError } = await supabase.auth.getUser(token);
+  const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+    },
+    global: {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  });
+  const { data: userData, error: userError } = await supabase.auth.getUser();
 
   if (userError || !userData.user) {
     return {
@@ -63,8 +100,8 @@ export async function GET(request: Request) {
       startsAt: company?.trial_started_at ?? null,
       endsAt: company?.trial_ends_at ?? null,
     });
-  } catch {
-    return Response.json({ error: "Could not load trial status." }, { status: 500 });
+  } catch (error) {
+    return trialErrorResponse(error, "Could not load trial status.");
   }
 }
 
@@ -114,7 +151,7 @@ export async function POST(request: Request) {
       startsAt: startsAt.toISOString(),
       endsAt: endsAt.toISOString(),
     });
-  } catch {
-    return Response.json({ error: "Could not start the Pro trial." }, { status: 500 });
+  } catch (error) {
+    return trialErrorResponse(error, "Could not start the Pro trial.");
   }
 }
