@@ -5,12 +5,18 @@ import { useRouter } from "next/navigation";
 import {
   BarChart3,
   Building2,
+  CalendarClock,
   CreditCard,
+  DollarSign,
   FileText,
+  HandCoins,
   LogOut,
+  Package,
   ReceiptText,
   RefreshCw,
   ShieldCheck,
+  TrendingUp,
+  WalletCards,
   Users,
   type LucideIcon,
 } from "lucide-react";
@@ -20,10 +26,23 @@ import { supabase } from "@/src/lib/supabase/client";
 type AdminOverview = {
   adminEmail: string;
   counts: Record<string, number>;
+  financials: Record<string, number>;
+  breakdowns: Record<string, Record<string, number>>;
+  alerts: Record<string, number>;
+  activityLast30Days: Record<string, number>;
+  topCompanies: Array<Record<string, unknown>>;
   recentCompanies: Array<Record<string, unknown>>;
   recentCustomers: Array<Record<string, unknown>>;
   recentInvoices: Array<Record<string, unknown>>;
   recentPayments: Array<Record<string, unknown>>;
+  recentExpenses: Array<Record<string, unknown>>;
+  recentSupplierBills: Array<Record<string, unknown>>;
+  recentTasks: Array<Record<string, unknown>>;
+  recentBookings: Array<Record<string, unknown>>;
+  recentEmployees: Array<Record<string, unknown>>;
+  recentDocuments: Array<Record<string, unknown>>;
+  recentInventory: Array<Record<string, unknown>>;
+  recentBranches: Array<Record<string, unknown>>;
   recentUsers: Array<Record<string, unknown>>;
 };
 
@@ -51,6 +70,16 @@ function formatDate(value: unknown) {
     day: "numeric",
     year: "numeric",
   }).format(new Date(String(value)));
+}
+
+function money(value: unknown) {
+  return `$${Number(value ?? 0).toLocaleString()}`;
+}
+
+function titleize(value: string) {
+  return value
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
 export function AdminDashboard() {
@@ -108,12 +137,40 @@ export function AdminDashboard() {
       ["Companies", counts.companies ?? 0, Building2],
       ["Users", counts.profiles ?? 0, Users],
       ["Customers", counts.customers ?? 0, Users],
+      ["Employees", counts.employees ?? 0, Users],
       ["Invoices", counts.invoices ?? 0, ReceiptText],
       ["Payments", counts.payments ?? 0, CreditCard],
+      ["Expenses", counts.expenses ?? 0, HandCoins],
       ["Documents", counts.documents ?? 0, FileText],
       ["Tasks", counts.tasks ?? 0, BarChart3],
+      ["Bookings", counts.bookings ?? 0, CalendarClock],
+      ["Inventory", counts.inventory_items ?? 0, Package],
       ["Branches", counts.branches ?? 0, Building2],
     ] satisfies Array<[string, number, LucideIcon]>;
+  }, [overview]);
+
+  const financialCards = useMemo(() => {
+    const financials = overview?.financials ?? {};
+
+    return [
+      ["Invoice total", money(financials.invoiceTotal), ReceiptText],
+      ["Paid invoices", money(financials.paidInvoiceTotal), DollarSign],
+      ["Unpaid invoices", money(financials.unpaidInvoiceTotal), WalletCards],
+      ["Payments received", money(financials.paymentsTotal), CreditCard],
+      ["Expenses", money(financials.expensesTotal), HandCoins],
+      ["Supplier bills", money(financials.supplierBillsTotal), FileText],
+    ] satisfies Array<[string, string, LucideIcon]>;
+  }, [overview]);
+
+  const alertCards = useMemo(() => {
+    const alerts = overview?.alerts ?? {};
+
+    return [
+      ["Overdue invoices", alerts.overdueInvoices ?? 0],
+      ["Supplier bills due", alerts.upcomingSupplierBills ?? 0],
+      ["Low stock items", alerts.lowStockItems ?? 0],
+      ["Open tasks", alerts.openTasks ?? 0],
+    ] satisfies Array<[string, number]>;
   }, [overview]);
 
   async function signOut() {
@@ -173,7 +230,7 @@ export function AdminDashboard() {
           </section>
         ) : null}
 
-        <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
           {metrics.map(([label, value, Icon]) => (
             <div key={String(label)} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
               <div className="flex items-center justify-between gap-4">
@@ -187,12 +244,68 @@ export function AdminDashboard() {
           ))}
         </section>
 
+        <section className="mt-6 grid gap-4 lg:grid-cols-3">
+          {financialCards.map(([label, value, Icon]) => (
+            <div key={label} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-sm font-semibold text-slate-500">{label}</p>
+                  <p className="mt-3 text-3xl font-semibold tracking-normal">{value}</p>
+                </div>
+                <span className="flex size-11 items-center justify-center rounded-xl bg-cyan-50 text-cyan-700 ring-1 ring-cyan-100">
+                  <Icon size={20} />
+                </span>
+              </div>
+            </div>
+          ))}
+        </section>
+
+        <section className="mt-6 grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
+          <AdminPanel title="Plan and subscription mix">
+            <div className="grid gap-4 md:grid-cols-2">
+              <Breakdown title="Plans" data={overview?.breakdowns.plans ?? {}} />
+              <Breakdown title="Subscription status" data={overview?.breakdowns.subscriptionStatus ?? {}} />
+            </div>
+          </AdminPanel>
+          <AdminPanel title="Needs attention">
+            <div className="grid gap-3 sm:grid-cols-2">
+              {alertCards.map(([label, value]) => (
+                <div key={label} className="rounded-xl border border-amber-100 bg-amber-50 px-4 py-3">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-amber-700">{label}</p>
+                  <p className="mt-2 text-2xl font-semibold text-slate-950">{value}</p>
+                </div>
+              ))}
+            </div>
+          </AdminPanel>
+        </section>
+
+        <section className="mt-6 grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
+          <AdminPanel title="Activity last 30 days">
+            <div className="space-y-3">
+              {Object.entries(overview?.activityLast30Days ?? {}).map(([label, value]) => (
+                <ProgressRow key={label} label={titleize(label)} value={value} max={Math.max(...Object.values(overview?.activityLast30Days ?? { 1: 1 }))} />
+              ))}
+            </div>
+          </AdminPanel>
+          <AdminPanel title="Most active companies">
+            <div className="grid gap-3 sm:grid-cols-2">
+              {(overview?.topCompanies ?? []).map((company, index) => (
+                <div key={`${company.name}-${index}`} className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+                  <p className="font-semibold text-slate-950">{String(company.name ?? "Company")}</p>
+                  <p className="mt-1 text-sm text-slate-500">{String(company.activity ?? 0)} recent records</p>
+                </div>
+              ))}
+            </div>
+          </AdminPanel>
+        </section>
+
         <section className="mt-6 grid gap-6 xl:grid-cols-[1fr_1fr]">
           <AdminTable
             title="Recent companies"
-            columns={["Company", "Plan", "Status", "Created"]}
+            columns={["Company", "Email", "Plan", "Status", "Created"]}
             rows={(overview?.recentCompanies ?? []).map((row) => [
               String(row.name ?? "Unnamed company"),
+              String(row.email ?? "-"),
               String(row.plan ?? "-"),
               String(row.subscription_status ?? "-"),
               formatDate(row.created_at),
@@ -215,7 +328,97 @@ export function AdminDashboard() {
               String(row.invoice_number ?? "Invoice"),
               companyName(row),
               String(row.payment_status ?? "-"),
-              `$${Number(row.total_amount ?? 0).toLocaleString()}`,
+              money(row.total_amount),
+            ])}
+          />
+          <AdminTable
+            title="Recent payments"
+            columns={["Company", "Method", "Date", "Amount"]}
+            rows={(overview?.recentPayments ?? []).map((row) => [
+              companyName(row),
+              String(row.payment_method ?? "-"),
+              formatDate(row.payment_date ?? row.created_at),
+              money(row.amount),
+            ])}
+          />
+          <AdminTable
+            title="Recent employees"
+            columns={["Employee", "Company", "Department", "Status"]}
+            rows={(overview?.recentEmployees ?? []).map((row) => [
+              String(row.name ?? "Employee"),
+              companyName(row),
+              String(row.department ?? "-"),
+              String(row.status ?? "-"),
+            ])}
+          />
+          <AdminTable
+            title="Recent tasks"
+            columns={["Task", "Company", "Priority", "Status"]}
+            rows={(overview?.recentTasks ?? []).map((row) => [
+              String(row.title ?? "Task"),
+              companyName(row),
+              String(row.priority ?? "-"),
+              String(row.status ?? "-"),
+            ])}
+          />
+          <AdminTable
+            title="Recent bookings"
+            columns={["Company", "Date", "Time", "Status"]}
+            rows={(overview?.recentBookings ?? []).map((row) => [
+              companyName(row),
+              formatDate(row.booking_date ?? row.created_at),
+              `${String(row.start_time ?? "-")} - ${String(row.end_time ?? "-")}`,
+              String(row.status ?? "-"),
+            ])}
+          />
+          <AdminTable
+            title="Recent expenses"
+            columns={["Expense", "Company", "Category", "Amount"]}
+            rows={(overview?.recentExpenses ?? []).map((row) => [
+              String(row.title ?? "Expense"),
+              companyName(row),
+              String(row.category ?? "-"),
+              money(row.amount),
+            ])}
+          />
+          <AdminTable
+            title="Supplier bills"
+            columns={["Supplier", "Company", "Status", "Amount"]}
+            rows={(overview?.recentSupplierBills ?? []).map((row) => [
+              String(row.supplier_name ?? "Supplier"),
+              companyName(row),
+              String(row.payment_status ?? "-"),
+              money(row.total_amount),
+            ])}
+          />
+          <AdminTable
+            title="Documents"
+            columns={["Document", "Company", "Type", "Expiry"]}
+            rows={(overview?.recentDocuments ?? []).map((row) => [
+              String(row.title ?? "Document"),
+              companyName(row),
+              String(row.document_type ?? "-"),
+              formatDate(row.expiry_date),
+            ])}
+          />
+          <AdminTable
+            title="Inventory"
+            columns={["Item", "Company", "Quantity", "Supplier"]}
+            rows={(overview?.recentInventory ?? []).map((row) => [
+              String(row.name ?? "Item"),
+              companyName(row),
+              `${String(row.quantity ?? 0)} ${String(row.unit ?? "")}`.trim(),
+              String(row.supplier ?? "-"),
+            ])}
+          />
+          <AdminTable
+            title="Branches"
+            columns={["Branch", "Company", "Phone", "Created"]}
+            rows={(overview?.recentBranches ?? []).map((row) => [
+              String(row.name ?? "Branch"),
+              companyName(row),
+              String(row.phone ?? "-"),
+              formatDate(row.created_at),
             ])}
           />
           <AdminTable
@@ -230,6 +433,54 @@ export function AdminDashboard() {
         </section>
       </div>
     </main>
+  );
+}
+
+function AdminPanel({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="mb-5 flex items-center gap-2">
+        <TrendingUp size={18} className="text-emerald-700" />
+        <h2 className="font-semibold">{title}</h2>
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function Breakdown({ title, data }: { title: string; data: Record<string, number> }) {
+  const entries = Object.entries(data);
+  const total = entries.reduce((sum, [, value]) => sum + value, 0) || 1;
+
+  return (
+    <div>
+      <p className="text-sm font-semibold text-slate-500">{title}</p>
+      <div className="mt-3 space-y-3">
+        {entries.length ? (
+          entries.map(([label, value]) => (
+            <ProgressRow key={label} label={titleize(label)} value={value} max={total} />
+          ))
+        ) : (
+          <p className="text-sm text-slate-500">No data yet.</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ProgressRow({ label, value, max }: { label: string; value: number; max: number }) {
+  const width = max > 0 ? Math.max(6, Math.min(100, (value / max) * 100)) : 0;
+
+  return (
+    <div>
+      <div className="flex items-center justify-between gap-3 text-sm">
+        <span className="font-medium text-slate-700">{label}</span>
+        <span className="font-semibold text-slate-950">{value}</span>
+      </div>
+      <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
+        <div className="h-full rounded-full bg-emerald-500" style={{ width: `${width}%` }} />
+      </div>
+    </div>
   );
 }
 
