@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 
-export const languageOptions = ["English", "Arabic", "German", "French", "Spanish"];
+export const languageOptions = ["English", "German", "French", "Spanish"];
 
-type DashboardLanguage = (typeof languageOptions)[number];
+type DashboardLanguage = "English" | "Arabic" | "German" | "French" | "Spanish";
 
 type DashboardDictionary = {
   appSubtitle: string;
@@ -477,7 +477,8 @@ export function getLanguageCode(language: string) {
 }
 
 export function getLanguageDirection(language: string) {
-  return normalizeLanguage(language) === "Arabic" ? "rtl" : "ltr";
+  normalizeLanguage(language);
+  return "ltr";
 }
 
 function readLanguage() {

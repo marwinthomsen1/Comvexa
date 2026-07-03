@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 
 const languages = [
   { value: "English", label: "English" },
-  { value: "Arabic", label: "العربية" },
   { value: "German", label: "Deutsch" },
   { value: "French", label: "Français" },
   { value: "Spanish", label: "Español" },
@@ -148,8 +147,8 @@ function writeLanguage(language: string) {
     window.localStorage.setItem("comvexa-workspace-settings", JSON.stringify({ language }));
   }
 
-  document.documentElement.lang = { English: "en", Arabic: "ar", German: "de", French: "fr", Spanish: "es" }[language] ?? "en";
-  document.documentElement.dir = language === "Arabic" ? "rtl" : "ltr";
+  document.documentElement.lang = { English: "en", German: "de", French: "fr", Spanish: "es" }[language] ?? "en";
+  document.documentElement.dir = "ltr";
   window.dispatchEvent(new Event("comvexa-settings-change"));
   window.dispatchEvent(new Event("comvexa-language-change"));
 }
@@ -161,7 +160,7 @@ export function useHomeText() {
     function syncLanguage() {
       const nextLanguage = readLanguage();
       setLanguage(nextLanguage);
-      document.documentElement.dir = nextLanguage === "Arabic" ? "rtl" : "ltr";
+      document.documentElement.dir = "ltr";
     }
 
     syncLanguage();

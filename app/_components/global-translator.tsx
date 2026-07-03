@@ -1647,7 +1647,7 @@ function readLanguage(): Language {
     const settings = saved ? JSON.parse(saved) : null;
     const language = settings?.language ?? window.localStorage.getItem("comvexa-selected-language");
 
-    if (language === "Arabic" || language === "German" || language === "French" || language === "Spanish") {
+    if (language === "German" || language === "French" || language === "Spanish") {
       return language;
     }
   } catch {
@@ -1714,7 +1714,7 @@ function isLiveCurrencyText(value: string) {
 function applyTranslations(language: Language) {
   const dictionary = language === "English" ? {} : common[language];
   document.documentElement.lang = languageCodes[language];
-  document.documentElement.dir = language === "Arabic" ? "rtl" : "ltr";
+  document.documentElement.dir = "ltr";
 
   const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
   const nodes: Text[] = [];

@@ -102,13 +102,13 @@ export function FirstPlanTutorial() {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/55 px-4 py-6 backdrop-blur-sm">
-      <section className="relative w-full max-w-5xl overflow-hidden rounded-[2rem] border border-white/70 bg-white shadow-2xl shadow-slate-950/30">
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-950/55 p-4 backdrop-blur-sm sm:p-6">
+      <section className="relative max-h-[calc(100dvh-2rem)] w-full max-w-4xl overflow-hidden rounded-[1.5rem] border border-white/70 bg-white shadow-2xl shadow-slate-950/30 sm:max-h-[calc(100dvh-3rem)]">
         <div className="absolute -right-20 -top-20 size-56 rounded-full bg-amber-200/70 blur-3xl" />
         <div className="absolute -bottom-24 -left-20 size-64 rounded-full bg-cyan-200/70 blur-3xl" />
 
-        <div className="relative grid lg:grid-cols-[0.9fr_1.1fr]">
-          <aside className="bg-cyan-950 p-7 text-white sm:p-8">
+        <div className="relative grid max-h-[calc(100dvh-2rem)] min-h-0 overflow-y-auto sm:max-h-[calc(100dvh-3rem)] lg:grid-cols-[0.9fr_1.1fr] lg:overflow-hidden">
+          <aside className="min-h-0 bg-cyan-950 p-5 text-white sm:p-6 lg:overflow-y-auto">
             <div className="flex items-start justify-between gap-4">
               <p className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-amber-100 ring-1 ring-white/15">
                 <Sparkles size={16} />
@@ -124,15 +124,15 @@ export function FirstPlanTutorial() {
               </button>
             </div>
 
-            <h2 className="mt-8 max-w-md text-4xl font-semibold leading-tight tracking-normal">
+            <h2 className="mt-6 max-w-md text-3xl font-semibold leading-tight tracking-normal">
               Welcome to your Comvexa workspace.
             </h2>
-            <p className="mt-4 max-w-md text-sm leading-6 text-cyan-50/75">
+            <p className="mt-3 max-w-md text-sm leading-6 text-cyan-50/75">
               This quick tour shows what to do first, where your daily work
               lives, and how the dashboard becomes smarter as you add records.
             </p>
 
-            <div className="mt-8 grid gap-3">
+            <div className="mt-6 grid gap-3">
               {steps.map((item, index) => (
                 <button
                   key={item.title}
@@ -157,7 +157,7 @@ export function FirstPlanTutorial() {
             </div>
           </aside>
 
-          <div className="p-7 sm:p-8 lg:p-10">
+          <div className="min-h-0 p-5 sm:p-6 lg:overflow-y-auto lg:p-8">
             <div className="flex items-center justify-between gap-4">
               <span className="flex size-14 items-center justify-center rounded-2xl bg-cyan-50 text-cyan-700 ring-1 ring-cyan-100">
                 <Icon size={24} />
@@ -167,14 +167,14 @@ export function FirstPlanTutorial() {
               </span>
             </div>
 
-            <h3 className="mt-8 text-3xl font-semibold tracking-normal text-slate-950">
+            <h3 className="mt-6 text-2xl font-semibold tracking-normal text-slate-950">
               {step.title}
             </h3>
             <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600">
               {step.text}
             </p>
 
-            <div className="mt-8 rounded-3xl border border-cyan-100 bg-[#f7fbff] p-5">
+            <div className="mt-6 rounded-2xl border border-cyan-100 bg-[#f7fbff] p-5">
               <div className="flex items-start gap-3">
                 <CheckCircle2 className="mt-0.5 shrink-0 text-cyan-700" size={20} />
                 <div>
@@ -188,7 +188,7 @@ export function FirstPlanTutorial() {
               </div>
             </div>
 
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <button
                 type="button"
                 onClick={finishTutorial}
