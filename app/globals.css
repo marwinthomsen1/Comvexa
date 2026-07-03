@@ -57,6 +57,34 @@ html {
   position: relative;
 }
 
+.comvexa-ai-support-launcher,
+.comvexa-ai-support-panel {
+  position: fixed !important;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  z-index: 40;
+}
+
+html[dir="rtl"] .comvexa-ai-support-launcher,
+html[dir="rtl"] .comvexa-ai-support-panel {
+  right: auto;
+  left: 1.25rem;
+}
+
+@media (max-width: 640px) {
+  .comvexa-ai-support-launcher,
+  .comvexa-ai-support-panel {
+    right: 1rem;
+    bottom: 1rem;
+  }
+
+  html[dir="rtl"] .comvexa-ai-support-launcher,
+  html[dir="rtl"] .comvexa-ai-support-panel {
+    right: auto;
+    left: 1rem;
+  }
+}
+
 html[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area,
 .comvexa-theme-root[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area,
 html[data-comvexa-theme]:not([data-comvexa-theme="Normal"]) .comvexa-dashboard-area h1,
