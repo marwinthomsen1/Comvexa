@@ -1076,9 +1076,14 @@ function EmailTab({ overview, onSent }: { overview: AdminOverview | null; onSent
                 {message || "Your message will appear here."}
               </p>
               {ctaLabel && ctaUrl ? (
-                <span className="mt-4 inline-flex rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white">
+                <a
+                  href={ctaUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-4 inline-flex rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white"
+                >
                   {ctaLabel}
-                </span>
+                </a>
               ) : null}
             </div>
           </div>

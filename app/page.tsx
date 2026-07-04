@@ -147,17 +147,17 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-[#fff7da] text-slate-950">
       <header className="sticky top-0 z-30 border-b border-orange-200/70 bg-white/90 text-slate-950 shadow-sm shadow-orange-100/60 backdrop-blur-xl">
-        <nav className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4 lg:px-8">
+        <nav className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 py-2.5 sm:gap-3 sm:px-6 sm:py-4 lg:px-8">
           <Link href="/" className="flex min-w-0 items-center gap-2 font-semibold sm:gap-3">
             <Image
               src="/logo.png"
               alt="Comvexa logo"
               width={44}
               height={44}
-              className="size-9 rounded-xl bg-white object-contain p-1 sm:size-11"
+              className="size-8 rounded-xl bg-white object-contain p-1 sm:size-11"
               priority
             />
-            <span className="truncate text-base sm:text-lg">Comvexa</span>
+            <span className="truncate text-sm sm:text-lg">Comvexa</span>
           </Link>
           <div className="hidden items-center gap-7 text-sm font-medium text-slate-600 md:flex">
             <a href="#platform" className="hover:text-cyan-700"><HomeText id="platform" /></a>
@@ -175,7 +175,7 @@ export default function Home() {
             </Link>
             <Link
               href="/register"
-              className="rounded-xl bg-[#ff7a59] px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-orange-300/40 hover:bg-[#ff6741] sm:px-4"
+              className="rounded-xl bg-[#ff7a59] px-3 py-2 text-sm font-semibold text-white shadow-lg shadow-orange-300/40 hover:bg-[#ff6741] sm:px-4 sm:py-2.5"
             >
               <span className="sm:hidden">Start</span>
               <span className="hidden sm:inline"><HomeText id="startTrial" /></span>
@@ -194,20 +194,20 @@ export default function Home() {
         <div className="summer-float summer-float-two" aria-hidden="true" />
         <div className="summer-float summer-float-three" aria-hidden="true" />
 
-        <div className="relative z-10 mx-auto max-w-7xl px-5 pb-16 pt-12 sm:px-6 sm:pb-24 sm:pt-16 lg:px-8 lg:pb-36 lg:pt-28">
+        <div className="relative z-10 mx-auto max-w-7xl px-5 pb-12 pt-9 sm:px-6 sm:pb-24 sm:pt-16 lg:px-8 lg:pb-36 lg:pt-28">
           <div className="grid items-center gap-12 lg:grid-cols-[0.92fr_1.08fr]">
             <div className="summer-rise">
-              <p className="inline-flex max-w-full items-center gap-2 rounded-full border border-cyan-400/60 bg-white/80 px-3 py-2 text-xs font-semibold text-cyan-900 shadow-lg shadow-cyan-200/40 sm:px-4 sm:text-sm">
+              <p className="inline-flex max-w-full items-center gap-2 rounded-full border border-cyan-400/60 bg-white/85 px-3 py-1.5 text-xs font-semibold text-cyan-900 shadow-lg shadow-cyan-200/40 sm:px-4 sm:py-2 sm:text-sm">
                 <Sparkles size={15} />
                 <HomeText id="eyebrow" />
               </p>
-              <h1 className="mt-5 max-w-4xl text-[3rem] font-semibold leading-[1.05] tracking-normal text-[#06112f] sm:mt-6 sm:text-6xl lg:text-7xl">
+              <h1 className="mt-4 max-w-4xl text-[2.55rem] font-semibold leading-[1.04] tracking-normal text-[#06112f] sm:mt-6 sm:text-6xl lg:text-7xl">
                 <HomeText id="headline" />
               </h1>
-              <p className="mt-5 max-w-2xl text-base leading-7 text-slate-700 sm:mt-6 sm:text-lg sm:leading-8">
+              <p className="mt-4 max-w-2xl text-base leading-7 text-slate-700 sm:mt-6 sm:text-lg sm:leading-8">
                 <HomeText id="subhead" />
               </p>
-              <div className="mt-7 flex flex-col gap-3 sm:mt-9 sm:flex-row">
+              <div className="mt-6 flex flex-col gap-3 sm:mt-9 sm:flex-row">
                 <Link
                   href="/register"
                   className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#ff6b4a] px-6 py-3.5 text-sm font-semibold text-white shadow-xl shadow-orange-300/60 transition hover:-translate-y-0.5 hover:bg-[#ff5633] sm:py-3"
@@ -309,7 +309,7 @@ export default function Home() {
         <div className="summer-wave summer-wave-front" aria-hidden="true" />
       </section>
 
-      <section className="border-y border-cyan-900/10 bg-white px-6 py-8 lg:px-8">
+      <section className="hidden border-y border-cyan-900/10 bg-white px-6 py-8 sm:block lg:px-8">
         <div className="mx-auto grid max-w-7xl gap-4 md:grid-cols-4">
           {[
             ["Global-ready", "Works for teams, branches, and markets worldwide."],
@@ -325,12 +325,12 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="platform" className="px-6 py-20 lg:px-8">
+      <section id="platform" className="px-5 py-12 sm:px-6 sm:py-20 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <div className="grid gap-8 lg:grid-cols-[0.75fr_1.25fr] lg:items-end">
             <div>
               <p className="text-sm font-semibold uppercase tracking-widest text-cyan-700">Platform</p>
-              <h2 className="mt-3 text-4xl font-semibold tracking-normal">Everything your company needs to operate.</h2>
+              <h2 className="mt-3 text-3xl font-semibold tracking-normal sm:text-4xl">Everything your company needs to operate.</h2>
               <p className="mt-4 text-slate-600">
                 Comvexa is not a single-purpose tool. It combines operations,
                 finance, documents, people, inventory, reports, and company
@@ -346,7 +346,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-8 grid gap-4 sm:mt-10 sm:grid-cols-2 lg:grid-cols-4">
             {modules.map((module) => {
               const Icon = module.icon;
 
@@ -364,7 +364,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="accounting" className="bg-white px-6 py-20 lg:px-8">
+      <section id="accounting" className="bg-white px-5 py-12 sm:px-6 sm:py-20 lg:px-8">
         <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1fr_1fr] lg:items-center">
           <div className="rounded-[2rem] bg-cyan-950 p-6 text-white">
             <div className="grid gap-4 sm:grid-cols-2">
@@ -384,7 +384,7 @@ export default function Home() {
           </div>
           <div>
             <p className="text-sm font-semibold uppercase tracking-widest text-cyan-700">Finance and accounting</p>
-            <h2 className="mt-3 text-4xl font-semibold tracking-normal">Know where the money is going.</h2>
+            <h2 className="mt-3 text-3xl font-semibold tracking-normal sm:text-4xl">Know where the money is going.</h2>
             <p className="mt-4 text-slate-600">
               Comvexa helps businesses manage the financial side of operations:
               invoices, payments, expenses, supplier bills, taxes, receivables,
@@ -407,11 +407,11 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="px-6 py-20 lg:px-8">
+      <section className="px-5 py-12 sm:px-6 sm:py-20 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <div className="max-w-3xl">
             <p className="text-sm font-semibold uppercase tracking-widest text-cyan-700">Workflow</p>
-            <h2 className="mt-3 text-4xl font-semibold tracking-normal">From first customer to final report.</h2>
+            <h2 className="mt-3 text-3xl font-semibold tracking-normal sm:text-4xl">From first customer to final report.</h2>
           </div>
           <div className="mt-10 grid gap-4 md:grid-cols-4">
             {[
@@ -430,11 +430,11 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="pricing" className="bg-cyan-950 px-6 py-20 text-white lg:px-8">
+      <section id="pricing" className="bg-cyan-950 px-5 py-12 text-white sm:px-6 sm:py-20 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <div className="mx-auto max-w-3xl text-center">
             <p className="text-sm font-semibold uppercase tracking-widest text-amber-200">Pricing</p>
-            <h2 className="mt-3 text-4xl font-semibold tracking-normal">Plans that match your operating stage.</h2>
+            <h2 className="mt-3 text-3xl font-semibold tracking-normal sm:text-4xl">Plans that match your operating stage.</h2>
             <p className="mt-4 text-slate-300">
               Users sign up first, choose a plan, then continue to payment.
               Pro includes a 3-day trial, and Ultra includes a 7-day trial.
@@ -444,11 +444,11 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="bg-white px-6 py-20 lg:px-8">
+      <section className="bg-white px-5 py-12 sm:px-6 sm:py-20 lg:px-8">
         <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
           <div>
             <p className="text-sm font-semibold uppercase tracking-widest text-cyan-700">Security and global readiness</p>
-            <h2 className="mt-3 text-4xl font-semibold tracking-normal">Built for multi-company SaaS from the start.</h2>
+            <h2 className="mt-3 text-3xl font-semibold tracking-normal sm:text-4xl">Built for multi-company SaaS from the start.</h2>
             <p className="mt-4 text-slate-600">
               Every operational table is designed around company isolation.
               The platform is prepared for global settings, PDF storage,
@@ -472,11 +472,11 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="faq" className="px-6 py-20 lg:px-8">
+      <section id="faq" className="px-5 py-12 sm:px-6 sm:py-20 lg:px-8">
         <div className="mx-auto max-w-5xl">
           <div className="text-center">
             <p className="text-sm font-semibold uppercase tracking-widest text-cyan-700">FAQ</p>
-            <h2 className="mt-3 text-4xl font-semibold tracking-normal">Questions before you start?</h2>
+            <h2 className="mt-3 text-3xl font-semibold tracking-normal sm:text-4xl">Questions before you start?</h2>
           </div>
           <div className="mt-10 grid gap-4 md:grid-cols-2">
             {faqs.map((faq) => (
@@ -489,8 +489,8 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="bg-[#fff1c7] px-6 py-20 text-slate-950 lg:px-8">
-        <div className="mx-auto grid max-w-7xl gap-8 overflow-hidden rounded-3xl border border-cyan-900/10 bg-white/70 p-6 shadow-2xl shadow-amber-200/60 lg:grid-cols-[1fr_0.7fr] lg:p-10">
+      <section className="bg-[#fff1c7] px-5 py-12 text-slate-950 sm:px-6 sm:py-20 lg:px-8">
+        <div className="mx-auto grid max-w-7xl gap-8 overflow-hidden rounded-3xl border border-cyan-900/10 bg-white/70 p-5 shadow-2xl shadow-amber-200/60 sm:p-6 lg:grid-cols-[1fr_0.7fr] lg:p-10">
           <div>
             <p className="inline-flex rounded-full bg-cyan-50 px-4 py-2 text-sm font-semibold text-cyan-700 ring-1 ring-cyan-100">
               Start with your company workspace
@@ -522,7 +522,7 @@ export default function Home() {
         </div>
       </section>
 
-      <footer className="bg-cyan-950 px-6 py-10 text-white lg:px-8">
+      <footer className="bg-cyan-950 px-5 py-10 text-white sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.04]">
           <div className="grid gap-8 border-b border-white/10 p-6 lg:grid-cols-[1.1fr_0.9fr] lg:p-10">
             <div>

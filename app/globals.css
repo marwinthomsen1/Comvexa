@@ -570,17 +570,31 @@ html[data-comvexa-theme="Midnight"] .comvexa-dashboard-area [class*="text-black"
 @media (max-width: 768px) {
   .summer-hero {
     min-height: auto;
+    background:
+      radial-gradient(circle at 88% 14%, rgba(255, 203, 67, 0.36), transparent 8rem),
+      linear-gradient(150deg, #fff3a8 0%, #ffd37b 48%, #bdf8ff 100%);
+  }
+
+  .summer-hero::before {
+    opacity: 0.22;
   }
 
   .summer-sun {
-    top: 7rem;
-    right: -1.5rem;
-    opacity: 0.72;
+    top: 8.5rem;
+    right: -3rem;
+    width: 7rem;
+    opacity: 0.38;
   }
 
+  .summer-cloud-one,
   .summer-cloud-two,
   .summer-float-one,
+  .summer-float-two,
   .summer-float-three {
+    display: none;
+  }
+
+  .summer-wave {
     display: none;
   }
 }

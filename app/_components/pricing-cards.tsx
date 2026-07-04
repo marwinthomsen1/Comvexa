@@ -148,7 +148,7 @@ export function PricingCards({ plans }: { plans: Plan[] }) {
               disabled={pendingPlan === plan.name}
               className={`mt-7 block w-full rounded-xl px-5 py-3 text-center text-sm font-semibold ${plan.featured ? "bg-[#ff7a59] text-white hover:bg-[#ff6741]" : "bg-white text-slate-950 hover:bg-slate-100"}`}
             >
-              {pendingPlan === plan.name ? "Opening Paddle..." : "Checkout with Paddle"}
+              {pendingPlan === plan.name ? "Opening Paddle..." : "Continue"}
             </button>
             <ul className="mt-7 max-h-72 space-y-3 overflow-y-auto pr-2 text-sm [scrollbar-width:thin]">
               {plan.features.map((feature) => (
