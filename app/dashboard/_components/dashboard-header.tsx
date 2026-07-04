@@ -23,7 +23,7 @@ export function DashboardHeader() {
             <DashboardAccount compact />
           </div>
         </div>
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+        <div className="hidden flex-col gap-2 sm:flex sm:flex-row sm:items-center sm:gap-3">
           <label className="flex h-11 w-full items-center gap-3 rounded-lg border px-3 text-sm comvexa-theme-soft comvexa-theme-muted sm:min-w-72">
             <Search size={17} />
             <input

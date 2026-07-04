@@ -120,9 +120,35 @@ export function DashboardNav() {
       })),
     [accessActive, plan, visibleModules],
   );
+  const mobileItems = navGroups.flatMap((group) => group.items);
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+    <>
+    <nav className="flex gap-2 overflow-x-auto px-4 py-3 [scrollbar-width:none] lg:hidden">
+      {mobileItems.map((item) => {
+        const Icon = item.icon;
+        const isActive =
+          item.href === "/dashboard"
+            ? pathname === item.href
+            : item.href !== "#" && pathname.startsWith(item.href);
+
+        return (
+          <Link
+            key={item.label}
+            href={item.href}
+            className={`inline-flex shrink-0 items-center gap-2 rounded-full px-3 py-2 text-xs font-semibold ring-1 transition ${
+              isActive
+                ? "bg-white text-slate-950 ring-white/30"
+                : "bg-white/10 text-[var(--comvexa-sidebar-muted,#bfdbfe)] ring-white/10"
+            }`}
+          >
+            <Icon size={15} />
+            {navLabel(item.label)}
+          </Link>
+        );
+      })}
+    </nav>
+    <div className="hidden min-h-0 flex-1 flex-col overflow-hidden lg:flex">
       <nav className="min-h-0 flex-1 space-y-5 overflow-y-auto px-3 py-4 [scrollbar-width:thin]">
       {navGroups.map((group) => (
         <div key={group.title}>
@@ -196,6 +222,7 @@ export function DashboardNav() {
         </div>
       </div>
     </div>
+    </>
   );
 }
 
