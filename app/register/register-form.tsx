@@ -4,6 +4,8 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/src/lib/supabase/client";
 
+const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://comvexa.net").replace(/\/$/, "");
+
 export function RegisterForm() {
   const router = useRouter();
   const [message, setMessage] = useState("");
@@ -27,7 +29,7 @@ export function RegisterForm() {
       email,
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/dashboard/subscription`,
+        emailRedirectTo: `${appUrl}/dashboard/subscription`,
         data: {
           full_name: fullName,
           company_name: companyName,

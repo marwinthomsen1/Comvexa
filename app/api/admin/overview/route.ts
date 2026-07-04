@@ -35,6 +35,50 @@ const activityTables = [
   "branches",
 ] as const;
 
+const allowedPlans = new Set(["basic", "pro", "ultra", "Basic", "Pro", "Ultra"]);
+const allowedSubscriptionStatuses = new Set([
+  "inactive",
+  "trialing",
+  "trial_expired",
+  "active",
+  "past_due",
+  "cancelled",
+]);
+const allowedBillingCycles = new Set(["monthly", "yearly", ""]);
+
+async function requireAdmin(request: Request) {
+  const token = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
+
+  if (!token) {
+    return { error: Response.json({ error: "Admin login required." }, { status: 401 }) };
+  }
+
+  let supabase;
+
+  try {
+    supabase = createSupabaseAdminClient();
+  } catch {
+    return {
+      error: Response.json(
+        { error: "Admin dashboard needs SUPABASE_SERVICE_ROLE_KEY in the server environment." },
+        { status: 500 },
+      ),
+    };
+  }
+
+  const { data: userData, error: userError } = await supabase.auth.getUser(token);
+
+  if (userError || !userData.user) {
+    return { error: Response.json({ error: "Admin login required." }, { status: 401 }) };
+  }
+
+  if (!isAdminEmail(userData.user.email)) {
+    return { error: Response.json({ error: "This account is not allowed to access admin." }, { status: 403 }) };
+  }
+
+  return { supabase, adminEmail: userData.user.email ?? "admin" };
+}
+
 async function getCount(supabase: ReturnType<typeof createSupabaseAdminClient>, table: string) {
   const { count, error } = await supabase.from(table).select("id", { count: "exact", head: true });
 
@@ -58,34 +102,14 @@ function groupCounts(rows: Array<Record<string, unknown>>, key: string) {
 }
 
 export async function GET(request: Request) {
-  const token = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
+  const admin = await requireAdmin(request);
 
-  if (!token) {
-    return Response.json({ error: "Admin login required." }, { status: 401 });
-  }
-
-  let supabase;
-
-  try {
-    supabase = createSupabaseAdminClient();
-  } catch {
-    return Response.json(
-      { error: "Admin dashboard needs SUPABASE_SERVICE_ROLE_KEY in the server environment." },
-      { status: 500 },
-    );
-  }
-
-  const { data: userData, error: userError } = await supabase.auth.getUser(token);
-
-  if (userError || !userData.user) {
-    return Response.json({ error: "Admin login required." }, { status: 401 });
-  }
-
-  if (!isAdminEmail(userData.user.email)) {
-    return Response.json({ error: "This account is not allowed to access admin." }, { status: 403 });
+  if (admin.error) {
+    return admin.error;
   }
 
   try {
+    const { supabase, adminEmail } = admin;
     const [
       counts,
       companies,
@@ -102,6 +126,7 @@ export async function GET(request: Request) {
       branches,
       users,
       activityCounts,
+      emailLogs,
     ] = await Promise.all([
       Promise.all(trackedTables.map(async (table) => [table, await getCount(supabase, table)])),
       supabase
@@ -182,6 +207,11 @@ export async function GET(request: Request) {
           return [table, count ?? 0];
         }),
       ),
+      supabase
+        .from("email_logs")
+        .select("id, recipient, email_type, subject, status, error_message, created_at")
+        .order("created_at", { ascending: false })
+        .limit(20),
     ]);
 
     const queriedTables = [
@@ -231,7 +261,7 @@ export async function GET(request: Request) {
     });
 
     return Response.json({
-      adminEmail: userData.user.email,
+      adminEmail,
       counts: Object.fromEntries(counts),
       financials: {
         invoiceTotal: sumAmount(invoiceRows, "total_amount"),
@@ -282,6 +312,7 @@ export async function GET(request: Request) {
       recentDocuments: documents.data ?? [],
       recentInventory: inventoryRows,
       recentBranches: branches.data ?? [],
+      recentEmailLogs: emailLogs.error ? [] : emailLogs.data ?? [],
       recentUsers: users.data.users.map((user) => ({
         id: user.id,
         email: user.email,
@@ -292,6 +323,74 @@ export async function GET(request: Request) {
   } catch (error) {
     return Response.json(
       { error: error instanceof Error ? error.message : "Could not load admin overview." },
+      { status: 500 },
+    );
+  }
+}
+
+export async function PATCH(request: Request) {
+  const admin = await requireAdmin(request);
+
+  if (admin.error) {
+    return admin.error;
+  }
+
+  try {
+    const body = (await request.json()) as {
+      companyId?: string;
+      plan?: string;
+      subscriptionStatus?: string;
+      billingCycle?: string;
+    };
+    const updates: Record<string, string | null> = {};
+
+    if (!body.companyId) {
+      return Response.json({ error: "Company id is required." }, { status: 400 });
+    }
+
+    if (body.plan !== undefined) {
+      if (!allowedPlans.has(body.plan)) {
+        return Response.json({ error: "Invalid plan." }, { status: 400 });
+      }
+
+      updates.plan = body.plan;
+    }
+
+    if (body.subscriptionStatus !== undefined) {
+      if (!allowedSubscriptionStatuses.has(body.subscriptionStatus)) {
+        return Response.json({ error: "Invalid subscription status." }, { status: 400 });
+      }
+
+      updates.subscription_status = body.subscriptionStatus;
+    }
+
+    if (body.billingCycle !== undefined) {
+      if (!allowedBillingCycles.has(body.billingCycle)) {
+        return Response.json({ error: "Invalid billing cycle." }, { status: 400 });
+      }
+
+      updates.billing_cycle = body.billingCycle || null;
+    }
+
+    if (!Object.keys(updates).length) {
+      return Response.json({ error: "No changes were provided." }, { status: 400 });
+    }
+
+    const { data, error } = await admin.supabase
+      .from("companies")
+      .update(updates)
+      .eq("id", body.companyId)
+      .select("id, name, email, phone, plan, subscription_status, billing_cycle, created_at")
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    return Response.json({ success: true, company: data });
+  } catch (error) {
+    return Response.json(
+      { error: error instanceof Error ? error.message : "Could not update company." },
       { status: 500 },
     );
   }
