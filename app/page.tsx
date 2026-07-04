@@ -451,12 +451,17 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="pricing" className="bg-cyan-950 px-5 py-12 text-white sm:px-6 sm:py-20 lg:px-8">
-        <div className="mx-auto max-w-7xl">
+      <section id="pricing" className="relative isolate overflow-hidden bg-[#fff1c7] px-5 py-12 text-slate-950 sm:px-6 sm:py-20 lg:px-8">
+        <div className="absolute right-[-3rem] top-8 size-32 rounded-full bg-[#ffcf5a] opacity-80 shadow-[0_0_0_1.25rem_rgba(255,207,90,0.20),0_0_3rem_rgba(255,122,89,0.28)] sm:right-12 sm:size-44" aria-hidden="true" />
+        <div className="absolute left-0 top-12 h-24 w-40 rounded-r-full bg-white/60 shadow-xl shadow-cyan-100/40 sm:left-8 sm:rounded-full" aria-hidden="true" />
+        <div className="absolute bottom-0 left-[-10%] h-20 w-[120%] rounded-t-[50%] bg-white/45" aria-hidden="true" />
+        <div className="relative z-10 mx-auto max-w-7xl">
           <div className="mx-auto max-w-3xl text-center">
-            <p className="text-sm font-semibold uppercase tracking-widest text-amber-200">Pricing</p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-normal sm:text-4xl">Plans that match your operating stage.</h2>
-            <p className="mt-4 text-slate-300">
+            <p className="inline-flex rounded-full bg-white/80 px-4 py-2 text-sm font-semibold uppercase tracking-widest text-cyan-700 ring-1 ring-cyan-100">
+              Pricing
+            </p>
+            <h2 className="mt-4 text-3xl font-semibold tracking-normal sm:text-4xl">Sunny plans for every operating stage.</h2>
+            <p className="mt-4 text-slate-700">
               Users sign up first, choose a plan, then continue to payment.
               Pro includes a 3-day trial, and Ultra includes a 7-day trial.
             </p>

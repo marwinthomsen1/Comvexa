@@ -11,8 +11,11 @@ import {
   Clock3,
   CreditCard,
   FileText,
+  LifeBuoy,
   LayoutGrid,
   ListChecks,
+  Mail,
+  MessageSquareText,
   Plus,
   ReceiptText,
   RefreshCw,
@@ -434,6 +437,27 @@ export function DashboardOverview() {
     { label: "Upload PDF", href: "/dashboard/documents", icon: FileText },
   ];
 
+  const supportActions = [
+    {
+      label: "Ask AI support",
+      text: "Get instant help with trials, billing, modules, and setup.",
+      href: "/dashboard/ai-assistant",
+      icon: MessageSquareText,
+    },
+    {
+      label: "Billing and plan help",
+      text: "Review subscription status, trials, and plan access.",
+      href: "/dashboard/subscription",
+      icon: CreditCard,
+    },
+    {
+      label: "Contact support",
+      text: "Send a message for account, payment, or workspace help.",
+      href: "/contact",
+      icon: Mail,
+    },
+  ];
+
   return (
     <main className="comvexa-dashboard-main mx-auto w-full max-w-[1500px] flex-1 p-3 sm:p-6">
       <section className="overflow-hidden rounded-[1.35rem] border comvexa-theme-surface shadow-sm sm:rounded-[var(--comvexa-radius,2rem)]">
@@ -564,6 +588,51 @@ export function DashboardOverview() {
               </div>
             </div>
           </aside>
+        </div>
+      </section>
+
+      <section className="mt-6 overflow-hidden rounded-[1.5rem] border comvexa-theme-surface shadow-sm">
+        <div className="grid gap-0 lg:grid-cols-[0.85fr_1.15fr]">
+          <div className="comvexa-theme-soft p-5 sm:p-6">
+            <span
+              className="flex size-12 items-center justify-center rounded-2xl text-white shadow-lg"
+              style={{ backgroundColor: viewSettings.accent }}
+            >
+              <LifeBuoy size={22} />
+            </span>
+            <p className="mt-5 text-sm font-semibold uppercase tracking-widest text-[var(--comvexa-accent,#2563eb)]">
+              Support center
+            </p>
+            <h2 className="mt-2 text-2xl font-semibold tracking-normal text-slate-950">
+              Need help with your workspace?
+            </h2>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
+              Find the fastest path for setup questions, billing issues, plan
+              access, and day-to-day Comvexa support.
+            </p>
+          </div>
+          <div className="grid gap-3 p-5 sm:p-6 md:grid-cols-3">
+            {supportActions.map((action) => {
+              const Icon = action.icon;
+
+              return (
+                <Link
+                  key={action.label}
+                  href={action.href}
+                  className="group rounded-2xl border comvexa-theme-card p-4 transition hover:-translate-y-0.5 hover:shadow-md"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="flex size-10 items-center justify-center rounded-xl bg-blue-50 text-blue-700 ring-1 ring-blue-100">
+                      <Icon size={18} />
+                    </span>
+                    <ArrowRight size={16} className="text-slate-300 transition group-hover:text-blue-600" />
+                  </div>
+                  <h3 className="mt-4 font-semibold text-slate-950">{action.label}</h3>
+                  <p className="mt-2 text-sm leading-6 text-slate-500">{action.text}</p>
+                </Link>
+              );
+            })}
+          </div>
         </div>
       </section>
 
