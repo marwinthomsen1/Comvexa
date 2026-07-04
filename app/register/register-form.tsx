@@ -57,7 +57,7 @@ export function RegisterForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-8 grid gap-5 sm:grid-cols-2">
+    <form onSubmit={handleSubmit} className="mt-6 grid gap-4 sm:mt-8 sm:grid-cols-2 sm:gap-5">
       <div>
         <label htmlFor="fullName" className="text-sm font-semibold text-slate-800">
           Full name
@@ -67,7 +67,7 @@ export function RegisterForm() {
           name="fullName"
           type="text"
           required
-          className="mt-2 w-full rounded-2xl border border-cyan-900/15 bg-white px-4 py-3.5 text-sm shadow-sm outline-none transition placeholder:text-slate-400 hover:border-cyan-500/50 focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100"
+          className="mt-2 w-full rounded-xl border border-cyan-900/15 bg-white px-4 py-3 text-sm shadow-sm outline-none transition placeholder:text-slate-400 hover:border-cyan-500/50 focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100 sm:rounded-2xl sm:py-3.5"
         />
       </div>
       <div>
@@ -79,7 +79,7 @@ export function RegisterForm() {
           name="companyName"
           type="text"
           required
-          className="mt-2 w-full rounded-2xl border border-cyan-900/15 bg-white px-4 py-3.5 text-sm shadow-sm outline-none transition placeholder:text-slate-400 hover:border-cyan-500/50 focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100"
+          className="mt-2 w-full rounded-xl border border-cyan-900/15 bg-white px-4 py-3 text-sm shadow-sm outline-none transition placeholder:text-slate-400 hover:border-cyan-500/50 focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100 sm:rounded-2xl sm:py-3.5"
         />
       </div>
       <div>
@@ -91,7 +91,7 @@ export function RegisterForm() {
           name="email"
           type="email"
           required
-          className="mt-2 w-full rounded-2xl border border-cyan-900/15 bg-white px-4 py-3.5 text-sm shadow-sm outline-none transition placeholder:text-slate-400 hover:border-cyan-500/50 focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100"
+          className="mt-2 w-full rounded-xl border border-cyan-900/15 bg-white px-4 py-3 text-sm shadow-sm outline-none transition placeholder:text-slate-400 hover:border-cyan-500/50 focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100 sm:rounded-2xl sm:py-3.5"
         />
       </div>
       <div>
@@ -103,7 +103,7 @@ export function RegisterForm() {
           name="phone"
           type="tel"
           required
-          className="mt-2 w-full rounded-2xl border border-cyan-900/15 bg-white px-4 py-3.5 text-sm shadow-sm outline-none transition placeholder:text-slate-400 hover:border-cyan-500/50 focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100"
+          className="mt-2 w-full rounded-xl border border-cyan-900/15 bg-white px-4 py-3 text-sm shadow-sm outline-none transition placeholder:text-slate-400 hover:border-cyan-500/50 focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100 sm:rounded-2xl sm:py-3.5"
         />
       </div>
       <div className="sm:col-span-2">
@@ -116,7 +116,7 @@ export function RegisterForm() {
           type="password"
           required
           minLength={6}
-          className="mt-2 w-full rounded-2xl border border-cyan-900/15 bg-white px-4 py-3.5 text-sm shadow-sm outline-none transition placeholder:text-slate-400 hover:border-cyan-500/50 focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100"
+          className="mt-2 w-full rounded-xl border border-cyan-900/15 bg-white px-4 py-3 text-sm shadow-sm outline-none transition placeholder:text-slate-400 hover:border-cyan-500/50 focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100 sm:rounded-2xl sm:py-3.5"
         />
       </div>
       {error ? (
@@ -132,7 +132,7 @@ export function RegisterForm() {
       <button
         type="submit"
         disabled={isLoading}
-        className="rounded-2xl bg-[#ff6b4a] px-5 py-3.5 text-sm font-semibold text-white shadow-xl shadow-orange-200/70 transition hover:-translate-y-0.5 hover:bg-[#ff5633] disabled:cursor-not-allowed disabled:bg-slate-400 disabled:shadow-none disabled:hover:translate-y-0 sm:col-span-2"
+        className="rounded-xl bg-[#ff6b4a] px-5 py-3 text-sm font-semibold text-white shadow-xl shadow-orange-200/70 transition hover:-translate-y-0.5 hover:bg-[#ff5633] disabled:cursor-not-allowed disabled:bg-slate-400 disabled:shadow-none disabled:hover:translate-y-0 sm:col-span-2 sm:rounded-2xl sm:py-3.5"
       >
         {isLoading ? "Creating account..." : "Create account"}
       </button>

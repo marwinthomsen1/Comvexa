@@ -146,18 +146,31 @@ const faqs = [
 export default function Home() {
   return (
     <main className="min-h-screen bg-[#fff7da] text-slate-950">
-      <header className="sticky top-0 z-30 border-b border-orange-200/70 bg-white/90 text-slate-950 shadow-sm shadow-orange-100/60 backdrop-blur-xl">
-        <nav className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 py-2.5 sm:gap-3 sm:px-6 sm:py-4 lg:px-8">
-          <Link href="/" className="flex min-w-0 items-center gap-2 font-semibold sm:gap-3">
-            <Image
-              src="/logo.png"
-              alt="Comvexa logo"
-              width={44}
-              height={44}
-              className="size-8 rounded-xl bg-white object-contain p-1 sm:size-11"
-              priority
-            />
-            <span className="truncate text-sm sm:text-lg">Comvexa</span>
+      <header className="sticky top-0 z-30 border-b border-orange-200/70 bg-[#fffaf0]/90 text-slate-950 shadow-sm shadow-orange-100/60 backdrop-blur-xl">
+        <nav className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-3 py-2.5 sm:px-6 sm:py-4 lg:px-8">
+          <Link
+            href="/"
+            className="group flex min-w-0 items-center gap-2 rounded-2xl border border-white/70 bg-white/75 px-2.5 py-2 font-semibold shadow-lg shadow-orange-200/35 ring-1 ring-cyan-900/5 transition hover:-translate-y-0.5 hover:bg-white sm:gap-3 sm:px-3"
+          >
+            <span className="relative grid size-10 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-cyan-100 via-white to-amber-100 p-1 shadow-inner sm:size-11">
+              <Image
+                src="/logo.png"
+                alt="Comvexa logo"
+                width={44}
+                height={44}
+                className="size-full rounded-xl object-contain"
+                priority
+              />
+              <span className="absolute -right-1 -top-1 grid size-4 place-items-center rounded-full bg-[#ff7a59] text-white ring-2 ring-white">
+                <Sparkles size={10} />
+              </span>
+            </span>
+            <span className="min-w-0">
+              <span className="block truncate text-base leading-5 sm:text-lg">Comvexa</span>
+              <span className="block truncate text-[10px] font-semibold uppercase text-cyan-700 sm:hidden">
+                Business OS
+              </span>
+            </span>
           </Link>
           <div className="hidden items-center gap-7 text-sm font-medium text-slate-600 md:flex">
             <a href="#platform" className="hover:text-cyan-700"><HomeText id="platform" /></a>
@@ -173,12 +186,20 @@ export default function Home() {
             <Link href="/login" className="hidden text-sm font-semibold text-slate-600 hover:text-cyan-700 sm:inline">
               <HomeText id="login" />
             </Link>
+            <a
+              href="#pricing"
+              className="inline-flex h-12 items-center justify-center gap-1.5 rounded-2xl border border-cyan-900/10 bg-white/80 px-3 text-sm font-bold text-cyan-950 shadow-lg shadow-cyan-100/50 ring-1 ring-white/70 transition hover:-translate-y-0.5 hover:bg-white sm:hidden"
+            >
+              <CreditCard size={15} />
+              <span>Plans</span>
+            </a>
             <Link
               href="/register"
-              className="rounded-xl bg-[#ff7a59] px-3 py-2 text-sm font-semibold text-white shadow-lg shadow-orange-300/40 hover:bg-[#ff6741] sm:px-4 sm:py-2.5"
+              className="inline-flex h-12 items-center justify-center gap-1.5 rounded-2xl bg-gradient-to-br from-[#ff8a5f] to-[#ff5633] px-4 text-sm font-bold text-white shadow-xl shadow-orange-300/50 ring-1 ring-orange-300/40 transition hover:-translate-y-0.5 hover:shadow-orange-300/70 sm:h-auto sm:px-4 sm:py-2.5"
             >
               <span className="sm:hidden">Start</span>
               <span className="hidden sm:inline"><HomeText id="startTrial" /></span>
+              <ArrowRight size={15} className="sm:hidden" />
             </Link>
           </div>
         </nav>

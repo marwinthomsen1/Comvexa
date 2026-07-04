@@ -5,13 +5,13 @@ import { RegisterForm } from "./register-form";
 
 export default function RegisterPage() {
   return (
-    <main className="summer-auth relative isolate min-h-screen overflow-hidden px-6 py-12 text-slate-950">
+    <main className="summer-auth relative isolate min-h-screen overflow-hidden px-3 py-4 text-slate-950 sm:px-6 sm:py-12">
       <div className="summer-auth-sun" aria-hidden="true" />
       <div className="summer-auth-cloud summer-auth-cloud-one" aria-hidden="true" />
       <div className="summer-auth-cloud summer-auth-cloud-two" aria-hidden="true" />
 
-      <div className="relative z-10 mx-auto grid w-full max-w-6xl overflow-hidden rounded-[2rem] border border-white/70 bg-white/70 shadow-2xl shadow-cyan-200/60 backdrop-blur-xl lg:grid-cols-[0.9fr_1.1fr] lg:items-stretch">
-        <section className="relative overflow-hidden bg-cyan-950 p-8 text-white sm:p-10">
+      <div className="relative z-10 mx-auto grid w-full max-w-6xl overflow-hidden rounded-3xl border border-white/70 bg-white/85 shadow-xl shadow-cyan-200/40 backdrop-blur-xl sm:rounded-[2rem] sm:bg-white/70 sm:shadow-2xl sm:shadow-cyan-200/60 lg:grid-cols-[0.9fr_1.1fr] lg:items-stretch">
+        <section className="relative hidden overflow-hidden bg-cyan-950 p-8 text-white sm:p-10 lg:block">
           <div className="absolute -bottom-24 -left-20 size-64 rounded-full bg-cyan-400/20 blur-2xl" />
           <div className="absolute -right-16 top-10 size-52 rounded-full bg-[#ffcf5a]/30 blur-2xl" />
 
@@ -70,18 +70,31 @@ export default function RegisterPage() {
           </div>
         </section>
 
-        <section className="bg-white/90 p-8 sm:p-10 lg:p-12">
-          <Link href="/" className="mb-10 inline-flex items-center gap-2 text-sm font-semibold text-cyan-800 hover:text-cyan-950">
-            <ArrowLeft size={16} />
-            Back to home
-          </Link>
+        <section className="bg-white/90 p-5 sm:p-10 lg:p-12">
+          <div className="mb-6 flex items-center justify-between gap-3 sm:mb-10">
+            <Link href="/" className="inline-flex items-center gap-2 text-sm font-semibold text-cyan-800 hover:text-cyan-950">
+              <ArrowLeft size={16} />
+              Back
+            </Link>
+            <Link href="/" className="inline-flex items-center gap-2 font-semibold lg:hidden">
+              <Image
+                src="/logo.png"
+                alt="Comvexa logo"
+                width={32}
+                height={32}
+                className="size-8 rounded-lg bg-white object-contain p-1"
+                priority
+              />
+              <span>Comvexa</span>
+            </Link>
+          </div>
 
           <div>
-            <p className="text-sm font-semibold uppercase tracking-widest text-[#ff6b4a]">
+            <p className="text-xs font-semibold uppercase tracking-widest text-[#ff6b4a] sm:text-sm">
               Register
             </p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-normal text-slate-950">Create account</h2>
-            <p className="mt-3 text-sm leading-6 text-slate-600">
+            <h2 className="mt-2 text-3xl font-semibold tracking-normal text-slate-950 sm:mt-3">Create account</h2>
+            <p className="mt-2 text-sm leading-6 text-slate-600 sm:mt-3">
               Create your owner login and company workspace.
             </p>
           </div>
