@@ -3,9 +3,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Check, ReceiptText } from "lucide-react";
+import { hasOwnerDashboardAccess } from "@/src/lib/admin/access";
 import { supabase } from "@/src/lib/supabase/client";
 import {
-  activateProTrial,
+  activatePlanTrial,
+  enableOwnerPlanAccess,
   formatTrialRemaining,
   getPendingPaidPlan,
   getProTrialStatus,
@@ -57,13 +59,27 @@ const plans = [
   {
     name: "Ultra",
     price: 149,
-    description: "For companies that need branches, inventory, permissions, and advanced analytics.",
+    description: "For companies that want the full Comvexa operating system with automation and control.",
     features: [
       "Everything in Pro",
       "Multiple branches",
+      "Branch profit and loss",
+      "Branch performance comparison",
       "Inventory",
+      "Low-stock alerts",
+      "Purchase orders",
+      "Inventory valuation",
       "Supplier management",
-      "Advanced permissions",
+      "Custom roles and permissions",
+      "Audit logs",
+      "Approval workflows",
+      "AI business assistant",
+      "Automated invoice follow-ups",
+      "Recurring task automation",
+      "Customer payment portal",
+      "Customer document uploads",
+      "Employee performance reports",
+      "Time-off and attendance tracking",
       "Cash flow overview",
       "Advanced expense management",
       "Supplier bills tracking",
@@ -72,10 +88,18 @@ const plans = [
       "Branch-level financial reports",
       "Custom tax settings",
       "Accountant-ready exports",
+      "White-label invoices",
+      "Data import help",
+      "Setup guidance",
       "Priority support",
     ],
   },
 ];
+
+const trialDaysByPlan: Record<string, number> = {
+  Pro: 3,
+  Ultra: 7,
+};
 
 function getYearlyTotal(monthlyPrice: number) {
   return monthlyPrice * 10;
@@ -92,11 +116,13 @@ export default function SubscriptionPage() {
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
   const [isStartingTrial, setIsStartingTrial] = useState(false);
   const [isCheckingTrial, setIsCheckingTrial] = useState(true);
+  const [isOwnerPlanTester, setIsOwnerPlanTester] = useState(false);
   const [trialError, setTrialError] = useState("");
   const [trialStatus, setTrialStatus] = useState<TrialStatus>({
     used: false,
     active: false,
     expired: false,
+    plan: null,
     startsAt: null,
     endsAt: null,
     remainingMs: 0,
@@ -119,6 +145,13 @@ export default function SubscriptionPage() {
       try {
         const { data: sessionData } = await supabase.auth.getSession();
         const accessToken = sessionData.session?.access_token;
+        const ownerTesting = hasOwnerDashboardAccess(sessionData.session?.user.email);
+
+        setIsOwnerPlanTester(ownerTesting);
+
+        if (ownerTesting) {
+          enableOwnerPlanAccess(storedPlan ?? "Ultra", storedCycle === "monthly" || storedCycle === "yearly" ? storedCycle : "monthly");
+        }
 
         if (!accessToken) {
           setTrialStatus(getProTrialStatus());
@@ -139,7 +172,7 @@ export default function SubscriptionPage() {
           return;
         }
 
-        setTrialStatus(syncProTrialStatus(trial.used, trial.startsAt, trial.endsAt));
+        setTrialStatus(syncProTrialStatus(trial.used, trial.startsAt, trial.endsAt, trial.plan));
       } catch {
         setTrialStatus(getProTrialStatus());
       } finally {
@@ -156,20 +189,24 @@ export default function SubscriptionPage() {
   );
 
   const subtotal = billingCycle === "yearly" ? getYearlyTotal(plan.price) : plan.price;
-  const proTrialAvailable = selectedPlan === "Pro" && !trialStatus.used;
-  const proTrialActive = selectedPlan === "Pro" && trialStatus.active;
-  const proTrialExpired = selectedPlan === "Pro" && trialStatus.expired;
+  const selectedTrialDays = trialDaysByPlan[selectedPlan] ?? 0;
+  const selectedPlanHasTrial = selectedTrialDays > 0;
+  const selectedTrialAvailable = selectedPlanHasTrial && !trialStatus.used;
+  const selectedTrialActive = selectedPlanHasTrial && trialStatus.active && trialStatus.plan === selectedPlan;
+  const selectedTrialExpired = selectedPlanHasTrial && trialStatus.expired && trialStatus.plan === selectedPlan;
   const trialText =
-    selectedPlan !== "Pro"
+    isOwnerPlanTester
+      ? "Dashboard test access"
+      : !selectedPlanHasTrial
       ? "No free trial on this plan"
       : isCheckingTrial
         ? "Checking trial eligibility..."
-        : proTrialActive
+        : selectedTrialActive
         ? formatTrialRemaining(trialStatus.remainingMs)
-        : proTrialExpired
+        : selectedTrialExpired || trialStatus.used
           ? "Trial already used"
-          : "One-time 3-day free trial available";
-  const dueNow = selectedPlan === "Pro" && (proTrialAvailable || proTrialActive) ? 0 : subtotal;
+          : `One-time ${selectedTrialDays}-day free trial available`;
+  const dueNow = selectedPlanHasTrial && (selectedTrialAvailable || selectedTrialActive) ? 0 : subtotal;
 
   async function startServerTrial() {
     setTrialError("");
@@ -180,7 +217,7 @@ export default function SubscriptionPage() {
       const accessToken = sessionData.session?.access_token;
 
       if (!accessToken) {
-        setTrialError("Sign in before starting the Pro trial.");
+        setTrialError("Sign in before starting the trial.");
         setIsStartingTrial(false);
         return;
       }
@@ -188,34 +225,42 @@ export default function SubscriptionPage() {
       const response = await fetch("/api/subscription/trial", {
         method: "POST",
         headers: {
+          "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
         },
+        body: JSON.stringify({ plan: selectedPlan }),
       });
       const trial = await response.json();
 
       if (!response.ok) {
-        setTrialError(trial.error ?? "Could not start the Pro trial.");
+        setTrialError(trial.error ?? "Could not start the trial.");
         setTrialStatus(getProTrialStatus());
         setIsStartingTrial(false);
         return;
       }
 
-      activateProTrial(trial.startsAt, trial.endsAt);
+      activatePlanTrial(trial.plan ?? selectedPlan, trial.startsAt, trial.endsAt);
       setIsStartingTrial(false);
       router.push("/dashboard");
     } catch {
-      setTrialError("Could not start the Pro trial.");
+      setTrialError("Could not start the trial.");
       setIsStartingTrial(false);
     }
   }
 
   function continueToPayment() {
-    if (selectedPlan === "Pro" && !trialStatus.used) {
+    if (isOwnerPlanTester) {
+      enableOwnerPlanAccess(selectedPlan, billingCycle);
+      router.push("/dashboard");
+      return;
+    }
+
+    if (selectedPlanHasTrial && !trialStatus.used) {
       void startServerTrial();
       return;
     }
 
-    if (selectedPlan === "Pro" && trialStatus.active) {
+    if (selectedTrialActive) {
       window.dispatchEvent(new Event("comvexa-plan-change"));
       router.push("/dashboard");
       return;
@@ -235,9 +280,9 @@ export default function SubscriptionPage() {
             </p>
             <h2 className="mt-2 text-3xl font-semibold tracking-normal text-slate-950">Choose your plan</h2>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
-              Sign up first, choose the right Comvexa plan, then continue to the
-              payment page. The free trial is only available on Pro, lasts 3 days,
-              and can only be used once. You pay after the timer ends, not at the beginning.
+              {isOwnerPlanTester
+                ? "Customer dashboard test access is active for this account. Choose any plan to preview the dashboard without opening payment."
+                : "Sign up first, choose the right Comvexa plan, then continue to the payment page. Pro includes a 3-day trial and Ultra includes a 7-day trial. You pay after the timer ends, not at the beginning."}
             </p>
           </div>
           <div className="rounded-2xl bg-emerald-50 px-5 py-4 text-sm font-semibold text-emerald-800 ring-1 ring-emerald-100" data-no-translate>
@@ -307,8 +352,8 @@ export default function SubscriptionPage() {
                     <span className="text-base font-medium text-slate-500">/month</span>
                   </p>
                 )}
-                <p className={`mt-2 text-sm font-semibold ${item.name === "Pro" ? "text-emerald-700" : "text-slate-500"}`} data-no-translate>
-                  {item.name === "Pro" ? "Includes a 3-day free trial." : "No free trial on this plan."}
+                <p className={`mt-2 text-sm font-semibold ${trialDaysByPlan[item.name] ? "text-emerald-700" : "text-slate-500"}`} data-no-translate>
+                  {trialDaysByPlan[item.name] ? `Includes a ${trialDaysByPlan[item.name]}-day free trial.` : "No free trial on this plan."}
                 </p>
                 <div className={`mt-7 rounded-xl px-5 py-3 text-center text-sm font-semibold ${
                   isSelected ? "bg-emerald-600 text-white" : "bg-slate-950 text-white"
@@ -356,25 +401,25 @@ export default function SubscriptionPage() {
             <div className="flex justify-between">
               <span className="text-slate-500">Trial</span>
               <span className="font-semibold text-slate-950" data-no-translate>
-                {selectedPlan === "Pro" ? "3 days" : "None"}
+                {isOwnerPlanTester ? "Bypassed" : selectedTrialDays ? `${selectedTrialDays} days` : "None"}
               </span>
             </div>
             <div className="border-t border-slate-200 pt-3">
               <div className="flex justify-between">
                 <span className="font-semibold text-slate-950" data-no-translate>
-                  {dueNow === 0 ? "Due today" : "Due on payment page"}
+                  {isOwnerPlanTester ? "Owner access" : dueNow === 0 ? "Due today" : "Due on payment page"}
                 </span>
                 <span className="text-2xl font-semibold text-slate-950">
-                  <CurrencyValue usd={dueNow} currency={currency} />
+                  <CurrencyValue usd={isOwnerPlanTester ? 0 : dueNow} currency={currency} />
                 </span>
               </div>
-              {selectedPlan === "Pro" ? (
+              {selectedPlanHasTrial ? (
                 <p className="mt-2 text-xs leading-5 text-slate-500" data-no-translate>
-                  {proTrialAvailable
-                    ? `After 3 days, ${billingCycle === "yearly" ? `${formatCurrencyAmount(subtotal, currency)}/year` : `${formatCurrencyAmount(plan.price, currency)}/month`} is due.`
-                    : proTrialActive
+                  {selectedTrialAvailable
+                    ? `After ${selectedTrialDays} days, ${billingCycle === "yearly" ? `${formatCurrencyAmount(subtotal, currency)}/year` : `${formatCurrencyAmount(plan.price, currency)}/month`} is due.`
+                    : selectedTrialActive
                       ? `Payment is due when the trial ends: ${formatTrialRemaining(trialStatus.remainingMs)}.`
-                      : "The Pro trial was already used once. Payment is required to continue."}
+                      : "The trial was already used once. Payment is required to continue."}
                 </p>
               ) : null}
             </div>
@@ -395,9 +440,11 @@ export default function SubscriptionPage() {
               ? "Checking trial..."
               : isStartingTrial
               ? "Starting trial..."
-              : selectedPlan === "Pro" && proTrialAvailable
-              ? "Start 3-day trial"
-              : selectedPlan === "Pro" && proTrialActive
+              : isOwnerPlanTester
+              ? `Open ${selectedPlan} dashboard`
+              : selectedPlanHasTrial && selectedTrialAvailable
+              ? `Start ${selectedTrialDays}-day trial`
+              : selectedTrialActive
                 ? "Open dashboard"
                 : "Continue to payment"}
             <ArrowRight size={16} />

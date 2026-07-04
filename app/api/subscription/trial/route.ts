@@ -1,6 +1,16 @@
 import { createClient } from "@supabase/supabase-js";
+import { sendTrialStartedEmail } from "@/src/lib/email";
 
-const trialLengthMs = 3 * 24 * 60 * 60 * 1000;
+const trialLengthsMs = {
+  Pro: 3 * 24 * 60 * 60 * 1000,
+  Ultra: 7 * 24 * 60 * 60 * 1000,
+};
+
+type TrialPlan = keyof typeof trialLengthsMs;
+
+function normalizeTrialPlan(plan: unknown): TrialPlan {
+  return plan === "Ultra" ? "Ultra" : "Pro";
+}
 
 function trialErrorResponse(error: unknown, fallback: string) {
   console.error(fallback, error);
@@ -87,7 +97,7 @@ export async function GET(request: Request) {
     const { supabase, companyId } = sessionCompany;
     const { data: company, error: companyError } = await supabase
       .from("companies")
-      .select("trial_started_at, trial_ends_at")
+      .select("plan, trial_started_at, trial_ends_at")
       .eq("id", companyId)
       .single();
 
@@ -97,6 +107,7 @@ export async function GET(request: Request) {
 
     return Response.json({
       used: Boolean(company?.trial_started_at || company?.trial_ends_at),
+      plan: company?.plan === "ultra" ? "Ultra" : "Pro",
       startsAt: company?.trial_started_at ?? null,
       endsAt: company?.trial_ends_at ?? null,
     });
@@ -114,9 +125,11 @@ export async function POST(request: Request) {
     }
 
     const { supabase, companyId } = sessionCompany;
+    const body = await request.json().catch(() => ({}));
+    const trialPlan = normalizeTrialPlan(body.plan);
     const { data: company, error: companyError } = await supabase
       .from("companies")
-      .select("trial_started_at, trial_ends_at")
+      .select("name, email, trial_started_at, trial_ends_at")
       .eq("id", companyId)
       .single();
 
@@ -125,15 +138,15 @@ export async function POST(request: Request) {
     }
 
     if (company?.trial_started_at || company?.trial_ends_at) {
-      return Response.json({ error: "This company has already used the Pro trial." }, { status: 409 });
+      return Response.json({ error: "This company has already used a trial." }, { status: 409 });
     }
 
     const startsAt = new Date();
-    const endsAt = new Date(startsAt.getTime() + trialLengthMs);
+    const endsAt = new Date(startsAt.getTime() + trialLengthsMs[trialPlan]);
     const { error: updateError } = await supabase
       .from("companies")
       .update({
-        plan: "pro",
+        plan: trialPlan.toLowerCase(),
         subscription_status: "trialing",
         payment_provider: "trial",
         trial_started_at: startsAt.toISOString(),
@@ -145,13 +158,22 @@ export async function POST(request: Request) {
       throw updateError;
     }
 
+    if (company?.email) {
+      await sendTrialStartedEmail({
+        to: company.email,
+        companyName: company.name ?? "your company",
+        plan: trialPlan,
+        trialEndDate: endsAt.toISOString(),
+      });
+    }
+
     return Response.json({
-      plan: "Pro",
+      plan: trialPlan,
       subscriptionStatus: "trialing",
       startsAt: startsAt.toISOString(),
       endsAt: endsAt.toISOString(),
     });
   } catch (error) {
-    return trialErrorResponse(error, "Could not start the Pro trial.");
+    return trialErrorResponse(error, "Could not start the trial.");
   }
 }

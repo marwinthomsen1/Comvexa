@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { LockKeyhole } from "lucide-react";
 import { useEffect, useState } from "react";
+import { hasOwnerDashboardAccess } from "@/src/lib/admin/access";
+import { supabase } from "@/src/lib/supabase/client";
 import { canUseModule, defaultPlan, normalizePlan, type PlanName } from "./plan-access";
-import { getProTrialStatus, isWorkspaceAccessActive } from "./payment-status";
+import { enableOwnerPlanAccess, getProTrialStatus, isOwnerPlanAccessActiveFor, isPaymentSetupComplete } from "./payment-status";
 
 const alwaysVisibleModules = ["Dashboard", "Subscription", "Settings"];
 
@@ -31,9 +33,16 @@ export function PlanGate({
   const [moduleVisible, setModuleVisible] = useState(true);
 
   useEffect(() => {
-    function loadPlan() {
+    async function loadPlan() {
+      const { data: sessionData } = await supabase.auth.getSession();
+
+      if (hasOwnerDashboardAccess(sessionData.session?.user.email)) {
+        enableOwnerPlanAccess(window.localStorage.getItem("comvexa-selected-plan"), "monthly", sessionData.session?.user.email);
+      }
+
+      const sessionEmail = sessionData.session?.user.email?.trim().toLowerCase();
       setPlan(normalizePlan(window.localStorage.getItem("comvexa-selected-plan")));
-      setAccessActive(isWorkspaceAccessActive());
+      setAccessActive(isOwnerPlanAccessActiveFor(sessionEmail) || isPaymentSetupComplete() || getProTrialStatus().active);
       setTrialExpired(getProTrialStatus().expired);
       const visibleModules = readWorkspaceModules();
       setModuleVisible(
@@ -43,7 +52,7 @@ export function PlanGate({
       );
     }
 
-    const timeout = window.setTimeout(loadPlan, 0);
+    const timeout = window.setTimeout(() => void loadPlan(), 0);
     window.addEventListener("storage", loadPlan);
     window.addEventListener("comvexa-plan-change", loadPlan);
     window.addEventListener("comvexa-settings-change", loadPlan);

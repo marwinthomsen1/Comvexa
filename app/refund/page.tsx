@@ -23,7 +23,7 @@ export default function RefundPage() {
         {
           title: "Free Trials",
           body: [
-            "Only the Pro plan includes a 3-day free trial unless Comvexa states otherwise in writing. Basic and Ultra do not include a free trial by default.",
+            "The Pro plan includes a 3-day free trial and the Ultra plan includes a 7-day free trial unless Comvexa states otherwise in writing. Basic does not include a free trial by default.",
             "At the end of a trial, continued access may require payment. Trial availability may be limited by account, company, payment method, or prior usage.",
           ],
         },

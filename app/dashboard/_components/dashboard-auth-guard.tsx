@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { hasOwnerDashboardAccess } from "@/src/lib/admin/access";
 import { supabase } from "@/src/lib/supabase/client";
+import { enableOwnerPlanAccess } from "./payment-status";
 
 export function DashboardAuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -15,6 +17,10 @@ export function DashboardAuthGuard({ children }: { children: React.ReactNode }) 
       if (!data.session) {
         router.replace("/login");
         return;
+      }
+
+      if (hasOwnerDashboardAccess(data.session.user.email)) {
+        enableOwnerPlanAccess(window.localStorage.getItem("comvexa-selected-plan"), "monthly", data.session.user.email);
       }
 
       setIsChecking(false);

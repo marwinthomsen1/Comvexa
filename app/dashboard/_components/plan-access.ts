@@ -34,6 +34,16 @@ export const planModules: Record<PlanName, string[]> = {
     "Supplier Bills",
     "Branches",
     "Permissions",
+    "AI Assistant",
+    "Automations",
+    "Customer Portal",
+    "Audit Logs",
+    "Approvals",
+    "Purchase Orders",
+    "Time & Attendance",
+    "Branch Analytics",
+    "White Label",
+    "Data Import",
   ],
 };
 

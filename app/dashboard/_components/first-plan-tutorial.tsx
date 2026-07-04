@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -13,6 +14,7 @@ import {
   X,
 } from "lucide-react";
 const tutorialStorageKey = "comvexa-first-plan-tutorial-v1-complete";
+const tutorialAutoShownKey = "comvexa-first-plan-tutorial-v1-auto-shown";
 export const firstPlanUnlockedEvent = "comvexa-first-plan-unlocked";
 
 const steps = [
@@ -40,6 +42,11 @@ const steps = [
 
 function markTutorialComplete() {
   window.localStorage.setItem(tutorialStorageKey, "true");
+  window.localStorage.setItem(tutorialAutoShownKey, "true");
+}
+
+function markTutorialAutoShown() {
+  window.localStorage.setItem(tutorialAutoShownKey, "true");
 }
 
 export function openFirstPlanTutorial() {
@@ -53,14 +60,17 @@ export function FirstPlanTutorial() {
   useEffect(() => {
     function openOnFirstUnlock() {
       const completed = window.localStorage.getItem(tutorialStorageKey) === "true";
+      const alreadyShown = window.localStorage.getItem(tutorialAutoShownKey) === "true";
 
-      if (!completed) {
+      if (!completed && !alreadyShown) {
+        markTutorialAutoShown();
         setStepIndex(0);
         setIsOpen(true);
       }
     }
 
     function openTutorial() {
+      markTutorialAutoShown();
       setStepIndex(0);
       setIsOpen(true);
     }
@@ -77,6 +87,7 @@ export function FirstPlanTutorial() {
   useEffect(() => {
     function closeOnEscape(event: KeyboardEvent) {
       if (event.key === "Escape") {
+        markTutorialAutoShown();
         setIsOpen(false);
       }
     }
@@ -86,6 +97,19 @@ export function FirstPlanTutorial() {
     }
 
     return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
   }, [isOpen]);
 
   if (!isOpen) {
@@ -101,8 +125,13 @@ export function FirstPlanTutorial() {
     setIsOpen(false);
   }
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-950/55 p-4 backdrop-blur-sm sm:p-6">
+  function closeTutorial() {
+    markTutorialAutoShown();
+    setIsOpen(false);
+  }
+
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center overflow-y-auto bg-slate-950/55 p-4 backdrop-blur-sm sm:p-6">
       <section className="relative max-h-[calc(100dvh-2rem)] w-full max-w-4xl overflow-hidden rounded-[1.5rem] border border-white/70 bg-white shadow-2xl shadow-slate-950/30 sm:max-h-[calc(100dvh-3rem)]">
         <div className="absolute -right-20 -top-20 size-56 rounded-full bg-amber-200/70 blur-3xl" />
         <div className="absolute -bottom-24 -left-20 size-64 rounded-full bg-cyan-200/70 blur-3xl" />
@@ -116,7 +145,7 @@ export function FirstPlanTutorial() {
               </p>
               <button
                 type="button"
-                onClick={() => setIsOpen(false)}
+                onClick={closeTutorial}
                 className="rounded-xl bg-white/10 p-2 text-white hover:bg-white/15"
                 aria-label="Close tutorial"
               >
@@ -231,6 +260,7 @@ export function FirstPlanTutorial() {
           </div>
         </div>
       </section>
-    </div>
+    </div>,
+    document.body,
   );
 }

@@ -67,15 +67,29 @@ const industries = [
 const moduleGroups = [
   {
     title: "Operations",
-    modules: ["Customers", "Employees", "Staff Schedules", "Services", "Bookings", "Tasks"],
+    modules: ["Customers", "Employees", "Staff Schedules", "Services", "Bookings", "Tasks", "Time & Attendance"],
   },
   {
     title: "Finance",
-    modules: ["Invoices", "Recurring Invoices", "Payments", "Expenses", "Supplier Bills", "Reports"],
+    modules: ["Invoices", "Recurring Invoices", "Payments", "Expenses", "Supplier Bills", "Purchase Orders", "Reports"],
   },
   {
     title: "Assets and Control",
-    modules: ["Documents", "Inventory", "Branches", "WhatsApp Templates", "Permissions"],
+    modules: [
+      "Documents",
+      "Inventory",
+      "Branches",
+      "Customer Portal",
+      "Branch Analytics",
+      "WhatsApp Templates",
+      "Permissions",
+      "AI Assistant",
+      "Automations",
+      "Audit Logs",
+      "Approvals",
+      "White Label",
+      "Data Import",
+    ],
   },
 ];
 
@@ -146,7 +160,12 @@ export function WorkspaceCustomizer() {
       const stored = window.localStorage.getItem("comvexa-workspace-settings");
 
       if (stored) {
-        setSettings({ ...defaultSettings, ...JSON.parse(stored) });
+        const savedSettings = JSON.parse(stored) as Partial<Settings>;
+        setSettings({
+          ...defaultSettings,
+          ...savedSettings,
+          modules: Array.from(new Set([...(savedSettings.modules ?? []), ...allModules])),
+        });
       }
 
       setCurrentPlan(normalizePlan(window.localStorage.getItem("comvexa-selected-plan")));

@@ -5,29 +5,39 @@ import { usePathname } from "next/navigation";
 import {
   BarChart3,
   Bell,
+  BadgeCheck,
+  Bot,
   Boxes,
   BriefcaseBusiness,
   CalendarDays,
   CalendarClock,
+  ChevronDown,
+  ClipboardCheck,
   CreditCard,
   HandCoins,
   FileText,
   GitBranch,
   Home,
   ListChecks,
+  LineChart,
   MessageSquareText,
   Package,
   ReceiptText,
   Repeat,
   Settings,
   ShieldCheck,
+  ShoppingCart,
   ScrollText,
+  UploadCloud,
   Users,
   WalletCards,
+  Workflow,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { canUseModule, defaultPlan, normalizePlan, type PlanName } from "./plan-access";
-import { formatTrialRemaining, getProTrialStatus, isWorkspaceAccessActive } from "./payment-status";
+import { hasOwnerDashboardAccess } from "@/src/lib/admin/access";
+import { supabase } from "@/src/lib/supabase/client";
+import { canUseModule, defaultPlan, normalizePlan, planModules, type PlanName } from "./plan-access";
+import { enableOwnerPlanAccess, formatTrialRemaining, getProTrialStatus, isOwnerPlanAccessActiveFor, isPaymentSetupComplete } from "./payment-status";
 import { useDashboardText } from "./dashboard-i18n";
 
 const navItems = [
@@ -38,16 +48,26 @@ const navItems = [
   { label: "Services", href: "/dashboard/services", icon: Package, group: "Operations" },
   { label: "Bookings", href: "/dashboard/bookings", icon: CalendarDays, group: "Operations" },
   { label: "Tasks", href: "/dashboard/tasks", icon: ListChecks, group: "Operations" },
+  { label: "Time & Attendance", href: "/dashboard/time-attendance", icon: CalendarClock, group: "Operations" },
   { label: "Invoices", href: "/dashboard/invoices", icon: ReceiptText, group: "Finance" },
   { label: "Recurring Invoices", href: "/dashboard/recurring-invoices", icon: Repeat, group: "Finance" },
   { label: "Payments", href: "/dashboard/payments", icon: CreditCard, group: "Finance" },
   { label: "Expenses", href: "/dashboard/expenses", icon: HandCoins, group: "Finance" },
   { label: "Supplier Bills", href: "/dashboard/supplier-bills", icon: ScrollText, group: "Finance" },
+  { label: "Purchase Orders", href: "/dashboard/purchase-orders", icon: ShoppingCart, group: "Finance" },
   { label: "Documents", href: "/dashboard/documents", icon: FileText, group: "Assets" },
   { label: "Inventory", href: "/dashboard/inventory", icon: Boxes, group: "Assets" },
   { label: "Branches", href: "/dashboard/branches", icon: GitBranch, group: "Assets" },
+  { label: "Customer Portal", href: "/dashboard/customer-portal", icon: Users, group: "Assets" },
+  { label: "Branch Analytics", href: "/dashboard/branch-analytics", icon: LineChart, group: "Assets" },
   { label: "WhatsApp Templates", href: "/dashboard/whatsapp-templates", icon: MessageSquareText, group: "Control" },
   { label: "Permissions", href: "/dashboard/permissions", icon: ShieldCheck, group: "Control" },
+  { label: "AI Assistant", href: "/dashboard/ai-assistant", icon: Bot, group: "Control" },
+  { label: "Automations", href: "/dashboard/automations", icon: Workflow, group: "Control" },
+  { label: "Audit Logs", href: "/dashboard/audit-logs", icon: ScrollText, group: "Control" },
+  { label: "Approvals", href: "/dashboard/approvals", icon: ClipboardCheck, group: "Control" },
+  { label: "White Label", href: "/dashboard/white-label", icon: BadgeCheck, group: "Control" },
+  { label: "Data Import", href: "/dashboard/data-import", icon: UploadCloud, group: "Control" },
   { label: "Reports", href: "/dashboard/reports", icon: BarChart3, group: "Control" },
   { label: "Subscription", href: "/dashboard/subscription", icon: WalletCards, group: "Control" },
   { label: "Settings", href: "/dashboard/settings", icon: Settings, group: "Control" },
@@ -60,7 +80,9 @@ function readWorkspaceModules() {
   try {
     const saved = window.localStorage.getItem("comvexa-workspace-settings");
     const settings = saved ? JSON.parse(saved) : null;
-    return Array.isArray(settings?.modules) ? settings.modules as string[] : defaultVisibleModules;
+    return Array.isArray(settings?.modules)
+      ? Array.from(new Set([...(settings.modules as string[]), ...defaultVisibleModules]))
+      : defaultVisibleModules;
   } catch {
     return defaultVisibleModules;
   }
@@ -73,17 +95,25 @@ export function DashboardNav() {
   const [accessActive, setAccessActive] = useState(false);
   const [trialLabel, setTrialLabel] = useState("");
   const [visibleModules, setVisibleModules] = useState<string[]>(defaultVisibleModules);
+  const [expandedGroups, setExpandedGroups] = useState<string[]>(["Workspace", "Operations"]);
 
   useEffect(() => {
-    function loadState() {
+    async function loadState() {
+      const { data: sessionData } = await supabase.auth.getSession();
+
+      if (hasOwnerDashboardAccess(sessionData.session?.user.email)) {
+        enableOwnerPlanAccess(window.localStorage.getItem("comvexa-selected-plan"), "monthly", sessionData.session?.user.email);
+      }
+
+      const sessionEmail = sessionData.session?.user.email?.trim().toLowerCase();
       setPlan(normalizePlan(window.localStorage.getItem("comvexa-selected-plan")));
-      setAccessActive(isWorkspaceAccessActive());
+      setAccessActive(isOwnerPlanAccessActiveFor(sessionEmail) || isPaymentSetupComplete() || getProTrialStatus().active);
       const trial = getProTrialStatus();
       setTrialLabel(trial.active ? formatTrialRemaining(trial.remainingMs) : "");
       setVisibleModules(readWorkspaceModules());
     }
 
-    const timeout = window.setTimeout(loadState, 0);
+    const timeout = window.setTimeout(() => void loadState(), 0);
     window.addEventListener("storage", loadState);
     window.addEventListener("comvexa-plan-change", loadState);
     window.addEventListener("comvexa-settings-change", loadState);
@@ -117,7 +147,7 @@ export function DashboardNav() {
 
           return canUseModule(plan, item.label);
         }),
-      })),
+      })).filter((group) => group.items.length > 0),
     [accessActive, plan, visibleModules],
   );
   const mobileItems = navGroups.flatMap((group) => group.items);
@@ -155,13 +185,37 @@ export function DashboardNav() {
       })}
     </nav>
     <div className="hidden min-h-0 flex-1 flex-col overflow-hidden lg:flex">
-      <nav className="min-h-0 flex-1 space-y-5 overflow-y-auto px-3 py-4 [scrollbar-width:thin]">
-      {navGroups.map((group) => (
-        <div key={group.title}>
-          <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-widest text-[var(--comvexa-sidebar-muted,#bfdbfe)]">
-            {groupLabel(group.title)}
-          </p>
-          <div className="space-y-1">
+      <nav className="min-h-0 flex-1 space-y-2 overflow-y-auto px-3 py-3 [scrollbar-width:thin]">
+      {navGroups.map((group) => {
+        const groupHasActiveItem = group.items.some((item) =>
+          item.href === "/dashboard" ? pathname === item.href : item.href !== "#" && pathname.startsWith(item.href),
+        );
+        const groupExpanded = expandedGroups.includes(group.title) || groupHasActiveItem;
+
+        return (
+        <div key={group.title} className="rounded-xl border border-transparent">
+          <button
+            type="button"
+            onClick={() =>
+              setExpandedGroups((current) =>
+                current.includes(group.title)
+                  ? current.filter((title) => title !== group.title)
+                  : [...current, group.title],
+              )
+            }
+            className="flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-[11px] font-semibold uppercase tracking-widest text-[var(--comvexa-sidebar-muted,#bfdbfe)] hover:bg-white/5"
+            aria-expanded={groupExpanded}
+          >
+            <span>{groupLabel(group.title)}</span>
+            <span className="flex items-center gap-2">
+              <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] tracking-normal text-[var(--comvexa-sidebar-title,#ffffff)]">
+                {group.items.length}
+              </span>
+              <ChevronDown size={14} className={`transition ${groupExpanded ? "rotate-180" : ""}`} />
+            </span>
+          </button>
+          {groupExpanded ? (
+          <div className="mt-1 space-y-0.5">
       {group.items.map((item) => {
         const Icon = item.icon;
         const isActive =
@@ -173,26 +227,28 @@ export function DashboardNav() {
           <Link
             key={item.label}
             href={item.href}
-            className={`group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
+            className={`group flex w-full items-center gap-2.5 rounded-lg px-3 py-1.5 text-sm font-medium transition ${
               isActive
                 ? "bg-[var(--comvexa-nav-active-bg,#ffffff)] text-[var(--comvexa-nav-active-text,#0f172a)] shadow-sm ring-1 ring-[var(--comvexa-sidebar-border,rgba(255,255,255,0.10))]"
                 : "text-[var(--comvexa-sidebar-muted,#bfdbfe)] hover:bg-[var(--comvexa-nav-hover-bg,rgba(255,255,255,0.08))] hover:text-[var(--comvexa-sidebar-title,#ffffff)]"
             }`}
           >
             <span
-              className={`flex size-8 items-center justify-center rounded-md ${
+              className={`flex size-7 items-center justify-center rounded-md ${
                 isActive ? "bg-[var(--comvexa-accent,#2563eb)] text-white" : "bg-[var(--comvexa-sidebar-card,rgba(255,255,255,0.06))] text-[var(--comvexa-sidebar-muted,#bfdbfe)] group-hover:text-[var(--comvexa-sidebar-title,#ffffff)]"
               }`}
             >
-              <Icon size={16} strokeWidth={2.2} />
+              <Icon size={15} strokeWidth={2.2} />
             </span>
-            {navLabel(item.label)}
+            <span className="min-w-0 truncate">{navLabel(item.label)}</span>
           </Link>
         );
       })}
           </div>
+          ) : null}
         </div>
-      ))}
+        );
+      })}
       </nav>
       <div className="shrink-0 border-t border-[var(--comvexa-sidebar-border,rgba(255,255,255,0.10))] px-3 py-3">
         <div className="rounded-2xl border border-[var(--comvexa-sidebar-border,rgba(255,255,255,0.10))] bg-[var(--comvexa-sidebar-card,rgba(255,255,255,0.06))] p-3">
@@ -233,13 +289,5 @@ export function DashboardNav() {
 }
 
 function planModulesCount(plan: PlanName) {
-  if (plan === "Basic") {
-    return "10";
-  }
-
-  if (plan === "Pro") {
-    return "13";
-  }
-
-  return "20";
+  return String(planModules[plan].length);
 }

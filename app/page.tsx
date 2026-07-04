@@ -92,18 +92,29 @@ const plans = [
   {
     name: "Ultra",
     priceUsd: 149,
-    description: "Full control for companies with branches, stock, and permissions.",
-    trial: "No free trial",
+    description: "The complete operations suite for multi-branch companies.",
+    trial: "7-day free trial",
     features: [
       "Everything in Pro",
       "Multiple branches",
+      "Branch profit and loss",
       "Inventory management",
+      "Low-stock alerts",
+      "Purchase orders",
       "Supplier bills",
-      "Advanced permissions",
+      "Custom roles and permissions",
+      "Audit logs",
+      "Approval workflows",
+      "AI business assistant",
+      "Automated invoice follow-ups",
+      "Customer payment portal",
+      "Employee performance reports",
       "Cash flow overview",
       "Payment reconciliation",
       "Multi-currency records",
       "Custom tax settings",
+      "White-label invoices",
+      "Data import help",
       "Priority support",
     ],
   },
@@ -128,7 +139,7 @@ const faqs = [
   {
     question: "Which plan has a free trial?",
     answer:
-      "Only Pro includes a free trial, and the trial lasts 3 days. Basic and Ultra do not include a free trial.",
+      "Pro includes a 3-day free trial, Ultra includes a 7-day free trial, and Basic does not include a free trial.",
   },
 ];
 
@@ -426,7 +437,7 @@ export default function Home() {
             <h2 className="mt-3 text-4xl font-semibold tracking-normal">Plans that match your operating stage.</h2>
             <p className="mt-4 text-slate-300">
               Users sign up first, choose a plan, then continue to payment.
-              Only Pro includes a 3-day free trial.
+              Pro includes a 3-day trial, and Ultra includes a 7-day trial.
             </p>
           </div>
           <PricingCards plans={plans} />

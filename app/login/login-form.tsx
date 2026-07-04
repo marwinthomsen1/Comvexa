@@ -2,8 +2,9 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
-import { isAdminEmail } from "@/src/lib/admin/access";
+import { hasOwnerDashboardAccess, isAdminEmail } from "@/src/lib/admin/access";
 import { supabase } from "@/src/lib/supabase/client";
+import { enableOwnerPlanAccess } from "../dashboard/_components/payment-status";
 
 export function LoginForm() {
   const router = useRouter();
@@ -29,6 +30,10 @@ export function LoginForm() {
     if (loginError) {
       setError(loginError.message);
       return;
+    }
+
+    if (hasOwnerDashboardAccess(email)) {
+      enableOwnerPlanAccess("Ultra", "monthly", email);
     }
 
     router.push(isAdminEmail(email) ? "/admin" : "/dashboard");

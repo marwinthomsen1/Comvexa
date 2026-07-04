@@ -3,19 +3,28 @@
 import Link from "next/link";
 import { LockKeyhole } from "lucide-react";
 import { useEffect, useState } from "react";
-import { getProTrialStatus, isWorkspaceAccessActive } from "./payment-status";
+import { hasOwnerDashboardAccess } from "@/src/lib/admin/access";
+import { supabase } from "@/src/lib/supabase/client";
+import { enableOwnerPlanAccess, getProTrialStatus, isOwnerPlanAccessActiveFor, isPaymentSetupComplete } from "./payment-status";
 
 export function PaymentGate({ children }: { children: React.ReactNode }) {
   const [accessActive, setAccessActive] = useState(false);
   const [trialExpired, setTrialExpired] = useState(false);
 
   useEffect(() => {
-    function loadPaymentStatus() {
-      setAccessActive(isWorkspaceAccessActive());
+    async function loadPaymentStatus() {
+      const { data: sessionData } = await supabase.auth.getSession();
+
+      if (hasOwnerDashboardAccess(sessionData.session?.user.email)) {
+        enableOwnerPlanAccess(window.localStorage.getItem("comvexa-selected-plan"), "monthly", sessionData.session?.user.email);
+      }
+
+      const sessionEmail = sessionData.session?.user.email?.trim().toLowerCase();
+      setAccessActive(isOwnerPlanAccessActiveFor(sessionEmail) || isPaymentSetupComplete() || getProTrialStatus().active);
       setTrialExpired(getProTrialStatus().expired);
     }
 
-    const timeout = window.setTimeout(loadPaymentStatus, 0);
+    const timeout = window.setTimeout(() => void loadPaymentStatus(), 0);
     window.addEventListener("storage", loadPaymentStatus);
     window.addEventListener("comvexa-plan-change", loadPaymentStatus);
 

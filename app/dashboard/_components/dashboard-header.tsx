@@ -23,8 +23,8 @@ export function DashboardHeader() {
             <DashboardAccount compact />
           </div>
         </div>
-        <div className="hidden flex-col gap-2 sm:flex sm:flex-row sm:items-center sm:gap-3">
-          <label className="flex h-11 w-full items-center gap-3 rounded-lg border px-3 text-sm comvexa-theme-soft comvexa-theme-muted sm:min-w-72">
+        <div className="hidden min-w-0 flex-col gap-2 sm:flex sm:flex-row sm:items-center sm:gap-3 xl:flex-1 xl:justify-end">
+          <label className="flex h-11 w-full min-w-0 max-w-lg items-center gap-3 rounded-lg border px-3 text-sm comvexa-theme-soft comvexa-theme-muted sm:min-w-60 xl:min-w-80">
             <Search size={17} />
             <input
               type="search"
@@ -32,11 +32,11 @@ export function DashboardHeader() {
               className="w-full bg-transparent outline-none placeholder:text-slate-400"
             />
           </label>
-          <span className="hidden h-11 items-center gap-2 rounded-lg px-4 text-sm font-semibold text-[var(--comvexa-accent,#2563eb)] ring-1 comvexa-theme-soft sm:inline-flex">
-            <ShieldCheck size={17} />
-            {text.workspaceReady}
+          <span className="hidden h-9 shrink-0 items-center gap-2 whitespace-nowrap rounded-full px-3 text-xs font-semibold text-[var(--comvexa-accent,#2563eb)] ring-1 comvexa-theme-soft md:inline-flex">
+            <ShieldCheck size={14} />
+            <span>{text.workspaceReady}</span>
           </span>
-          <div className="hidden sm:block">
+          <div className="hidden shrink-0 sm:block">
             <DashboardAccount />
           </div>
         </div>

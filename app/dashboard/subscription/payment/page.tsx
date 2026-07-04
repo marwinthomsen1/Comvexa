@@ -4,10 +4,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { CheckCircle2, LockKeyhole, ShieldCheck } from "lucide-react";
+import { hasOwnerDashboardAccess } from "@/src/lib/admin/access";
 import { supabase } from "@/src/lib/supabase/client";
 import { openPaddleCheckout } from "@/src/lib/paddle/browser-checkout";
 import {
   activatePaidPlanFromPending,
+  enableOwnerPlanAccess,
   getPendingPaidPlan,
   getProTrialStatus,
   setPendingPaidPlan,
@@ -26,14 +28,19 @@ export default function PaymentPage() {
   const [selectedPlan, setSelectedPlan] = useState("Pro");
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
   const [saved, setSaved] = useState(false);
+  const [isOwnerPlanTester, setIsOwnerPlanTester] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const timeout = window.setTimeout(() => {
+    const timeout = window.setTimeout(async () => {
       const pending = getPendingPaidPlan();
       setSelectedPlan(pending.plan ?? "Pro");
       const storedCycle = pending.billingCycle;
       const trial = getProTrialStatus();
+      const { data: sessionData } = await supabase.auth.getSession();
+      const ownerTesting = hasOwnerDashboardAccess(sessionData.session?.user.email);
+
+      setIsOwnerPlanTester(ownerTesting);
 
       if (!pending.plan && trial.active && window.localStorage.getItem("comvexa-selected-plan") === "Pro") {
         router.push("/dashboard");
@@ -58,6 +65,12 @@ export default function PaymentPage() {
     setError("");
     setSaved(true);
     setPendingPaidPlan(selectedPlan, billingCycle);
+
+    if (isOwnerPlanTester) {
+      enableOwnerPlanAccess(selectedPlan, billingCycle);
+      router.push("/dashboard");
+      return;
+    }
 
     try {
       const { data: sessionData } = await supabase.auth.getSession();
@@ -105,8 +118,9 @@ export default function PaymentPage() {
         </p>
         <h2 className="mt-2 text-3xl font-semibold tracking-normal text-slate-950">Payment setup</h2>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
-          Review your selected Comvexa plan, then continue to Paddle to
-          enter payment details securely.
+          {isOwnerPlanTester
+            ? "Customer dashboard test access is active. Confirm the selected plan to open the dashboard without Paddle."
+            : "Review your selected Comvexa plan, then continue to Paddle to enter payment details securely."}
         </p>
       </section>
 
@@ -159,14 +173,18 @@ export default function PaymentPage() {
             <div className="flex justify-between">
               <span className="text-slate-500">Free trial</span>
               <span className="font-semibold text-slate-950">
-                {selectedPlan === "Pro" ? "Used or not available now" : "None"}
+                {selectedPlan === "Pro"
+                  ? "3 days if available"
+                  : selectedPlan === "Ultra"
+                    ? "7 days if available"
+                    : "None"}
               </span>
             </div>
             <div className="border-t border-slate-200 pt-4">
               <div className="flex justify-between">
                 <span className="font-semibold text-slate-950">Due now</span>
                 <span className="text-2xl font-semibold text-slate-950">
-                  <CurrencyValue usd={total} currency={currency} />
+                  <CurrencyValue usd={isOwnerPlanTester ? 0 : total} currency={currency} />
                 </span>
               </div>
             </div>
@@ -183,7 +201,7 @@ export default function PaymentPage() {
             className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white hover:bg-emerald-700"
           >
             <CheckCircle2 size={17} />
-            {saved ? "Opening Paddle..." : "Continue to Paddle"}
+            {saved ? (isOwnerPlanTester ? "Opening dashboard..." : "Opening Paddle...") : isOwnerPlanTester ? "Open dashboard" : "Continue to Paddle"}
           </button>
           <Link
             href="/dashboard/subscription"

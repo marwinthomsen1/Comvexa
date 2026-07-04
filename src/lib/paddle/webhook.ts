@@ -1,4 +1,10 @@
 import { createHmac, timingSafeEqual } from "crypto";
+import {
+  sendPaymentFailedEmail,
+  sendPaymentSuccessfulEmail,
+  sendSubscriptionActivatedEmail,
+  sendSubscriptionCancelledEmail,
+} from "@/src/lib/email";
 import { createSupabaseAdminClient } from "@/src/lib/supabase/admin";
 import {
   normalizeBillingCycle,
@@ -194,5 +200,36 @@ export async function handlePaddleWebhook(rawBody: string) {
 
   if (error) {
     throw error;
+  }
+
+  const { data: company } = await supabase
+    .from("companies")
+    .select("name, email")
+    .eq("id", companyId)
+    .single();
+
+  if (!company?.email) {
+    return;
+  }
+
+  const emailInput = {
+    to: company.email as string,
+    companyName: company.name ?? "your company",
+    plan,
+  };
+
+  if (eventType === "transaction.completed") {
+    await sendPaymentSuccessfulEmail(emailInput);
+    await sendSubscriptionActivatedEmail(emailInput);
+    return;
+  }
+
+  if (eventType === "subscription.past_due") {
+    await sendPaymentFailedEmail(emailInput);
+    return;
+  }
+
+  if (eventType === "subscription.canceled") {
+    await sendSubscriptionCancelledEmail(emailInput);
   }
 }

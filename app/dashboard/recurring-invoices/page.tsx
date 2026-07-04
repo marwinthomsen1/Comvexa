@@ -1,14 +1,20 @@
+import { CardWorkspacePage } from "../_components/card-workspace-page";
 import { PlanGate } from "../_components/plan-gate";
-import { RecordCrudPage } from "../_components/record-crud-page";
 
 export default function RecurringInvoicesPage() {
   return (
     <PlanGate moduleName="Recurring Invoices">
-      <RecordCrudPage
+      <CardWorkspacePage
         table="recurring_invoices"
         title="Recurring Invoices"
-        description="Prepare recurring invoice schedules for repeat customers and subscriptions."
+        eyebrow="Subscription billing"
+        description="Manage repeating invoice schedules as renewal cards with next invoice dates and status."
         actionLabel="Add recurring invoice"
+        titleKey="title"
+        metaKeys={["customer_name", "frequency", "notes"]}
+        moneyKey="amount"
+        statusKey="status"
+        dateKey="next_invoice_date"
         fields={[
           { name: "title", label: "Title", required: true },
           { name: "customer_name", label: "Customer name" },
@@ -17,14 +23,6 @@ export default function RecurringInvoicesPage() {
           { name: "next_invoice_date", label: "Next invoice date", type: "date" },
           { name: "status", label: "Status", type: "select", options: ["Active", "Paused", "Cancelled"] },
           { name: "notes", label: "Notes", type: "textarea" },
-        ]}
-        columns={[
-          { key: "title", label: "Title" },
-          { key: "customer_name", label: "Customer" },
-          { key: "amount", label: "Amount", format: "currency" },
-          { key: "frequency", label: "Frequency" },
-          { key: "next_invoice_date", label: "Next date", format: "date" },
-          { key: "status", label: "Status" },
         ]}
       />
     </PlanGate>
