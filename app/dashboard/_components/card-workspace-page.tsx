@@ -8,7 +8,7 @@ import { supabase } from "@/src/lib/supabase/client";
 type Field = {
   name: string;
   label: string;
-  type?: "text" | "email" | "tel" | "number" | "date" | "textarea" | "select";
+  type?: "text" | "email" | "tel" | "number" | "date" | "time" | "textarea" | "select";
   required?: boolean;
   options?: string[];
 };
@@ -117,6 +117,7 @@ export function CardWorkspacePage({
 
   async function handleSave(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setError("");
 
     if (!companyId) {
       setError("Your company workspace is not ready yet.");

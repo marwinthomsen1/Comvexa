@@ -16,8 +16,8 @@ export default function StaffSchedulesPage() {
         fields={[
           { name: "employee_name", label: "Employee name", required: true },
           { name: "work_date", label: "Work date", type: "date", required: true },
-          { name: "start_time", label: "Start time" },
-          { name: "end_time", label: "End time" },
+          { name: "start_time", label: "Start time", type: "time" },
+          { name: "end_time", label: "End time", type: "time" },
           { name: "location", label: "Location" },
           { name: "notes", label: "Notes", type: "textarea" },
         ]}
