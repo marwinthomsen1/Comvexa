@@ -135,18 +135,18 @@ const faqs = [
 export default function Home() {
   return (
     <main className="min-h-screen bg-[#fff7da] text-slate-950">
-      <header className="sticky top-0 z-30 border-b border-orange-200/70 bg-white/75 text-slate-950 shadow-sm shadow-orange-100/60 backdrop-blur-xl">
-        <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8">
-          <Link href="/" className="flex items-center gap-3 font-semibold">
+      <header className="sticky top-0 z-30 border-b border-orange-200/70 bg-white/90 text-slate-950 shadow-sm shadow-orange-100/60 backdrop-blur-xl">
+        <nav className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4 lg:px-8">
+          <Link href="/" className="flex min-w-0 items-center gap-2 font-semibold sm:gap-3">
             <Image
               src="/logo.png"
               alt="Comvexa logo"
               width={44}
               height={44}
-              className="size-11 rounded-xl bg-white object-contain p-1"
+              className="size-9 rounded-xl bg-white object-contain p-1 sm:size-11"
               priority
             />
-            <span className="text-lg">Comvexa</span>
+            <span className="truncate text-base sm:text-lg">Comvexa</span>
           </Link>
           <div className="hidden items-center gap-7 text-sm font-medium text-slate-600 md:flex">
             <a href="#platform" className="hover:text-cyan-700"><HomeText id="platform" /></a>
@@ -154,17 +154,20 @@ export default function Home() {
             <a href="#pricing" className="hover:text-cyan-700"><HomeText id="pricing" /></a>
             <a href="#faq" className="hover:text-cyan-700"><HomeText id="faq" /></a>
           </div>
-          <div className="flex items-center gap-3">
-            <CurrencySelector tone="light" />
-            <LanguageSelector tone="light" />
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+            <div className="hidden items-center gap-3 md:flex">
+              <CurrencySelector tone="light" />
+              <LanguageSelector tone="light" />
+            </div>
             <Link href="/login" className="hidden text-sm font-semibold text-slate-600 hover:text-cyan-700 sm:inline">
               <HomeText id="login" />
             </Link>
             <Link
               href="/register"
-              className="rounded-xl bg-[#ff7a59] px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-orange-300/40 hover:bg-[#ff6741]"
+              className="rounded-xl bg-[#ff7a59] px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-orange-300/40 hover:bg-[#ff6741] sm:px-4"
             >
-              <HomeText id="startTrial" />
+              <span className="sm:hidden">Start</span>
+              <span className="hidden sm:inline"><HomeText id="startTrial" /></span>
             </Link>
           </div>
         </nav>
@@ -180,35 +183,35 @@ export default function Home() {
         <div className="summer-float summer-float-two" aria-hidden="true" />
         <div className="summer-float summer-float-three" aria-hidden="true" />
 
-        <div className="relative z-10 mx-auto max-w-7xl px-6 pb-28 pt-20 lg:px-8 lg:pb-36 lg:pt-28">
+        <div className="relative z-10 mx-auto max-w-7xl px-5 pb-16 pt-12 sm:px-6 sm:pb-24 sm:pt-16 lg:px-8 lg:pb-36 lg:pt-28">
           <div className="grid items-center gap-12 lg:grid-cols-[0.92fr_1.08fr]">
             <div className="summer-rise">
-              <p className="inline-flex items-center gap-2 rounded-full border border-cyan-400/60 bg-white/80 px-4 py-2 text-sm font-semibold text-cyan-900 shadow-lg shadow-cyan-200/40">
-                <Sparkles size={16} />
+              <p className="inline-flex max-w-full items-center gap-2 rounded-full border border-cyan-400/60 bg-white/80 px-3 py-2 text-xs font-semibold text-cyan-900 shadow-lg shadow-cyan-200/40 sm:px-4 sm:text-sm">
+                <Sparkles size={15} />
                 <HomeText id="eyebrow" />
               </p>
-              <h1 className="mt-6 max-w-4xl text-5xl font-semibold leading-tight tracking-normal text-[#06112f] sm:text-6xl lg:text-7xl">
+              <h1 className="mt-5 max-w-4xl text-[3rem] font-semibold leading-[1.05] tracking-normal text-[#06112f] sm:mt-6 sm:text-6xl lg:text-7xl">
                 <HomeText id="headline" />
               </h1>
-              <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-700">
+              <p className="mt-5 max-w-2xl text-base leading-7 text-slate-700 sm:mt-6 sm:text-lg sm:leading-8">
                 <HomeText id="subhead" />
               </p>
-              <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+              <div className="mt-7 flex flex-col gap-3 sm:mt-9 sm:flex-row">
                 <Link
                   href="/register"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#ff6b4a] px-6 py-3 text-sm font-semibold text-white shadow-xl shadow-orange-300/60 transition hover:-translate-y-0.5 hover:bg-[#ff5633]"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#ff6b4a] px-6 py-3.5 text-sm font-semibold text-white shadow-xl shadow-orange-300/60 transition hover:-translate-y-0.5 hover:bg-[#ff5633] sm:py-3"
                 >
                   <HomeText id="createWorkspace" />
                   <ArrowRight size={17} />
                 </Link>
                 <a
                   href="#platform"
-                  className="inline-flex items-center justify-center rounded-xl border border-cyan-500/40 bg-white/80 px-6 py-3 text-sm font-semibold text-cyan-950 shadow-lg shadow-cyan-100/60 transition hover:-translate-y-0.5 hover:bg-white"
+                  className="hidden items-center justify-center rounded-xl border border-cyan-500/40 bg-white/80 px-6 py-3 text-sm font-semibold text-cyan-950 shadow-lg shadow-cyan-100/60 transition hover:-translate-y-0.5 hover:bg-white sm:inline-flex"
                 >
                   <HomeText id="explorePlatform" />
                 </a>
               </div>
-              <div className="mt-10 grid gap-3 sm:grid-cols-3">
+              <div className="mt-8 hidden gap-3 sm:grid sm:grid-cols-3 lg:mt-10">
                 {[
                   ["12+", "business modules"],
                   ["3", "subscription plans"],
@@ -222,7 +225,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="summer-rise summer-rise-delay relative">
+            <div className="summer-rise summer-rise-delay relative hidden lg:block">
               <div className="absolute -right-8 -top-8 hidden rounded-full bg-[#ffcf5a] px-5 py-3 text-sm font-bold text-orange-950 shadow-xl shadow-orange-200/70 rotate-6 lg:block">
                 Sunny ops
               </div>

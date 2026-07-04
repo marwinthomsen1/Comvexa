@@ -435,23 +435,23 @@ export function DashboardOverview() {
   ];
 
   return (
-    <main className="comvexa-dashboard-main mx-auto w-full max-w-[1500px] flex-1 p-4 sm:p-6">
-      <section className="overflow-hidden rounded-[var(--comvexa-radius,2rem)] border comvexa-theme-surface shadow-sm">
+    <main className="comvexa-dashboard-main mx-auto w-full max-w-[1500px] flex-1 p-3 sm:p-6">
+      <section className="overflow-hidden rounded-[1.35rem] border comvexa-theme-surface shadow-sm sm:rounded-[var(--comvexa-radius,2rem)]">
         <div className="grid gap-0 xl:grid-cols-[1fr_420px]">
-          <div className="comvexa-theme-soft p-6 text-slate-950 sm:p-8">
-            <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+          <div className="comvexa-theme-soft p-4 text-slate-950 sm:p-8">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
               <div>
                 <p
-                  className="inline-flex items-center gap-2 rounded-full border bg-white px-3 py-1 text-xs font-semibold uppercase tracking-widest"
+                  className="hidden items-center gap-2 rounded-full border bg-white px-3 py-1 text-xs font-semibold uppercase tracking-widest sm:inline-flex"
                   style={{ borderColor: `${viewSettings.accent}33`, color: viewSettings.accent }}
                 >
                   <Sparkles size={14} />
                   {viewSettings.dashboardStyle} operations center
                 </p>
-                <h2 className="mt-5 max-w-3xl text-3xl font-semibold tracking-normal sm:text-4xl">
+                <h2 className="max-w-3xl text-2xl font-semibold tracking-normal sm:mt-5 sm:text-4xl">
                   {viewSettings.companyDisplayName} workspace, built from real business records.
                 </h2>
-                <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-600">
+                <p className="mt-3 hidden max-w-2xl text-sm leading-6 text-slate-600 sm:block">
                   This dashboard updates from your company records. Add
                   customers, services, tasks, invoices, payments, and documents
                   to turn Comvexa into your daily operating system.
@@ -460,14 +460,14 @@ export function DashboardOverview() {
               <button
                 type="button"
                 onClick={() => loadDashboard(true)}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-blue-200 bg-white px-4 text-sm font-semibold text-blue-800 shadow-sm hover:bg-blue-50"
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-blue-200 bg-white px-4 text-sm font-semibold text-blue-800 shadow-sm hover:bg-blue-50 sm:h-11"
               >
                 <RefreshCw className={isRefreshing ? "animate-spin" : ""} size={16} />
                 Refresh
               </button>
             </div>
 
-            <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-5 grid grid-cols-2 gap-3 sm:mt-8 sm:grid-cols-2 lg:grid-cols-4">
               {mainStats.map((stat) => {
                 const Icon = stat.icon;
 
@@ -475,7 +475,7 @@ export function DashboardOverview() {
                   <Link
                     key={stat.label}
                     href={stat.href}
-                    className="rounded-2xl border comvexa-theme-card p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md"
+                    className="rounded-2xl border comvexa-theme-card p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md sm:p-4"
                   >
                     <div className="flex items-center justify-between gap-3">
                       <span
@@ -486,16 +486,16 @@ export function DashboardOverview() {
                       </span>
                       <ArrowRight size={16} className="text-blue-300" />
                     </div>
-                    <p className="mt-5 text-xs font-medium uppercase tracking-widest text-slate-500">{stat.label}</p>
-                    <p className="mt-2 text-3xl font-semibold" data-no-translate>{isLoading ? "-" : stat.value}</p>
-                    <p className="mt-1 text-sm text-slate-500">{stat.note}</p>
+                    <p className="mt-4 text-[11px] font-medium uppercase tracking-widest text-slate-500 sm:mt-5 sm:text-xs">{stat.label}</p>
+                    <p className="mt-2 text-2xl font-semibold sm:text-3xl" data-no-translate>{isLoading ? "-" : stat.value}</p>
+                    <p className="mt-1 hidden text-sm text-slate-500 sm:block">{stat.note}</p>
                   </Link>
                 );
               })}
             </div>
           </div>
 
-          <aside className="comvexa-theme-surface p-6 sm:p-8">
+          <aside className="hidden comvexa-theme-surface p-6 sm:block sm:p-8">
             {viewSettings.showSetup ? (
             <div className="rounded-[var(--comvexa-radius,1.5rem)] border border-blue-100 comvexa-theme-soft p-5">
               <div className="flex items-start justify-between gap-4">

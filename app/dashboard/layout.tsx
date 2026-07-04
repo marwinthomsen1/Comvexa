@@ -14,7 +14,7 @@ export default function DashboardLayout({
 }>) {
   return (
     <WorkspaceSettingsProvider>
-    <div className="min-h-screen bg-[var(--comvexa-app-bg,#eef3f9)] text-[var(--comvexa-text,#020617)] lg:flex">
+    <div className="min-h-screen bg-[var(--comvexa-app-bg,#eef3f9)] pb-20 text-[var(--comvexa-text,#020617)] lg:flex lg:pb-0">
       <aside className="relative z-30 border-b border-slate-200 bg-[var(--comvexa-sidebar-bg,#10233f)] text-[var(--comvexa-sidebar-title,#ffffff)] lg:fixed lg:inset-y-0 lg:flex lg:w-72 lg:flex-col lg:border-b-0">
         <div className="border-b border-[var(--comvexa-sidebar-border,rgba(255,255,255,0.10))] bg-white/[0.03] px-4 py-3 lg:px-5 lg:py-5">
           <div className="flex items-center gap-3">
@@ -23,12 +23,14 @@ export default function DashboardLayout({
             alt="Comvexa logo"
             width={40}
             height={40}
-            className="size-10 rounded-lg object-contain"
+            className="size-9 rounded-lg object-contain lg:size-10"
             priority
           />
           <div>
             <p className="font-semibold">Comvexa</p>
-            <DashboardBrandSubtitle />
+            <div className="hidden sm:block">
+              <DashboardBrandSubtitle />
+            </div>
           </div>
           </div>
         </div>

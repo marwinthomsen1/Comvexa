@@ -121,11 +121,17 @@ export function DashboardNav() {
     [accessActive, plan, visibleModules],
   );
   const mobileItems = navGroups.flatMap((group) => group.items);
+  const mobilePrimaryLabels = accessActive
+    ? ["Dashboard", "Customers", "Invoices", "Payments", "Settings"]
+    : ["Subscription", "Settings"];
+  const mobilePrimaryItems = mobilePrimaryLabels
+    .map((label) => mobileItems.find((item) => item.label === label))
+    .filter((item): item is (typeof navItems)[number] => Boolean(item));
 
   return (
     <>
-    <nav className="flex gap-2 overflow-x-auto px-4 py-3 [scrollbar-width:none] lg:hidden">
-      {mobileItems.map((item) => {
+    <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-slate-200 bg-white/95 px-2 pb-[max(0.65rem,env(safe-area-inset-bottom))] pt-2 shadow-2xl shadow-slate-950/10 backdrop-blur-xl lg:hidden">
+      {mobilePrimaryItems.map((item) => {
         const Icon = item.icon;
         const isActive =
           item.href === "/dashboard"
@@ -136,14 +142,14 @@ export function DashboardNav() {
           <Link
             key={item.label}
             href={item.href}
-            className={`inline-flex shrink-0 items-center gap-2 rounded-full px-3 py-2 text-xs font-semibold ring-1 transition ${
+            className={`flex min-w-0 flex-col items-center justify-center gap-1 rounded-2xl px-2 py-2 text-[11px] font-semibold transition ${
               isActive
-                ? "bg-white text-slate-950 ring-white/30"
-                : "bg-white/10 text-[var(--comvexa-sidebar-muted,#bfdbfe)] ring-white/10"
+                ? "bg-[var(--comvexa-accent-soft,#eff6ff)] text-[var(--comvexa-accent,#2563eb)]"
+                : "text-slate-500"
             }`}
           >
-            <Icon size={15} />
-            {navLabel(item.label)}
+            <Icon size={18} />
+            <span className="max-w-full truncate">{navLabel(item.label)}</span>
           </Link>
         );
       })}
