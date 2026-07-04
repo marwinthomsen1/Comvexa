@@ -64,6 +64,7 @@ export function CardWorkspacePage({
   const [search, setSearch] = useState("");
   const [error, setError] = useState("");
   const [currency, setCurrency] = useState("USD");
+  const [isSaving, setIsSaving] = useState(false);
 
   const loadRows = useCallback(async function loadRows() {
     setCurrency(readCurrency());
@@ -131,7 +132,13 @@ export function CardWorkspacePage({
       payload[field.name] = field.type === "number" ? Number(rawValue || 0) : rawValue || null;
     });
 
-    const { error: saveError } = await supabase.from(table).insert(payload);
+    setIsSaving(true);
+    const { data: savedRow, error: saveError } = await supabase
+      .from(table)
+      .insert(payload)
+      .select("*")
+      .single();
+    setIsSaving(false);
 
     if (saveError) {
       setError(saveError.message);
@@ -139,7 +146,7 @@ export function CardWorkspacePage({
     }
 
     event.currentTarget.reset();
-    await loadRows();
+    setRows((currentRows) => [savedRow as Row, ...currentRows]);
   }
 
   async function deleteRow(id: string | number | null) {
@@ -149,7 +156,7 @@ export function CardWorkspacePage({
       setError(deleteError.message);
       return;
     }
-    await loadRows();
+    setRows((currentRows) => currentRows.filter((row) => row.id !== id));
   }
 
   function exportCsv() {
@@ -192,9 +199,9 @@ export function CardWorkspacePage({
               <FieldInput key={field.name} field={field} />
             ))}
             {error ? <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700 ring-1 ring-red-100">{error}</p> : null}
-            <button disabled={!companyId} className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 text-sm font-semibold text-white hover:bg-blue-700 disabled:bg-blue-300">
+            <button disabled={!companyId || isSaving} className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 text-sm font-semibold text-white hover:bg-blue-700 disabled:bg-blue-300">
               <Plus size={17} />
-              {actionLabel}
+              {isSaving ? "Saving..." : actionLabel}
             </button>
           </div>
         </form>

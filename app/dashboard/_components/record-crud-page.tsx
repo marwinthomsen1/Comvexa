@@ -228,11 +228,9 @@ export function RecordCrudPage({
       payload[field.name] = rawValue || null;
     });
 
-    const saveRequest = editingRow?.id
-      ? supabase.from(table).update(payload).eq("id", editingRow.id)
-      : supabase.from(table).insert(payload);
-
-    const { error: saveError } = await saveRequest;
+    const { data: savedRow, error: saveError } = editingRow?.id
+      ? await supabase.from(table).update(payload).eq("id", editingRow.id).select("*").single()
+      : await supabase.from(table).insert(payload).select("*").single();
 
     setIsSaving(false);
 
@@ -245,7 +243,11 @@ export function RecordCrudPage({
     setEditingRow(null);
     setDraftRow(null);
     setFormVersion((current) => current + 1);
-    await loadRows();
+    setRows((currentRows) =>
+      editingRow?.id
+        ? currentRows.map((row) => (row.id === editingRow.id ? (savedRow as Row) : row))
+        : [savedRow as Row, ...currentRows],
+    );
   }
 
   async function handleDuplicate(row: Row) {
@@ -263,14 +265,18 @@ export function RecordCrudPage({
       payload[field.name] = row[field.name] ?? null;
     });
 
-    const { error: duplicateError } = await supabase.from(table).insert(payload);
+    const { data: duplicatedRow, error: duplicateError } = await supabase
+      .from(table)
+      .insert(payload)
+      .select("*")
+      .single();
 
     if (duplicateError) {
       setError(duplicateError.message);
       return;
     }
 
-    await loadRows();
+    setRows((currentRows) => [duplicatedRow as Row, ...currentRows]);
   }
 
   async function handleDelete(id: string | number | null) {
