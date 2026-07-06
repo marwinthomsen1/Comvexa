@@ -51,6 +51,21 @@ const useCases = [
   "Field operations",
 ];
 
+const trustSignals = [
+  { title: "Secure Paddle checkout", text: "Billing handled by Paddle", icon: CreditCard },
+  { title: "No card data stored", text: "No card numbers or CVC stored", icon: LockKeyhole },
+  { title: "Company-separated records", text: "Each workspace stays separate", icon: ShieldCheck },
+];
+
+const heroPills = [
+  { label: "Customers", icon: Users },
+  { label: "Invoices", icon: ReceiptText },
+  { label: "Staff", icon: Building2 },
+  { label: "Bookings", icon: CalendarDays },
+  { label: "Payments", icon: CreditCard },
+  { label: "Reports", icon: BarChart3 },
+];
+
 const plans = [
   {
     name: "Basic",
@@ -222,12 +237,24 @@ export default function Home() {
                 <Sparkles size={15} />
                 <HomeText id="eyebrow" />
               </p>
-              <h1 className="mt-4 max-w-4xl text-[2.55rem] font-semibold leading-[1.04] tracking-normal text-[#06112f] sm:mt-6 sm:text-6xl lg:text-7xl">
+              <h1 className="mt-4 max-w-4xl text-[2.75rem] font-semibold leading-[1.02] tracking-normal text-[#06112f] sm:mt-6 sm:text-6xl lg:text-7xl">
                 <HomeText id="headline" />
               </h1>
-              <p className="mt-4 max-w-2xl text-base leading-7 text-slate-700 sm:mt-6 sm:text-lg sm:leading-8">
+              <p className="mt-4 max-w-2xl text-base leading-7 text-[#28445c] sm:mt-6 sm:text-lg sm:leading-8">
                 <HomeText id="subhead" />
               </p>
+              <div className="mt-5 flex max-w-2xl flex-wrap gap-2.5">
+                {heroPills.map((item) => {
+                  const Icon = item.icon;
+
+                  return (
+                    <span key={item.label} className="inline-flex items-center gap-2 rounded-full border border-cyan-300/70 bg-white/65 px-3.5 py-2 text-sm font-semibold text-cyan-950 shadow-sm shadow-cyan-100/60 backdrop-blur">
+                      <Icon size={15} className="text-[#ff6b4a]" />
+                      {item.label}
+                    </span>
+                  );
+                })}
+              </div>
               <div className="mt-6 flex flex-col gap-3 sm:mt-9 sm:flex-row">
                 <Link
                   href="/register"
@@ -242,6 +269,18 @@ export default function Home() {
                 >
                   <HomeText id="explorePlatform" />
                 </a>
+              </div>
+              <div className="mt-5 flex flex-wrap gap-2.5 sm:mt-6 sm:max-w-2xl">
+                {trustSignals.map((item) => {
+                  const Icon = item.icon;
+
+                  return (
+                    <div key={item.title} className="inline-flex items-center gap-2 rounded-full border border-white/80 bg-white/75 px-3.5 py-2 text-sm font-semibold text-cyan-950 shadow-sm shadow-cyan-100/50 backdrop-blur">
+                      <Icon className="shrink-0 text-cyan-700" size={15} />
+                      <span>{item.text}</span>
+                    </div>
+                  );
+                })}
               </div>
               <div className="mt-8 hidden gap-3 sm:grid sm:grid-cols-3 lg:mt-10">
                 {[
@@ -465,6 +504,19 @@ export default function Home() {
               Users sign up first, choose a plan, then continue to payment.
               Pro includes a 3-day trial, and Ultra includes a 7-day trial.
             </p>
+          </div>
+          <div className="mx-auto mt-6 grid max-w-5xl gap-3 md:grid-cols-3">
+            {trustSignals.map((item) => {
+              const Icon = item.icon;
+
+              return (
+                <div key={item.title} className="rounded-2xl border border-cyan-900/10 bg-white/75 p-4 shadow-lg shadow-amber-200/40 ring-1 ring-white/70">
+                  <Icon className="text-cyan-700" size={20} />
+                  <h3 className="mt-3 text-sm font-semibold text-slate-950">{item.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">{item.text}</p>
+                </div>
+              );
+            })}
           </div>
           <PricingCards plans={plans} />
         </div>
