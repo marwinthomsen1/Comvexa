@@ -187,8 +187,8 @@ export function LanguageSelector({ tone = "dark" }: { tone?: "dark" | "light" })
   const [language, setLanguage] = useState("English");
   const selectClass =
     tone === "light"
-      ? "h-10 rounded-xl border border-slate-300 bg-white px-3 text-sm font-semibold text-slate-950 outline-none hover:bg-slate-50 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
-      : "h-10 rounded-xl border border-white/15 bg-white/10 px-3 text-sm font-semibold text-white outline-none hover:bg-white/15 focus:border-emerald-300 focus:ring-4 focus:ring-emerald-400/20 [&_option]:bg-white [&_option]:text-slate-950";
+      ? "h-10 rounded-md border border-slate-300 bg-white px-3 text-sm font-semibold text-slate-950 outline-none hover:bg-slate-50 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
+      : "h-10 rounded-md border border-white/15 bg-white/10 px-3 text-sm font-semibold text-white outline-none hover:bg-white/15 focus:border-emerald-300 focus:ring-4 focus:ring-emerald-400/20 [&_option]:bg-white [&_option]:text-slate-950";
 
   useEffect(() => {
     function syncLanguage() {

@@ -86,16 +86,16 @@ export function PricingCards({ plans }: { plans: Plan[] }) {
   return (
     <>
       <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
-        <div className="inline-flex rounded-2xl border border-cyan-900/10 bg-white/75 p-1 shadow-lg shadow-amber-200/40 ring-1 ring-white/70">
+        <div className="inline-flex rounded-lg border border-slate-200 bg-slate-100 p-1">
           {(["monthly", "yearly"] as const).map((option) => (
             <button
               key={option}
               type="button"
               onClick={() => setBilling(option)}
-              className={`rounded-xl px-4 py-2 text-sm font-semibold capitalize transition ${
+              className={`rounded-md px-4 py-2 text-sm font-semibold capitalize transition ${
                 billing === option
-                  ? "bg-[#ff7a59] text-white shadow-sm shadow-orange-200"
-                  : "text-slate-600 hover:text-cyan-800"
+                  ? "bg-slate-950 text-white shadow-sm"
+                  : "text-slate-600 hover:text-slate-950"
               }`}
             >
               {option === "monthly" ? text.monthly : text.yearly}
@@ -105,11 +105,11 @@ export function PricingCards({ plans }: { plans: Plan[] }) {
         <CurrencySelector compact tone="light" />
         <LanguageSelector tone="light" />
       </div>
-      <p className="mt-3 text-center text-sm font-medium text-cyan-800">
+      <p className="mt-3 text-center text-sm font-medium text-slate-600">
         {billing === "yearly" ? text.yearlyNote : text.monthlyNote}
       </p>
       {error ? (
-        <p className="mx-auto mt-3 max-w-lg rounded-xl bg-red-50 px-4 py-3 text-center text-sm text-red-700">
+        <p className="mx-auto mt-3 max-w-lg rounded-lg bg-red-50 px-4 py-3 text-center text-sm text-red-700">
           {error}
         </p>
       ) : null}
@@ -118,14 +118,14 @@ export function PricingCards({ plans }: { plans: Plan[] }) {
         {plans.map((plan) => (
           <div
             key={plan.name}
-            className={`relative overflow-hidden rounded-3xl border p-6 shadow-xl transition hover:-translate-y-1 ${
+            className={`relative overflow-hidden rounded-lg border p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-xl ${
               plan.featured
-                ? "border-[#ffb35c] bg-white text-slate-950 shadow-orange-200/70 ring-2 ring-[#ffcf5a]/45"
-                : "border-cyan-900/10 bg-white/75 text-slate-950 shadow-cyan-100/60"
+                ? "border-emerald-500 bg-white text-slate-950 ring-4 ring-emerald-100"
+                : "border-slate-200 bg-white text-slate-950"
             }`}
           >
             {plan.featured ? (
-              <div className="absolute right-4 top-4 rounded-full bg-[#ffcf5a] px-3 py-1 text-xs font-bold text-orange-950 shadow-sm">
+              <div className="absolute right-4 top-4 rounded-md bg-emerald-600 px-3 py-1 text-xs font-bold text-white shadow-sm">
                 Best start
               </div>
             ) : null}
@@ -136,8 +136,8 @@ export function PricingCards({ plans }: { plans: Plan[] }) {
                   {plan.description}
                 </p>
               </div>
-              <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold ${
-                plan.featured ? "mt-8 bg-cyan-50 text-cyan-800" : "bg-cyan-50 text-cyan-800"
+              <span className={`shrink-0 rounded-md px-3 py-1 text-xs font-semibold ${
+                plan.featured ? "mt-8 bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-600"
               }`}>
                 {plan.trial}
               </span>
@@ -157,10 +157,10 @@ export function PricingCards({ plans }: { plans: Plan[] }) {
               type="button"
               onClick={() => openCheckout(plan)}
               disabled={pendingPlan === plan.name}
-              className={`mt-7 block w-full rounded-xl px-5 py-3 text-center text-sm font-semibold shadow-lg transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-60 ${
+              className={`mt-7 block w-full rounded-md px-5 py-3 text-center text-sm font-semibold shadow-lg transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-60 ${
                 plan.featured
-                  ? "bg-[#ff7a59] text-white shadow-orange-200/80 hover:bg-[#ff6741]"
-                  : "bg-cyan-950 text-white shadow-cyan-200/70 hover:bg-cyan-900"
+                  ? "bg-emerald-600 text-white shadow-emerald-200 hover:bg-emerald-700"
+                  : "bg-slate-950 text-white shadow-slate-200 hover:bg-slate-800"
               }`}
             >
               {pendingPlan === plan.name ? "Opening Paddle..." : "Continue"}
@@ -168,7 +168,7 @@ export function PricingCards({ plans }: { plans: Plan[] }) {
             <ul className="mt-7 max-h-72 space-y-3 overflow-y-auto pr-2 text-sm [scrollbar-width:thin]">
               {plan.features.map((feature) => (
                 <li key={feature} className="flex gap-3">
-                  <Check className="mt-0.5 shrink-0 text-[#ff7a59]" size={16} />
+                  <Check className="mt-0.5 shrink-0 text-emerald-700" size={16} />
                   <span className="text-slate-700">{feature}</span>
                 </li>
               ))}

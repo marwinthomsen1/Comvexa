@@ -22,6 +22,7 @@ import {
   Mail,
   Package,
   PanelLeft,
+  Target,
   ReceiptText,
   RefreshCw,
   Search,
@@ -35,6 +36,7 @@ import {
 } from "lucide-react";
 import { isAdminEmail } from "@/src/lib/admin/access";
 import { supabase } from "@/src/lib/supabase/client";
+import { LeadsOutreachTab } from "./leads-outreach-tab";
 
 type AdminRow = Record<string, unknown>;
 
@@ -62,13 +64,14 @@ type AdminOverview = {
   recentEmailLogs: AdminRow[];
 };
 
-type AdminTab = "overview" | "companies" | "users" | "email" | "activity" | "tools";
+type AdminTab = "overview" | "companies" | "users" | "email" | "leads" | "activity" | "tools";
 
 const tabs: Array<{ id: AdminTab; label: string; icon: LucideIcon }> = [
   { id: "overview", label: "Command Center", icon: BarChart3 },
   { id: "companies", label: "Companies", icon: Building2 },
   { id: "users", label: "Users", icon: Users },
   { id: "email", label: "Email Center", icon: Mail },
+  { id: "leads", label: "Leads / Outreach", icon: Target },
   { id: "activity", label: "Activity", icon: Activity },
   { id: "tools", label: "Admin Tools", icon: SlidersHorizontal },
 ];
@@ -434,7 +437,7 @@ export function AdminDashboard() {
               <input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search companies, users, emails"
+                placeholder="Search companies, users, emails, leads"
                 className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 pl-11 pr-4 text-sm font-medium outline-none ring-0 transition focus:border-emerald-300 focus:bg-white"
               />
             </label>
@@ -532,6 +535,8 @@ export function AdminDashboard() {
           {activeTab === "users" ? <UsersTab users={filteredUsers} overview={overview} /> : null}
 
           {activeTab === "email" ? <EmailTab overview={overview} onSent={loadOverview} /> : null}
+
+          {activeTab === "leads" ? <LeadsOutreachTab /> : null}
 
           {activeTab === "activity" ? (
             <ActivityTab overview={overview} activityFeed={activityFeed} financialCards={financialCards} />

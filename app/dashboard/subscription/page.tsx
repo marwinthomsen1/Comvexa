@@ -16,6 +16,7 @@ import {
   type TrialStatus,
 } from "../_components/payment-status";
 import { CurrencySelector, CurrencyValue, formatCurrencyAmount, useSelectedCurrency } from "../../_components/currency-display";
+import { trackMetaStartTrial } from "../../_components/meta-pixel";
 
 const plans = [
   {
@@ -240,6 +241,7 @@ export default function SubscriptionPage() {
       }
 
       activatePlanTrial(trial.plan ?? selectedPlan, trial.startsAt, trial.endsAt);
+      trackMetaStartTrial(trial.startsAt);
       setIsStartingTrial(false);
       router.push("/dashboard");
     } catch {

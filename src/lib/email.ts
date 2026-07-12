@@ -456,3 +456,26 @@ export function sendAdminCustomerEmail(input: AdminCustomerEmailInput) {
     metadata: { companyName: input.companyName, ctaUrl: input.ctaUrl },
   });
 }
+
+export function sendAdminOutreachEmail(input: AdminCustomerEmailInput & { leadId: string; source?: string }) {
+  const paragraphs = input.message
+    .split(/\n{2,}/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean)
+    .map((paragraph) => `<p>${escapeHtml(paragraph).replaceAll("\n", "<br>")}</p>`)
+    .join("");
+
+  return sendEmail({
+    to: input.to,
+    type: "admin_outreach_message",
+    subject: input.subject,
+    html: emailLayout({
+      title: input.subject,
+      preview: input.message.slice(0, 140),
+      body: `${input.customerName ? `<p>${greeting(input.customerName)}</p>` : ""}${paragraphs}`,
+      cta: input.ctaLabel && input.ctaUrl ? { label: input.ctaLabel, href: input.ctaUrl } : undefined,
+    }),
+    text: `${greeting(input.customerName)}\n\n${input.message}${input.ctaUrl ? `\n\n${input.ctaLabel || "Open link"}: ${input.ctaUrl}` : ""}`,
+    metadata: { companyName: input.companyName, ctaUrl: input.ctaUrl, leadId: input.leadId, source: input.source },
+  });
+}
