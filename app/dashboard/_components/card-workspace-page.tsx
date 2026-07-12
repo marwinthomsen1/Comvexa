@@ -175,8 +175,8 @@ export function CardWorkspacePage({
   }
 
   return (
-    <main className="mx-auto w-full max-w-[1500px] flex-1 p-4 sm:p-6">
-      <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/70">
+    <main className="dashboard-module-page mx-auto w-full max-w-[1500px] flex-1 p-4 sm:p-6">
+      <section className="dashboard-module-hero rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/70">
         <p className="text-xs font-semibold uppercase tracking-widest text-blue-700">{eyebrow}</p>
         <div className="mt-3 grid gap-5 xl:grid-cols-[1fr_420px]">
           <div>
@@ -192,13 +192,13 @@ export function CardWorkspacePage({
       </section>
 
       <section className="mt-6 grid gap-6 xl:grid-cols-[360px_1fr]">
-        <form onSubmit={handleSave} className="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/70">
+        <form onSubmit={handleSave} className="dashboard-module-form rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/70">
           <h3 className="font-semibold text-slate-950">{actionLabel}</h3>
           <div className="mt-5 grid gap-4">
             {fields.map((field) => (
               <FieldInput key={field.name} field={field} />
             ))}
-            {error ? <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700 ring-1 ring-red-100">{error}</p> : null}
+            {error ? <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700 ring-1 ring-red-100" role="alert">{error}</p> : null}
             <button disabled={!companyId || isSaving} className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 text-sm font-semibold text-white hover:bg-blue-700 disabled:bg-blue-300">
               <Plus size={17} />
               {isSaving ? "Saving..." : actionLabel}
@@ -206,7 +206,7 @@ export function CardWorkspacePage({
           </div>
         </form>
 
-        <section className="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/70">
+        <section className="dashboard-module-records rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/70">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <label className="flex h-11 w-full items-center gap-3 rounded-xl border border-slate-300 px-3 text-sm text-slate-500 focus-within:border-blue-600 focus-within:ring-4 focus-within:ring-blue-100 sm:max-w-sm">
               <Search size={17} />

@@ -131,13 +131,13 @@ export function FirstPlanTutorial() {
   }
 
   return createPortal(
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center overflow-y-auto bg-slate-950/55 p-4 backdrop-blur-sm sm:p-6">
-      <section className="relative max-h-[calc(100dvh-2rem)] w-full max-w-4xl overflow-hidden rounded-[1.5rem] border border-white/70 bg-white shadow-2xl shadow-slate-950/30 sm:max-h-[calc(100dvh-3rem)]">
-        <div className="absolute -right-20 -top-20 size-56 rounded-full bg-amber-200/70 blur-3xl" />
-        <div className="absolute -bottom-24 -left-20 size-64 rounded-full bg-cyan-200/70 blur-3xl" />
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center overflow-y-auto bg-[#052f37]/65 p-4 backdrop-blur-sm sm:p-6">
+      <section className="comvexa-tutorial-v2 relative max-h-[calc(100dvh-2rem)] w-full max-w-4xl overflow-hidden rounded-[1.75rem] border border-white/70 bg-[#fffefa] shadow-2xl shadow-slate-950/30 sm:max-h-[calc(100dvh-3rem)]" role="dialog" aria-modal="true" aria-label="Welcome to your Comvexa workspace">
+        <div className="absolute -right-20 -top-20 size-56 rounded-full bg-amber-200/70 blur-3xl" aria-hidden="true" />
+        <div className="absolute -bottom-24 -left-20 size-64 rounded-full bg-cyan-200/70 blur-3xl" aria-hidden="true" />
 
         <div className="relative grid max-h-[calc(100dvh-2rem)] min-h-0 overflow-y-auto sm:max-h-[calc(100dvh-3rem)] lg:grid-cols-[0.9fr_1.1fr] lg:overflow-hidden">
-          <aside className="min-h-0 bg-cyan-950 p-5 text-white sm:p-6 lg:overflow-y-auto">
+          <aside className="min-h-0 bg-[#073d47] p-5 text-white sm:p-6 lg:overflow-y-auto">
             <div className="flex items-start justify-between gap-4">
               <p className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-amber-100 ring-1 ring-white/15">
                 <Sparkles size={16} />
@@ -240,7 +240,7 @@ export function FirstPlanTutorial() {
                   <Link
                     href="/dashboard/customers"
                     onClick={finishTutorial}
-                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#ff6b4a] px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-200/70 hover:bg-[#ff5633]"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#c7432f] px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-200/70 hover:bg-[#ad3524]"
                   >
                     Add first customer
                     <ArrowRight size={16} />
@@ -249,7 +249,7 @@ export function FirstPlanTutorial() {
                   <button
                     type="button"
                     onClick={() => setStepIndex((current) => current + 1)}
-                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#ff6b4a] px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-200/70 hover:bg-[#ff5633]"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#c7432f] px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-200/70 hover:bg-[#ad3524]"
                   >
                     Next
                     <ArrowRight size={16} />

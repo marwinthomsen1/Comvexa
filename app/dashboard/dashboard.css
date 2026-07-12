@@ -1,0 +1,502 @@
+.comvexa-dashboard-v2 {
+  --comvexa-action: #073d47;
+  --comvexa-on-action: #ffffff;
+  --comvexa-card-shadow: 0 1px 2px rgba(7, 61, 71, 0.045), 0 12px 35px rgba(7, 61, 71, 0.045);
+  --comvexa-elevated-shadow: 0 24px 60px rgba(7, 61, 71, 0.16);
+  background: var(--comvexa-app-bg, #f6f3eb);
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area {
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 82% -6rem, color-mix(in srgb, var(--comvexa-warning-soft, #fff0ba) 72%, transparent), transparent 24rem),
+    radial-gradient(circle at 12% 8rem, color-mix(in srgb, var(--comvexa-success-soft, #dffff8) 74%, transparent), transparent 25rem),
+    var(--comvexa-app-bg, #f6f3eb);
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area::before {
+  position: fixed;
+  inset: 0 0 auto 17rem;
+  z-index: -1;
+  height: 18rem;
+  content: "";
+  pointer-events: none;
+  opacity: 0.24;
+  background-image: radial-gradient(color-mix(in srgb, var(--comvexa-text, #073d47) 22%, transparent) 0.6px, transparent 0.7px);
+  background-size: 9px 9px;
+  mask-image: linear-gradient(to bottom, black, transparent);
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area > * {
+  position: relative;
+}
+
+.comvexa-dashboard-sidebar::after {
+  position: absolute;
+  right: -8rem;
+  bottom: -8rem;
+  width: 18rem;
+  aspect-ratio: 1;
+  content: "";
+  pointer-events: none;
+  border-radius: 9999px;
+  border: 2.5rem solid rgba(57, 217, 198, 0.055);
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .comvexa-dashboard-sidebar::after {
+    display: block;
+  }
+}
+
+.comvexa-dashboard-sidebar nav {
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+  scrollbar-width: thin;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-sidebar nav > div {
+  border-radius: 1rem;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-sidebar nav a {
+  min-height: 2.35rem;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-sidebar nav a[aria-current="page"] {
+  box-shadow: inset 3px 0 0 #ffc857;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-sidebar nav a[aria-current="page"] > span:first-child {
+  background: #ffc857 !important;
+  color: #073d47 !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-sidebar > div:last-child a[class*="bg-[var(--comvexa-accent"] {
+  background: #ffc857 !important;
+  color: #073d47 !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-header {
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--comvexa-border, #d8e2dc) 70%, transparent);
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area main {
+  min-width: 0;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area main > section,
+.comvexa-dashboard-v2 .comvexa-dashboard-area main > div[class*="rounded"],
+.comvexa-dashboard-v2 .comvexa-theme-card,
+.comvexa-dashboard-v2 .comvexa-theme-surface {
+  border-color: var(--comvexa-border, #d8e2dc);
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area main > section[class*="shadow"],
+.comvexa-dashboard-v2 .comvexa-dashboard-area main > div[class*="shadow"],
+.comvexa-dashboard-v2 .comvexa-theme-card {
+  box-shadow: var(--comvexa-card-shadow);
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area main > section:first-child:not(.dashboard-gate) {
+  border-color: color-mix(in srgb, var(--comvexa-accent, #0c8b84) 22%, var(--comvexa-border, #d8e2dc)) !important;
+  background:
+    radial-gradient(circle at 90% 0%, color-mix(in srgb, var(--comvexa-warning-soft, #fff0ba) 82%, transparent), transparent 15rem),
+    linear-gradient(135deg, var(--comvexa-surface, #fffefa), var(--comvexa-soft-surface, #eef9f5)) !important;
+  box-shadow: 0 20px 48px rgba(7, 61, 71, 0.065) !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area main > section:first-child:not(.dashboard-gate) h2 {
+  font-weight: 800;
+  letter-spacing: -0.045em;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area section[class*="rounded-[2rem]"],
+.comvexa-dashboard-v2 .comvexa-dashboard-area section[class*="rounded-[1.75rem]"],
+.comvexa-dashboard-v2 .comvexa-dashboard-area section[class*="rounded-3xl"] {
+  border-radius: var(--comvexa-radius, 1.25rem);
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area [class~="bg-white"],
+.comvexa-dashboard-v2 .comvexa-dashboard-area [class*="from-white"],
+.comvexa-dashboard-v2 .comvexa-dashboard-area [class*="via-white"] {
+  background-color: var(--comvexa-surface, #fffefa) !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area [class*="bg-[#f7fbff]"],
+.comvexa-dashboard-v2 .comvexa-dashboard-area [class~="bg-slate-50"],
+.comvexa-dashboard-v2 .comvexa-dashboard-area [class*="bg-slate-50/"] {
+  background-color: var(--comvexa-soft-surface, #eef9f5) !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area [class~="bg-blue-50"],
+.comvexa-dashboard-v2 .comvexa-dashboard-area [class*="bg-blue-50/"],
+.comvexa-dashboard-v2 .comvexa-dashboard-area [class~="bg-emerald-50"],
+.comvexa-dashboard-v2 .comvexa-dashboard-area [class*="bg-emerald-50/"] {
+  background-color: var(--comvexa-accent-soft, #dffff8) !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area [class*="border-slate-"],
+.comvexa-dashboard-v2 .comvexa-dashboard-area [class*="border-blue-"],
+.comvexa-dashboard-v2 .comvexa-dashboard-area [class*="border-emerald-"] {
+  border-color: var(--comvexa-border, #d8e2dc) !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area [class*="ring-slate-"],
+.comvexa-dashboard-v2 .comvexa-dashboard-area [class*="ring-blue-"],
+.comvexa-dashboard-v2 .comvexa-dashboard-area [class*="ring-emerald-"] {
+  --tw-ring-color: var(--comvexa-border, #d8e2dc) !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area [class*="text-slate-950"],
+.comvexa-dashboard-v2 .comvexa-dashboard-area [class*="text-slate-900"],
+.comvexa-dashboard-v2 .comvexa-dashboard-area [class*="text-slate-800"] {
+  color: var(--comvexa-text, #073d47) !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area [class*="text-slate-400"],
+.comvexa-dashboard-v2 .comvexa-dashboard-area [class*="text-slate-500"],
+.comvexa-dashboard-v2 .comvexa-dashboard-area [class*="text-slate-600"],
+.comvexa-dashboard-v2 .comvexa-dashboard-area [class*="text-slate-700"] {
+  color: var(--comvexa-muted, #5d7477) !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area [class*="text-blue-"],
+.comvexa-dashboard-v2 .comvexa-dashboard-area [class*="text-emerald-"] {
+  color: var(--comvexa-accent, #0c8b84) !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area [class~="bg-blue-600"],
+.comvexa-dashboard-v2 .comvexa-dashboard-area [class~="bg-blue-700"],
+.comvexa-dashboard-v2 .comvexa-dashboard-area [class~="bg-emerald-600"],
+.comvexa-dashboard-v2 .comvexa-dashboard-area [class~="bg-emerald-700"],
+.comvexa-dashboard-v2 .comvexa-dashboard-area button[class*="bg-blue-"],
+.comvexa-dashboard-v2 .comvexa-dashboard-area button[class*="bg-emerald-"] {
+  background: var(--comvexa-action, #073d47) !important;
+  color: var(--comvexa-on-action, #ffffff) !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area a[class*="bg-blue-600"],
+.comvexa-dashboard-v2 .comvexa-dashboard-area a[class*="bg-emerald-600"] {
+  background: var(--comvexa-action, #073d47) !important;
+  color: var(--comvexa-on-action, #ffffff) !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area input[class*="border"],
+.comvexa-dashboard-v2 .comvexa-dashboard-area textarea,
+.comvexa-dashboard-v2 .comvexa-dashboard-area select {
+  border-color: var(--comvexa-border, #d8e2dc) !important;
+  background-color: var(--comvexa-surface, #fffefa);
+  color: var(--comvexa-text, #073d47);
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area input::placeholder,
+.comvexa-dashboard-v2 .comvexa-dashboard-area textarea::placeholder {
+  color: color-mix(in srgb, var(--comvexa-muted, #5d7477) 70%, transparent);
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area input[type="checkbox"],
+.comvexa-dashboard-v2 .comvexa-dashboard-area input[type="radio"] {
+  accent-color: var(--comvexa-accent, #0c8b84);
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area table thead {
+  background: var(--comvexa-soft-surface, #eef9f5) !important;
+  color: var(--comvexa-muted, #5d7477) !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area table tbody > tr {
+  transition: background-color 160ms ease;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area table tbody > tr:hover {
+  background: color-mix(in srgb, var(--comvexa-accent-soft, #dffff8) 65%, transparent) !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area [class~="divide-slate-100"] > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--comvexa-border, #d8e2dc) !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area button,
+.comvexa-dashboard-v2 .comvexa-dashboard-area a,
+.comvexa-dashboard-v2 .comvexa-dashboard-sidebar button,
+.comvexa-dashboard-v2 .comvexa-dashboard-sidebar a {
+  transition: color 160ms ease, background-color 160ms ease, border-color 160ms ease, opacity 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+}
+
+.comvexa-dashboard-v2 :is(a, button, input, textarea, select, summary):focus-visible {
+  outline: 3px solid var(--comvexa-focus, #39d9c6) !important;
+  outline-offset: 2px;
+}
+
+.comvexa-dashboard-v2 button[aria-label*="Delete"],
+.comvexa-dashboard-v2 button[aria-label*="Edit"],
+.comvexa-dashboard-v2 button[aria-label*="Close"] {
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-main > section:first-child {
+  border-color: color-mix(in srgb, var(--comvexa-accent, #0c8b84) 24%, var(--comvexa-border, #d8e2dc));
+  box-shadow: 0 24px 55px rgba(7, 61, 71, 0.08);
+}
+
+.comvexa-dashboard-v2 .dashboard-module-hero {
+  position: relative;
+  overflow: hidden;
+  border-color: color-mix(in srgb, var(--comvexa-accent, #0c8b84) 25%, var(--comvexa-border, #d8e2dc)) !important;
+  background:
+    radial-gradient(circle at 91% 0%, color-mix(in srgb, var(--comvexa-warning-soft, #fff0ba) 88%, transparent), transparent 16rem),
+    linear-gradient(135deg, var(--comvexa-surface, #fffefa), var(--comvexa-soft-surface, #eef9f5)) !important;
+  box-shadow: 0 22px 50px rgba(7, 61, 71, 0.07) !important;
+}
+
+.comvexa-dashboard-v2 .dashboard-module-hero::after {
+  position: absolute;
+  right: -4rem;
+  bottom: -6rem;
+  width: 14rem;
+  aspect-ratio: 1;
+  content: "";
+  pointer-events: none;
+  border-radius: 9999px;
+  border: 2rem solid color-mix(in srgb, var(--comvexa-accent, #0c8b84) 8%, transparent);
+}
+
+.comvexa-dashboard-v2 .dashboard-module-hero h2 {
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 1.05;
+}
+
+.comvexa-dashboard-v2 .dashboard-module-form,
+.comvexa-dashboard-v2 .dashboard-module-records {
+  border-color: var(--comvexa-border, #d8e2dc) !important;
+  background: var(--comvexa-surface, #fffefa) !important;
+  box-shadow: var(--comvexa-card-shadow) !important;
+}
+
+.comvexa-dashboard-v2 .dashboard-module-form > h3,
+.comvexa-dashboard-v2 .dashboard-module-records h3 {
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+
+.comvexa-dashboard-v2 .dashboard-module-records article {
+  border-color: var(--comvexa-border, #d8e2dc) !important;
+  background: var(--comvexa-soft-surface, #eef9f5) !important;
+  box-shadow: none !important;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.comvexa-dashboard-v2 .dashboard-module-records article:hover {
+  border-color: color-mix(in srgb, var(--comvexa-accent, #0c8b84) 40%, var(--comvexa-border, #d8e2dc)) !important;
+  box-shadow: 0 12px 25px rgba(7, 61, 71, 0.07) !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area [class*="bg-gradient-to-br"][class*="from-white"] {
+  background-image: linear-gradient(135deg, var(--comvexa-surface, #fffefa), var(--comvexa-soft-surface, #eef9f5)) !important;
+}
+
+@media (min-width: 1280px) {
+  .comvexa-dashboard-v2 .dashboard-module-form {
+    position: sticky;
+    top: 6rem;
+    align-self: start;
+  }
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-main > section:first-child > .grid > div:first-child {
+  background:
+    radial-gradient(circle at 92% 4%, color-mix(in srgb, var(--comvexa-warning-soft, #fff0ba) 88%, transparent), transparent 18rem),
+    linear-gradient(135deg, var(--comvexa-soft-surface, #eef9f5), var(--comvexa-surface, #fffefa)) !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-main > section:first-child h2 {
+  max-width: 54rem;
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 1.04;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-main > section:first-child a[class*="comvexa-theme-card"] {
+  position: relative;
+  overflow: hidden;
+  border-color: var(--comvexa-border, #d8e2dc);
+  box-shadow: none;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-main > section:first-child a[class*="comvexa-theme-card"]::before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  content: "";
+  background: linear-gradient(90deg, var(--comvexa-accent, #0c8b84), #39d9c6);
+}
+
+@media (min-width: 640px) {
+  .comvexa-dashboard-v2 .dashboard-overview-hero aside > div:last-child > div[class*="grid"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-main > section:last-child {
+  background:
+    radial-gradient(circle at 90% 50%, var(--comvexa-warning-soft, #fff0ba), transparent 16rem),
+    var(--comvexa-surface, #fffefa) !important;
+}
+
+.comvexa-dashboard-v2 .dashboard-dark-panel,
+.comvexa-dashboard-v2 .dashboard-dark-panel [class*="text-slate-"] {
+  color: white !important;
+}
+
+.comvexa-dashboard-v2 .dashboard-dark-panel p[class*="text-slate-"] {
+  opacity: 0.62;
+}
+
+.comvexa-dashboard-v2 .dashboard-gate {
+  position: relative;
+  isolation: isolate;
+  min-height: 26rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-color: color-mix(in srgb, var(--comvexa-warning, #8a6500) 20%, var(--comvexa-border, #d8e2dc)) !important;
+  background:
+    radial-gradient(circle at 78% 18%, var(--comvexa-warning-soft, #fff0ba), transparent 15rem),
+    radial-gradient(circle at 20% 80%, var(--comvexa-success-soft, #dffff8), transparent 17rem),
+    var(--comvexa-surface, #fffefa) !important;
+  box-shadow: 0 24px 60px rgba(7, 61, 71, 0.08) !important;
+}
+
+.comvexa-dashboard-v2 .dashboard-gate h2 {
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+.comvexa-dashboard-v2 .comvexa-ai-support-launcher {
+  border: 3px solid var(--comvexa-surface, #fffefa) !important;
+  background: var(--comvexa-action, #073d47) !important;
+  color: var(--comvexa-on-action, #ffffff) !important;
+  box-shadow: var(--comvexa-elevated-shadow) !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-ai-support-panel {
+  border-color: var(--comvexa-border, #d8e2dc) !important;
+  background: var(--comvexa-surface, #fffefa) !important;
+  box-shadow: var(--comvexa-elevated-shadow) !important;
+}
+
+html[data-comvexa-density="compact"] .comvexa-dashboard-v2 .comvexa-dashboard-area main {
+  padding: 1rem;
+}
+
+html[data-comvexa-density="compact"] .comvexa-dashboard-v2 .comvexa-dashboard-area main section[class*="p-6"],
+html[data-comvexa-density="compact"] .comvexa-dashboard-v2 .comvexa-dashboard-area main section[class*="p-5"] {
+  padding: 1rem;
+}
+
+html[data-comvexa-density="spacious"] .comvexa-dashboard-v2 .comvexa-dashboard-area main {
+  padding: 2rem;
+}
+
+html[data-comvexa-theme="Midnight"] .comvexa-dashboard-v2 {
+  --comvexa-action: #f8fafc;
+  --comvexa-on-action: #073d47;
+}
+
+html[data-comvexa-theme="Old School"] .comvexa-dashboard-v2 {
+  --comvexa-action: #2f2418;
+  --comvexa-on-action: #fff7e8;
+}
+
+.comvexa-theme-root[data-comvexa-theme="Summer"] .comvexa-dashboard-v2 .comvexa-dashboard-area {
+  background:
+    radial-gradient(circle at 82% -6rem, rgba(255, 200, 87, 0.3), transparent 24rem),
+    radial-gradient(circle at 12% 8rem, rgba(57, 217, 198, 0.22), transparent 25rem),
+    var(--comvexa-app-bg, #fff7df) !important;
+}
+
+.comvexa-theme-root[data-comvexa-theme="Summer"] .comvexa-dashboard-v2 .comvexa-dashboard-area::before {
+  inset: 0 0 auto 17rem;
+  width: auto;
+  height: 18rem;
+  aspect-ratio: auto;
+  border-radius: 0;
+  background: radial-gradient(rgba(7, 61, 71, 0.22) 0.6px, transparent 0.7px);
+  background-size: 9px 9px;
+  box-shadow: none;
+  animation: none;
+  opacity: 0.2;
+  mask-image: linear-gradient(to bottom, black, transparent);
+}
+
+.comvexa-theme-root[data-comvexa-theme="Summer"] .comvexa-dashboard-v2 .comvexa-dashboard-area::after {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .comvexa-dashboard-v2 .comvexa-dashboard-area::before {
+    inset-inline-start: 0;
+  }
+
+  .comvexa-dashboard-v2 .comvexa-ai-support-launcher,
+  .comvexa-dashboard-v2 .comvexa-ai-support-panel {
+    bottom: calc(5.8rem + env(safe-area-inset-bottom)) !important;
+  }
+
+  .comvexa-theme-root[data-comvexa-theme="Summer"] .comvexa-dashboard-v2 .comvexa-dashboard-area::before {
+    inset-inline-start: 0;
+  }
+}
+
+@media (max-width: 639px) {
+  .comvexa-dashboard-v2 .comvexa-dashboard-area main {
+    padding: 0.75rem;
+  }
+
+  .comvexa-dashboard-v2 .comvexa-dashboard-area main > section {
+    margin-top: 0.75rem;
+  }
+
+  .comvexa-dashboard-v2 .comvexa-dashboard-area main > section:first-child {
+    margin-top: 0;
+  }
+
+  .comvexa-dashboard-v2 .comvexa-dashboard-area section[class~="p-6"],
+  .comvexa-dashboard-v2 .comvexa-dashboard-area section[class~="p-5"] {
+    padding: 1rem;
+  }
+
+  .comvexa-dashboard-v2 .comvexa-dashboard-area main section .grid-cols-3 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+
+  .comvexa-dashboard-v2 .comvexa-dashboard-main > section:first-child h2 {
+    font-size: 1.55rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .comvexa-dashboard-v2 *,
+  .comvexa-dashboard-v2 *::before,
+  .comvexa-dashboard-v2 *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

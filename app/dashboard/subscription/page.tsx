@@ -17,6 +17,7 @@ import {
 } from "../_components/payment-status";
 import { CurrencySelector, CurrencyValue, formatCurrencyAmount, useSelectedCurrency } from "../../_components/currency-display";
 import { trackMetaStartTrial } from "../../_components/meta-pixel";
+import { CancelSubscriptionCard } from "./cancel-subscription-card";
 
 const plans = [
   {
@@ -298,6 +299,7 @@ export default function SubscriptionPage() {
               key={cycle}
               type="button"
               onClick={() => setBillingCycle(cycle)}
+              aria-pressed={billingCycle === cycle}
               className={`rounded-lg px-4 py-2 text-sm font-semibold capitalize ${
                 billingCycle === cycle ? "bg-white text-slate-950 shadow-sm" : "text-slate-500"
               }`}
@@ -313,8 +315,8 @@ export default function SubscriptionPage() {
         </div>
       </section>
 
-      <section className="mt-6 grid gap-6 xl:grid-cols-[1fr_380px]">
-        <div className="grid gap-6 lg:grid-cols-3">
+      <section className="mt-6 grid gap-6 2xl:grid-cols-[minmax(0,1fr)_340px]">
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {plans.map((item) => {
             const isSelected = item.name === selectedPlan;
 
@@ -323,17 +325,18 @@ export default function SubscriptionPage() {
                 key={item.name}
                 type="button"
                 onClick={() => setSelectedPlan(item.name)}
-                className={`rounded-3xl border bg-white p-6 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-xl ${
+                aria-pressed={isSelected}
+                className={`relative rounded-3xl border bg-white p-6 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-xl ${
                   isSelected ? "border-emerald-500 ring-4 ring-emerald-100" : "border-slate-200"
                 }`}
               >
-                <div className="flex items-start justify-between gap-4">
+                <div>
                   <div>
                     <h3 className="text-xl font-semibold text-slate-950">{item.name}</h3>
                     <p className="mt-2 text-sm leading-6 text-slate-600">{item.description}</p>
                   </div>
                   {isSelected ? (
-                    <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800" data-no-translate>
+                    <span className="absolute right-5 top-5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800" data-no-translate>
                       Selected
                     </span>
                   ) : null}
@@ -375,7 +378,7 @@ export default function SubscriptionPage() {
           })}
         </div>
 
-        <aside className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/70">
+        <aside className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/70 2xl:sticky 2xl:top-24 2xl:self-start">
           <div className="flex items-center gap-3">
             <span className="flex size-11 items-center justify-center rounded-2xl bg-slate-950 text-white">
               <ReceiptText size={20} />
@@ -427,7 +430,7 @@ export default function SubscriptionPage() {
             </div>
           </div>
           {trialError ? (
-            <p className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm leading-6 text-red-700 ring-1 ring-red-100">
+            <p className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm leading-6 text-red-700 ring-1 ring-red-100" role="alert">
               {trialError}
             </p>
           ) : null}
@@ -453,6 +456,8 @@ export default function SubscriptionPage() {
           </button>
         </aside>
       </section>
+
+      <CancelSubscriptionCard />
     </main>
   );
 }

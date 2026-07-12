@@ -32,7 +32,8 @@ export function DashboardAuthGuard({ children }: { children: React.ReactNode }) 
   if (isChecking) {
     return (
       <main className="flex min-h-screen flex-1 items-center justify-center p-6">
-        <div className="rounded-2xl border border-slate-200 bg-white px-6 py-5 text-sm font-semibold text-slate-600 shadow-sm">
+        <div className="flex items-center gap-3 rounded-2xl border border-[var(--comvexa-border,#d8e2dc)] bg-[var(--comvexa-surface,#fffefa)] px-6 py-5 text-sm font-bold text-[var(--comvexa-text,#073d47)] shadow-sm" role="status">
+          <span className="size-3 animate-pulse rounded-full bg-[var(--comvexa-accent,#0c8b84)]" />
           Loading Comvexa workspace...
         </div>
       </main>

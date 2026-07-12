@@ -12,6 +12,8 @@ const paymentProviderKey = "comvexa-payment-provider";
 const paymentConfirmedAtKey = "comvexa-payment-confirmed-at";
 const ownerPlanAccessKey = "comvexa-owner-plan-access";
 const ownerPlanAccessEmailKey = "comvexa-owner-plan-access-email";
+const cancellationScheduledKey = "comvexa-cancellation-scheduled";
+const cancellationEffectiveAtKey = "comvexa-cancellation-effective-at";
 const firstPlanUnlockedEvent = "comvexa-first-plan-unlocked";
 
 export type BillingCycle = "monthly" | "yearly";
@@ -30,11 +32,35 @@ export function isPaymentSetupComplete() {
     return false;
   }
 
-  return (
+  const cancellationEffectiveAt = window.localStorage.getItem(cancellationEffectiveAtKey);
+  const cancellationHasTakenEffect =
+    window.localStorage.getItem(cancellationScheduledKey) === "true" &&
+    Boolean(cancellationEffectiveAt) &&
+    new Date(cancellationEffectiveAt as string).getTime() <= Date.now();
+
+  return !cancellationHasTakenEffect && (
     window.localStorage.getItem(paymentCompleteKey) === "true" &&
     window.localStorage.getItem(paymentProviderKey) === "paddle" &&
     Boolean(window.localStorage.getItem(paymentConfirmedAtKey))
   );
+}
+
+export function setScheduledPlanCancellation(effectiveAt?: string | null) {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(cancellationScheduledKey, "true");
+  if (effectiveAt) {
+    window.localStorage.setItem(cancellationEffectiveAtKey, effectiveAt);
+  } else {
+    window.localStorage.removeItem(cancellationEffectiveAtKey);
+  }
+  window.dispatchEvent(new Event("comvexa-plan-change"));
+}
+
+export function clearScheduledPlanCancellation() {
+  if (typeof window === "undefined") return;
+  window.localStorage.removeItem(cancellationScheduledKey);
+  window.localStorage.removeItem(cancellationEffectiveAtKey);
+  window.dispatchEvent(new Event("comvexa-plan-change"));
 }
 
 export function isOwnerPlanAccessActive() {
@@ -139,6 +165,8 @@ export function activatePaidPlanFromPending() {
   window.localStorage.setItem(paymentCompleteKey, "true");
   window.localStorage.setItem(paymentProviderKey, "paddle");
   window.localStorage.setItem(paymentConfirmedAtKey, new Date().toISOString());
+  window.localStorage.removeItem(cancellationScheduledKey);
+  window.localStorage.removeItem(cancellationEffectiveAtKey);
   window.localStorage.removeItem(pendingPlanKey);
   window.localStorage.removeItem(pendingBillingCycleKey);
   window.dispatchEvent(new Event("comvexa-plan-change"));

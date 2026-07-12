@@ -22,6 +22,7 @@ import { languageOptions } from "../_components/dashboard-i18n";
 import { canUseModule, defaultPlan, normalizePlan, planModules, type PlanName } from "../_components/plan-access";
 
 const accents = [
+  { name: "Comvexa Lagoon", value: "#0c8b84" },
   { name: "Executive Blue", value: "#2563eb" },
   { name: "Ocean Cyan", value: "#0891b2" },
   { name: "Emerald", value: "#059669" },
@@ -33,8 +34,8 @@ const accents = [
 const themes = [
   {
     name: "Normal",
-    description: "Clean blue workspace for everyday operations.",
-    swatches: ["#eef3f9", "#10233f", "#2563eb"],
+    description: "Warm, calm workspace with lagoon accents.",
+    swatches: ["#f6f3eb", "#073d47", "#0c8b84"],
   },
   {
     name: "Summer",
@@ -131,7 +132,7 @@ const defaultSettings: Settings = {
   language: "English",
   dateFormat: "MM/DD/YYYY",
   theme: "Normal",
-  accent: "#2563eb",
+  accent: "#0c8b84",
   dashboardStyle: "Executive",
   density: "Comfortable",
   sidebar: "Modern blue",
@@ -164,7 +165,7 @@ export function WorkspaceCustomizer() {
         setSettings({
           ...defaultSettings,
           ...savedSettings,
-          modules: Array.from(new Set([...(savedSettings.modules ?? []), ...allModules])),
+          modules: savedSettings.modules ?? allModules,
         });
       }
 

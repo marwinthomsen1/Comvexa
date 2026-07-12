@@ -199,8 +199,8 @@ function BookingsCalendar() {
         </div>
       </section>
 
-      <section className="mt-6 grid gap-6 xl:grid-cols-[1fr_390px]">
-        <div className="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/70">
+      <section className="mt-6 grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1fr)_390px]">
+        <div className="min-w-0 rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/70">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
               <span className="flex size-11 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100">
@@ -224,10 +224,11 @@ function BookingsCalendar() {
             </div>
           </div>
 
-          <div className="mt-5 grid grid-cols-7 gap-2 text-center text-xs font-semibold uppercase tracking-widest text-slate-400">
+          <div className="dashboard-calendar-scroll mt-5 overflow-x-auto pb-2 [scrollbar-width:thin]">
+          <div className="grid min-w-[42rem] grid-cols-7 gap-2 text-center text-xs font-semibold uppercase tracking-widest text-slate-400 sm:min-w-0">
             {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => <span key={day}>{day}</span>)}
           </div>
-          <div className="mt-2 grid grid-cols-7 gap-2">
+          <div className="mt-2 grid min-w-[42rem] grid-cols-7 gap-2 sm:min-w-0">
             {days.map((date) => {
               const key = toDateKey(date);
               const dayBookings = bookingsByDate[key] ?? [];
@@ -240,6 +241,8 @@ function BookingsCalendar() {
                   key={key}
                   type="button"
                   onClick={() => setSelectedDate(key)}
+                  aria-label={date.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}
+                  aria-pressed={selected}
                   className={`min-h-28 rounded-2xl border p-2 text-left transition ${
                     selected
                       ? "border-emerald-500 bg-emerald-50 ring-4 ring-emerald-100"
@@ -265,9 +268,10 @@ function BookingsCalendar() {
               );
             })}
           </div>
+          </div>
         </div>
 
-        <aside className="space-y-6">
+        <aside className="min-w-0 space-y-6">
           <form key={editingBooking?.id ?? selectedDate} onSubmit={handleSave} className="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/70">
             <div className="flex items-start justify-between gap-3">
               <div>
@@ -305,7 +309,7 @@ function BookingsCalendar() {
                 <span className="text-sm font-medium text-slate-700">Booking notes</span>
                 <textarea name="notes" rows={4} defaultValue={editingBooking?.notes ?? ""} placeholder="Customer, service, location, or booking details" className="mt-2 w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-emerald-600 focus:ring-4 focus:ring-emerald-100" />
               </label>
-              {error ? <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700 ring-1 ring-red-100">{error}</p> : null}
+              {error ? <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700 ring-1 ring-red-100" role="alert">{error}</p> : null}
               <button type="submit" disabled={isSaving || !companyId} className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white hover:bg-emerald-700 disabled:bg-emerald-300">
                 {editingBooking ? <Edit3 size={17} /> : <Plus size={17} />}
                 {isSaving ? "Saving..." : editingBooking ? "Save changes" : "Add booking"}

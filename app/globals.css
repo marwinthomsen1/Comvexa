@@ -699,3 +699,395 @@ html[data-comvexa-density="spacious"] .comvexa-dashboard-main section {
   margin-top: 2rem;
 }
 
+/* Comvexa 2026 landing page: premium golden-hour summer system. */
+.summer-2026-hero {
+  min-height: calc(100svh - 4.6rem);
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 8% 78%, rgba(255, 255, 255, 0.48), transparent 18rem),
+    linear-gradient(128deg, #fff4ae 0%, #ffd171 35%, #a4eee0 68%, #38c6bd 100%);
+}
+
+.summer-2026-hero::after {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  content: "";
+  pointer-events: none;
+  background:
+    linear-gradient(115deg, transparent 0 56%, rgba(255, 255, 255, 0.13) 56% 57%, transparent 57% 100%),
+    linear-gradient(115deg, transparent 0 67%, rgba(7, 61, 71, 0.07) 67% 68%, transparent 68% 100%);
+}
+
+.summer-2026-grain {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.2;
+  background-image: radial-gradient(rgba(7, 61, 71, 0.32) 0.7px, transparent 0.8px);
+  background-size: 8px 8px;
+  mask-image: linear-gradient(to right, black, transparent 70%);
+}
+
+.summer-2026-sun {
+  position: absolute;
+  top: clamp(2rem, 8vw, 7rem);
+  right: clamp(-8rem, -3vw, -2rem);
+  z-index: -1;
+  width: clamp(22rem, 45vw, 42rem);
+  aspect-ratio: 1;
+  border-radius: 9999px;
+  background: linear-gradient(145deg, #fff5a8 0%, #ffc857 48%, #ff7757 100%);
+  box-shadow:
+    0 0 0 1.6rem rgba(255, 255, 255, 0.12),
+    0 0 0 3.4rem rgba(255, 255, 255, 0.07),
+    0 3rem 8rem rgba(255, 101, 71, 0.2);
+  animation: summer-2026-breathe 7s ease-in-out infinite;
+}
+
+.summer-2026-sun span {
+  position: absolute;
+  inset: -4.5rem;
+  z-index: -1;
+  border-radius: inherit;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  animation: summer-2026-spin 45s linear infinite;
+}
+
+.summer-2026-sun span::before,
+.summer-2026-sun span::after {
+  position: absolute;
+  content: "";
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.56);
+}
+
+.summer-2026-sun span::before {
+  left: 10%;
+  top: 8%;
+  width: 0.65rem;
+  aspect-ratio: 1;
+}
+
+.summer-2026-sun span::after {
+  right: 2%;
+  bottom: 26%;
+  width: 0.9rem;
+  aspect-ratio: 1;
+}
+
+.summer-2026-orbit {
+  position: absolute;
+  z-index: -1;
+  border: 1px solid rgba(7, 61, 71, 0.12);
+  border-radius: 9999px;
+  pointer-events: none;
+}
+
+.summer-2026-orbit-one {
+  left: -9rem;
+  top: 23%;
+  width: 24rem;
+  aspect-ratio: 1;
+}
+
+.summer-2026-orbit-two {
+  left: 31%;
+  bottom: -9rem;
+  width: 18rem;
+  aspect-ratio: 1;
+}
+
+.summer-2026-tide {
+  position: absolute;
+  bottom: -5.5rem;
+  left: -5%;
+  z-index: 1;
+  width: 110%;
+  height: 8rem;
+  border-radius: 48% 52% 0 0 / 80% 80% 0 0;
+  background: #073d47;
+  pointer-events: none;
+}
+
+.summer-2026-reveal {
+  animation: summer-2026-rise 800ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.summer-2026-reveal-delay {
+  animation-delay: 130ms;
+}
+
+.summer-cockpit-wrap {
+  min-width: 0;
+  max-width: 100%;
+  perspective: 1200px;
+}
+
+.summer-cockpit {
+  min-width: 0;
+  max-width: 100%;
+  transform: rotateY(-2deg) rotateX(1deg);
+  transform-origin: center;
+  animation: summer-2026-cockpit 6s ease-in-out infinite;
+}
+
+.summer-float-card {
+  position: absolute;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  border: 1px solid rgba(7, 61, 71, 0.1);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 0.65rem 0.85rem;
+  box-shadow: 0 1.2rem 2.6rem rgba(7, 61, 71, 0.16);
+  backdrop-filter: blur(12px);
+}
+
+.summer-float-card-one {
+  top: -2.1rem;
+  right: 6%;
+  animation: summer-2026-float 5.5s ease-in-out infinite;
+}
+
+.summer-float-card-two {
+  bottom: 3rem;
+  left: -2.4rem;
+  animation: summer-2026-float 6.2s ease-in-out -2s infinite;
+}
+
+.summer-bento-card {
+  box-shadow: 0 1.5rem 4rem rgba(7, 61, 71, 0.08);
+  transition: transform 240ms ease, box-shadow 240ms ease;
+}
+
+.summer-bento-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 2rem 5rem rgba(7, 61, 71, 0.13);
+}
+
+.summer-finance-glow {
+  position: absolute;
+  right: -12rem;
+  top: -12rem;
+  width: 42rem;
+  aspect-ratio: 1;
+  border-radius: 9999px;
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(57, 217, 198, 0.2), transparent 68%);
+}
+
+.summer-pricing::before {
+  position: absolute;
+  left: -10rem;
+  top: 12%;
+  z-index: -1;
+  width: 28rem;
+  aspect-ratio: 1;
+  content: "";
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(57, 217, 198, 0.22), transparent 68%);
+}
+
+.summer-pricing-orb {
+  position: absolute;
+  right: -6rem;
+  top: 5rem;
+  z-index: -1;
+  width: 20rem;
+  aspect-ratio: 1;
+  border-radius: 9999px;
+  border: 3rem solid rgba(255, 200, 87, 0.22);
+  pointer-events: none;
+}
+
+.summer-final-cta {
+  background:
+    radial-gradient(circle at 86% 24%, rgba(255, 200, 87, 0.2), transparent 17rem),
+    linear-gradient(125deg, #073d47 0%, #075d65 58%, #0c8b84 100%);
+}
+
+.summer-final-cta::after {
+  position: absolute;
+  left: -5%;
+  bottom: -6rem;
+  width: 110%;
+  height: 9rem;
+  content: "";
+  border-radius: 50% 50% 0 0 / 80% 80% 0 0;
+  background: rgba(57, 217, 198, 0.16);
+}
+
+.summer-final-sun {
+  position: absolute;
+  right: clamp(-8rem, 3vw, 2rem);
+  top: 50%;
+  width: clamp(16rem, 28vw, 25rem);
+  aspect-ratio: 1;
+  transform: translateY(-50%);
+  border-radius: 9999px;
+  background: linear-gradient(145deg, #fff1a5, #ffc857 52%, #ff7757);
+  box-shadow: 0 0 0 1.5rem rgba(255, 255, 255, 0.07), 0 0 5rem rgba(255, 200, 87, 0.2);
+  opacity: 0.9;
+}
+
+.comvexa-landing a:focus-visible,
+.comvexa-landing summary:focus-visible,
+.comvexa-landing button:focus-visible {
+  outline: 3px solid #39d9c6;
+  outline-offset: 3px;
+}
+
+.comvexa-landing #platform,
+.comvexa-landing #accounting,
+.comvexa-landing #pricing,
+.comvexa-landing #faq {
+  scroll-margin-top: 5.5rem;
+}
+
+@keyframes summer-2026-rise {
+  from {
+    opacity: 0;
+    transform: translateY(1.25rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes summer-2026-breathe {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.025);
+  }
+}
+
+@keyframes summer-2026-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes summer-2026-cockpit {
+  0%, 100% {
+    transform: rotateY(-2deg) rotateX(1deg) translateY(0);
+  }
+  50% {
+    transform: rotateY(-1deg) rotateX(0deg) translateY(-5px);
+  }
+}
+
+@keyframes summer-2026-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
+@media (max-width: 1023px) {
+  .summer-2026-hero {
+    min-height: auto;
+  }
+
+  .summer-2026-sun {
+    right: -12rem;
+    top: 26rem;
+    width: 34rem;
+    opacity: 0.66;
+  }
+
+  .summer-cockpit {
+    transform: none;
+    animation-name: summer-2026-cockpit-flat;
+  }
+
+  .summer-float-card-two {
+    left: 1rem;
+    bottom: -1.5rem;
+  }
+}
+
+@keyframes summer-2026-cockpit-flat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@media (max-width: 639px) {
+  .summer-2026-hero {
+    background:
+      radial-gradient(circle at 90% 67%, rgba(57, 217, 198, 0.52), transparent 15rem),
+      linear-gradient(145deg, #fff4ae 0%, #ffd171 54%, #b8f1e7 100%);
+  }
+
+  .summer-2026-sun {
+    right: -11rem;
+    top: 32rem;
+    width: 25rem;
+  }
+
+  .summer-2026-tide {
+    bottom: -6.8rem;
+  }
+
+  .summer-float-card-one {
+    right: 0.75rem;
+    top: -1.4rem;
+    transform: scale(0.88);
+    transform-origin: right center;
+  }
+
+  .summer-float-card-two {
+    display: none;
+  }
+
+  .summer-final-sun {
+    right: -9rem;
+    top: 15%;
+    width: 18rem;
+    transform: none;
+    opacity: 0.38;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .summer-2026-sun,
+  .summer-2026-sun span,
+  .summer-2026-reveal,
+  .summer-cockpit,
+  .summer-float-card,
+  .summer-bento-card,
+  .summer-auth,
+  .summer-auth::before,
+  .summer-auth-sun,
+  .summer-auth-cloud,
+  html[data-comvexa-theme="Summer"] .comvexa-dashboard-area::before,
+  html[data-comvexa-theme="Summer"] .comvexa-dashboard-area::after,
+  .comvexa-theme-root[data-comvexa-theme="Summer"] .comvexa-dashboard-area::before,
+  .comvexa-theme-root[data-comvexa-theme="Summer"] .comvexa-dashboard-area::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .summer-bento-card:hover,
+  .comvexa-landing a:hover,
+  .comvexa-landing button:hover {
+    transform: none !important;
+  }
+}
+

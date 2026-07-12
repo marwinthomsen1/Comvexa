@@ -6,8 +6,8 @@ export function DashboardBrandSubtitle() {
   const { text } = useDashboardText();
 
   return (
-    <p className="text-xs text-[var(--comvexa-sidebar-muted,#bfdbfe)]">
+    <span className="text-[11px] text-[var(--comvexa-sidebar-muted,#a9d4d2)]">
       {text.appSubtitle}
-    </p>
+    </span>
   );
 }

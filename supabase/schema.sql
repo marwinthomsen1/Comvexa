@@ -15,6 +15,13 @@ create table if not exists companies (
   billing_cycle text,
   trial_started_at timestamp,
   trial_ends_at timestamp,
+  cancellation_scheduled_at timestamptz,
+  cancellation_effective_at timestamptz,
+  cancellation_reason text,
+  cancellation_retention_factor text,
+  cancellation_feedback text,
+  cancellation_requested_by uuid references auth.users(id) on delete set null,
+  cancellation_withdrawn_at timestamptz,
   created_at timestamp default now()
 );
 

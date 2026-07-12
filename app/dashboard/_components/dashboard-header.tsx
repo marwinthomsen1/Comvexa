@@ -1,60 +1,156 @@
 "use client";
 
-import { Search, ShieldCheck } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { FormEvent, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { ArrowRight, Search, ShieldCheck } from "lucide-react";
 import { DashboardAccount } from "./dashboard-account";
 import { useDashboardText } from "./dashboard-i18n";
+import { canUseModule, defaultPlan, normalizePlan } from "./plan-access";
+
+const dashboardPages = [
+  ["/dashboard/subscription/payment", "Subscription payment"],
+  ["/dashboard/whatsapp-templates", "WhatsApp Templates"],
+  ["/dashboard/recurring-invoices", "Recurring Invoices"],
+  ["/dashboard/time-attendance", "Time & Attendance"],
+  ["/dashboard/staff-schedules", "Staff Schedules"],
+  ["/dashboard/branch-analytics", "Branch Analytics"],
+  ["/dashboard/customer-portal", "Customer Portal"],
+  ["/dashboard/purchase-orders", "Purchase Orders"],
+  ["/dashboard/ai-assistant", "AI Assistant"],
+  ["/dashboard/supplier-bills", "Supplier Bills"],
+  ["/dashboard/audit-logs", "Audit Logs"],
+  ["/dashboard/data-import", "Data Import"],
+  ["/dashboard/white-label", "White Label"],
+  ["/dashboard/subscription", "Subscription"],
+  ["/dashboard/automations", "Automations"],
+  ["/dashboard/permissions", "Permissions"],
+  ["/dashboard/approvals", "Approvals"],
+  ["/dashboard/documents", "Documents"],
+  ["/dashboard/inventory", "Inventory"],
+  ["/dashboard/employees", "Employees"],
+  ["/dashboard/customers", "Customers"],
+  ["/dashboard/bookings", "Bookings"],
+  ["/dashboard/invoices", "Invoices"],
+  ["/dashboard/payments", "Payments"],
+  ["/dashboard/expenses", "Expenses"],
+  ["/dashboard/services", "Services"],
+  ["/dashboard/branches", "Branches"],
+  ["/dashboard/reports", "Reports"],
+  ["/dashboard/settings", "Settings"],
+  ["/dashboard/tasks", "Tasks"],
+  ["/dashboard", "Overview"],
+] as const;
 
 export function DashboardHeader() {
-  const { text } = useDashboardText();
+  const pathname = usePathname();
+  const router = useRouter();
+  const { text, navLabel } = useDashboardText();
+  const [search, setSearch] = useState("");
+  const [searchablePages, setSearchablePages] = useState<ReadonlyArray<(typeof dashboardPages)[number]>>(dashboardPages);
+
+  useEffect(() => {
+    function syncSearchablePages() {
+      let visibleModules: string[] | null = null;
+      try {
+        const saved = window.localStorage.getItem("comvexa-workspace-settings");
+        const settings = saved ? JSON.parse(saved) : null;
+        visibleModules = Array.isArray(settings?.modules) ? settings.modules : null;
+      } catch {
+        visibleModules = null;
+      }
+
+      const plan = normalizePlan(window.localStorage.getItem("comvexa-selected-plan") ?? defaultPlan);
+      setSearchablePages(
+        dashboardPages.filter(([, label]) => {
+          const moduleName = label === "Overview" ? "Dashboard" : label === "Subscription payment" ? "Subscription" : label;
+          const alwaysAvailable = ["Dashboard", "Subscription", "Settings"].includes(moduleName);
+          return (alwaysAvailable || !visibleModules || visibleModules.includes(moduleName)) && canUseModule(plan, moduleName);
+        }),
+      );
+    }
+
+    syncSearchablePages();
+    window.addEventListener("storage", syncSearchablePages);
+    window.addEventListener("comvexa-plan-change", syncSearchablePages);
+    window.addEventListener("comvexa-settings-change", syncSearchablePages);
+    return () => {
+      window.removeEventListener("storage", syncSearchablePages);
+      window.removeEventListener("comvexa-plan-change", syncSearchablePages);
+      window.removeEventListener("comvexa-settings-change", syncSearchablePages);
+    };
+  }, []);
+
+  const currentPage = useMemo(
+    () => dashboardPages.find(([href]) => href === "/dashboard" ? pathname === href : pathname.startsWith(href)) ?? dashboardPages.at(-1)!,
+    [pathname],
+  );
+
+  function handleSearch(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const term = search.trim().toLowerCase();
+
+    if (!term) {
+      return;
+    }
+
+    const match = searchablePages.find(([, label]) => label.toLowerCase().includes(term));
+    if (match) {
+      router.push(match[0]);
+      setSearch("");
+    }
+  }
 
   return (
-    <header className="sticky top-0 z-10 border-b px-3 py-3 backdrop-blur-xl comvexa-theme-surface sm:px-6 sm:py-4">
-      <div className="mx-auto flex max-w-7xl flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-        <div className="rounded-xl border border-[var(--comvexa-border,#dbeafe)] bg-[var(--comvexa-soft-surface,#f7fbff)] p-3 text-[var(--comvexa-text,#020617)] shadow-lg shadow-slate-950/5 sm:rounded-none sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
-          <div className="flex min-w-0 items-start justify-between gap-3">
-            <div className="min-w-0 pt-0.5">
-              <p className="truncate text-[10px] font-semibold uppercase tracking-widest text-[var(--comvexa-accent,#2563eb)] sm:text-xs">
-                {text.workspaceEyebrow}
-              </p>
-              <h1 className="mt-0.5 truncate text-xl font-semibold tracking-normal sm:mt-1 sm:text-xl">
-                {text.dashboardTitle}
-              </h1>
-            </div>
-            <div className="shrink-0 sm:hidden">
-              <DashboardAccount compact />
-            </div>
-          </div>
-          <div className="mt-3 grid grid-cols-[1fr_auto] items-center gap-2 sm:hidden">
-            <label className="flex h-11 min-w-0 items-center gap-2 rounded-lg border px-3 text-sm comvexa-theme-surface comvexa-theme-muted">
-              <Search size={17} className="shrink-0 text-[var(--comvexa-accent,#2563eb)]" />
-              <input
-                type="search"
-                placeholder={text.searchPlaceholder}
-                className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-slate-400"
-              />
-            </label>
-            <span className="inline-flex h-11 items-center gap-1.5 rounded-lg border px-3 text-xs font-semibold text-[var(--comvexa-accent,#2563eb)] comvexa-theme-surface">
-              <ShieldCheck size={15} />
-              <span className="sr-only">{text.workspaceReady}</span>
-            </span>
+    <header className="comvexa-dashboard-header sticky top-0 z-20 border-b border-[var(--comvexa-border,#d8e2dc)] bg-[color-mix(in_srgb,var(--comvexa-surface,#fffefa)_88%,transparent)] px-3 py-2.5 backdrop-blur-xl sm:px-5 lg:px-6">
+      <div className="mx-auto flex min-h-12 max-w-[1500px] items-center gap-3 lg:min-h-14">
+        <Link href="/dashboard" className="flex shrink-0 items-center gap-2.5 lg:hidden" aria-label="Comvexa dashboard home">
+          <span className="grid size-10 place-items-center overflow-hidden rounded-xl bg-white ring-1 ring-[var(--comvexa-border,#d8e2dc)]">
+            <Image src="/logo.png" alt="" width={40} height={40} className="size-full object-contain p-1" priority />
+          </span>
+          <span className="hidden font-black tracking-[-0.04em] text-[var(--comvexa-text,#073d47)] sm:block">Comvexa</span>
+        </Link>
+
+        <div className="min-w-0 flex-1 lg:flex-none lg:min-w-44">
+          <p className="hidden text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--comvexa-muted,#5d7477)] lg:block">
+            {text.workspaceEyebrow}
+          </p>
+          <div className="flex items-center gap-2">
+            <h1 className="truncate text-base font-black tracking-[-0.035em] text-[var(--comvexa-text,#073d47)] sm:text-lg lg:mt-0.5 lg:text-xl">
+              {navLabel(currentPage[1])}
+            </h1>
+            <span className="hidden size-1.5 rounded-full bg-[var(--comvexa-success,#0c8b84)] sm:block" aria-hidden="true" />
           </div>
         </div>
-        <div className="hidden min-w-0 flex-col gap-2 sm:flex sm:flex-row sm:items-center sm:gap-3 xl:flex-1 xl:justify-end">
-          <label className="flex h-11 w-full min-w-0 max-w-lg items-center gap-3 rounded-lg border px-3 text-sm comvexa-theme-soft comvexa-theme-muted sm:min-w-60 xl:min-w-80">
-            <Search size={17} />
+
+        <form onSubmit={handleSearch} className="relative hidden min-w-0 flex-1 md:block">
+          <label className="mx-auto flex h-11 max-w-xl items-center gap-3 rounded-2xl border border-[var(--comvexa-border,#d8e2dc)] bg-[var(--comvexa-soft-surface,#eef9f5)] px-4 text-sm text-[var(--comvexa-muted,#5d7477)] transition focus-within:border-[var(--comvexa-accent,#0c8b84)] focus-within:bg-[var(--comvexa-surface,#fffefa)] focus-within:ring-4 focus-within:ring-[var(--comvexa-accent-soft,#dffff8)]">
+            <Search size={17} className="shrink-0" />
+            <span className="sr-only">Search dashboard modules</span>
             <input
               type="search"
-              placeholder={text.searchPlaceholder}
-              className="w-full bg-transparent outline-none placeholder:text-slate-400"
+              list="comvexa-dashboard-pages"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Jump to a module..."
+              className="min-w-0 flex-1 bg-transparent text-[var(--comvexa-text,#073d47)] outline-none placeholder:text-[var(--comvexa-muted,#5d7477)]"
             />
+            <button type="submit" className="grid size-7 shrink-0 place-items-center rounded-lg bg-[var(--comvexa-surface,#fffefa)] text-[var(--comvexa-muted,#5d7477)] ring-1 ring-[var(--comvexa-border,#d8e2dc)]" aria-label="Open matching module">
+              <ArrowRight size={14} />
+            </button>
           </label>
-          <span className="hidden h-9 shrink-0 items-center gap-2 whitespace-nowrap rounded-full px-3 text-xs font-semibold text-[var(--comvexa-accent,#2563eb)] ring-1 comvexa-theme-soft md:inline-flex">
+          <datalist id="comvexa-dashboard-pages">
+            {searchablePages.map(([href, label]) => <option key={href} value={label} />)}
+          </datalist>
+        </form>
+
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+          <span className="hidden h-9 items-center gap-2 rounded-full border border-[var(--comvexa-border,#d8e2dc)] bg-[var(--comvexa-soft-surface,#eef9f5)] px-3 text-xs font-bold text-[var(--comvexa-success,#0c8b84)] xl:inline-flex">
             <ShieldCheck size={14} />
-            <span>{text.workspaceReady}</span>
+            {text.workspaceReady}
           </span>
-          <div className="hidden shrink-0 sm:block">
-            <DashboardAccount />
-          </div>
+          <DashboardAccount compact />
         </div>
       </div>
     </header>

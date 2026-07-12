@@ -4,7 +4,7 @@ import { type CSSProperties, useEffect, useMemo, useState } from "react";
 import { getLanguageCode, getLanguageDirection, normalizeLanguage } from "./dashboard-i18n";
 
 const defaultSettings = {
-  accent: "#2563eb",
+  accent: "#0c8b84",
   theme: "Normal",
   density: "Comfortable",
   sidebar: "Modern blue",
@@ -13,10 +13,10 @@ const defaultSettings = {
 };
 
 const sidebarThemes: Record<string, { bg: string; title: string; muted: string; border: string; card: string }> = {
-  "Modern blue": { bg: "#10233f", title: "#ffffff", muted: "#bfdbfe", border: "rgba(255,255,255,0.10)", card: "rgba(255,255,255,0.06)" },
-  "Light sidebar": { bg: "#ffffff", title: "#0f172a", muted: "#475569", border: "#dbeafe", card: "#f8fafc" },
-  "Compact dark": { bg: "#172033", title: "#ffffff", muted: "#cbd5e1", border: "rgba(255,255,255,0.10)", card: "rgba(255,255,255,0.06)" },
-  Classic: { bg: "#1e293b", title: "#ffffff", muted: "#cbd5e1", border: "rgba(255,255,255,0.10)", card: "rgba(255,255,255,0.06)" },
+  "Modern blue": { bg: "#073d47", title: "#ffffff", muted: "#a9d4d2", border: "rgba(255,255,255,0.11)", card: "rgba(255,255,255,0.065)" },
+  "Light sidebar": { bg: "#fffefa", title: "#073d47", muted: "#5d7477", border: "#d8e2dc", card: "#eef9f5" },
+  "Compact dark": { bg: "#052f37", title: "#ffffff", muted: "#b7d0cf", border: "rgba(255,255,255,0.10)", card: "rgba(255,255,255,0.06)" },
+  Classic: { bg: "#173f45", title: "#ffffff", muted: "#c5d8d6", border: "rgba(255,255,255,0.10)", card: "rgba(255,255,255,0.06)" },
 };
 
 const dashboardThemes: Record<
@@ -41,39 +41,39 @@ const dashboardThemes: Record<
   }
 > = {
   Normal: {
-    appBg: "#eef3f9",
-    surface: "#ffffff",
-    softSurface: "#f7fbff",
-    text: "#020617",
-    muted: "#64748b",
-    border: "#dbeafe",
-    accent: "#2563eb",
-    accentSoft: "#eff6ff",
-    sidebarBg: "#10233f",
+    appBg: "#f6f3eb",
+    surface: "#fffefa",
+    softSurface: "#eef9f5",
+    text: "#073d47",
+    muted: "#5d7477",
+    border: "#d8e2dc",
+    accent: "#0c8b84",
+    accentSoft: "#dffff8",
+    sidebarBg: "#073d47",
     sidebarTitle: "#ffffff",
-    sidebarMuted: "#bfdbfe",
-    sidebarBorder: "rgba(255,255,255,0.10)",
-    sidebarCard: "rgba(255,255,255,0.06)",
-    navActiveBg: "#ffffff",
-    navActiveText: "#0f172a",
+    sidebarMuted: "#a9d4d2",
+    sidebarBorder: "rgba(255,255,255,0.11)",
+    sidebarCard: "rgba(255,255,255,0.065)",
+    navActiveBg: "#fff0ba",
+    navActiveText: "#073d47",
     navHoverBg: "rgba(255,255,255,0.08)",
   },
   Summer: {
-    appBg: "#fff7da",
-    surface: "#ffffff",
-    softSurface: "#ecfeff",
-    text: "#06112f",
-    muted: "#476477",
-    border: "#bae6fd",
-    accent: "#ff6b4a",
-    accentSoft: "#fff1d6",
-    sidebarBg: "#0e7490",
+    appBg: "#fff7df",
+    surface: "#fffefa",
+    softSurface: "#e8faf5",
+    text: "#073d47",
+    muted: "#526f72",
+    border: "#cfe4dd",
+    accent: "#c7432f",
+    accentSoft: "#fff0eb",
+    sidebarBg: "#075d65",
     sidebarTitle: "#ffffff",
-    sidebarMuted: "#cffafe",
+    sidebarMuted: "#c5f1e8",
     sidebarBorder: "rgba(255,255,255,0.18)",
     sidebarCard: "rgba(255,255,255,0.12)",
-    navActiveBg: "#fff7da",
-    navActiveText: "#075985",
+    navActiveBg: "#fff0ba",
+    navActiveText: "#073d47",
     navHoverBg: "rgba(255,255,255,0.14)",
   },
   "Old School": {
@@ -175,6 +175,13 @@ export function WorkspaceSettingsProvider({ children }: { children: React.ReactN
       document.documentElement.style.setProperty("--comvexa-nav-active-text", dashboardTheme.navActiveText);
       document.documentElement.style.setProperty("--comvexa-nav-hover-bg", dashboardTheme.navHoverBg);
       document.documentElement.style.setProperty("--comvexa-radius", radius);
+      document.documentElement.style.setProperty("--comvexa-success", "#0c8b84");
+      document.documentElement.style.setProperty("--comvexa-success-soft", "#dffff8");
+      document.documentElement.style.setProperty("--comvexa-warning", "#8a6500");
+      document.documentElement.style.setProperty("--comvexa-warning-soft", "#fff0ba");
+      document.documentElement.style.setProperty("--comvexa-danger", "#c7432f");
+      document.documentElement.style.setProperty("--comvexa-danger-soft", "#fff0eb");
+      document.documentElement.style.setProperty("--comvexa-focus", "#39d9c6");
       document.documentElement.dataset.comvexaDensity = density;
       document.documentElement.dataset.comvexaSidebar = settings.sidebar;
       document.documentElement.dataset.comvexaTheme = settings.theme;
@@ -190,6 +197,35 @@ export function WorkspaceSettingsProvider({ children }: { children: React.ReactN
     return () => {
       window.removeEventListener("storage", applySettings);
       window.removeEventListener("comvexa-settings-change", applySettings);
+      [
+        "--comvexa-accent",
+        "--comvexa-app-bg",
+        "--comvexa-surface",
+        "--comvexa-soft-surface",
+        "--comvexa-text",
+        "--comvexa-muted",
+        "--comvexa-border",
+        "--comvexa-accent-soft",
+        "--comvexa-sidebar-bg",
+        "--comvexa-sidebar-title",
+        "--comvexa-sidebar-muted",
+        "--comvexa-sidebar-border",
+        "--comvexa-sidebar-card",
+        "--comvexa-nav-active-bg",
+        "--comvexa-nav-active-text",
+        "--comvexa-nav-hover-bg",
+        "--comvexa-radius",
+        "--comvexa-success",
+        "--comvexa-success-soft",
+        "--comvexa-warning",
+        "--comvexa-warning-soft",
+        "--comvexa-danger",
+        "--comvexa-danger-soft",
+        "--comvexa-focus",
+      ].forEach((property) => document.documentElement.style.removeProperty(property));
+      delete document.documentElement.dataset.comvexaDensity;
+      delete document.documentElement.dataset.comvexaSidebar;
+      delete document.documentElement.dataset.comvexaTheme;
     };
   }, []);
 
@@ -211,6 +247,13 @@ export function WorkspaceSettingsProvider({ children }: { children: React.ReactN
     "--comvexa-nav-active-text": resolved.dashboardTheme.navActiveText,
     "--comvexa-nav-hover-bg": resolved.dashboardTheme.navHoverBg,
     "--comvexa-radius": resolved.radius,
+    "--comvexa-success": "#0c8b84",
+    "--comvexa-success-soft": "#dffff8",
+    "--comvexa-warning": "#8a6500",
+    "--comvexa-warning-soft": "#fff0ba",
+    "--comvexa-danger": "#c7432f",
+    "--comvexa-danger-soft": "#fff0eb",
+    "--comvexa-focus": "#39d9c6",
   } as CSSProperties;
 
   return (

@@ -41,7 +41,7 @@ export function PaymentGate({ children }: { children: React.ReactNode }) {
 
   return (
     <main className="mx-auto w-full max-w-7xl flex-1 p-6">
-      <section className="rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-sm shadow-slate-200/70">
+      <section className="dashboard-gate rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-sm shadow-slate-200/70">
         <span className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-amber-50 text-amber-700 ring-1 ring-amber-100">
           <LockKeyhole size={24} />
         </span>
@@ -55,7 +55,7 @@ export function PaymentGate({ children }: { children: React.ReactNode }) {
         </p>
         <Link
           href={trialExpired ? "/dashboard/subscription/payment" : "/dashboard/subscription"}
-          className="mt-6 inline-flex rounded-lg bg-slate-950 px-5 py-3 text-sm font-semibold text-white hover:bg-slate-800"
+          className="mt-6 inline-flex rounded-full bg-[var(--comvexa-action,#073d47)] px-6 py-3 text-sm font-bold text-white hover:opacity-90"
         >
           {trialExpired ? "Go to payment" : "Choose plan"}
         </Link>

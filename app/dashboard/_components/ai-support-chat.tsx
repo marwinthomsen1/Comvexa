@@ -97,7 +97,7 @@ export function AiSupportChat() {
   }
 
   return (
-    <section className="comvexa-ai-support-panel flex h-[min(620px,calc(100vh-2.5rem))] w-[min(420px,calc(100vw-2rem))] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-950/25">
+    <section className="comvexa-ai-support-panel flex h-[min(620px,calc(100vh-2.5rem))] w-[min(420px,calc(100vw-2rem))] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-950/25" role="dialog" aria-label="Comvexa AI Support">
       <header className="flex items-center justify-between gap-3 border-b border-slate-200 bg-slate-950 px-4 py-3 text-white">
         <div className="flex items-center gap-3">
           <span className="flex size-9 items-center justify-center rounded-xl bg-white/10">
@@ -118,7 +118,7 @@ export function AiSupportChat() {
         </button>
       </header>
 
-      <div className="flex-1 space-y-3 overflow-y-auto bg-slate-50 p-4 [scrollbar-width:thin]">
+      <div className="flex-1 space-y-3 overflow-y-auto bg-slate-50 p-4 [scrollbar-width:thin]" role="log" aria-live="polite" aria-label="Support conversation">
         {messages.map((message, index) => (
           <div
             key={`${message.role}-${index}`}
@@ -157,7 +157,9 @@ export function AiSupportChat() {
           ))}
         </div>
         <form onSubmit={handleSubmit} className="flex gap-2">
+          <label htmlFor="comvexa-support-message" className="sr-only">Ask AI support</label>
           <input
+            id="comvexa-support-message"
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
             placeholder="Ask AI support..."

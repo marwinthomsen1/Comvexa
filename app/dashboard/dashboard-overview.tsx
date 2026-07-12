@@ -11,11 +11,8 @@ import {
   Clock3,
   CreditCard,
   FileText,
-  LifeBuoy,
   LayoutGrid,
   ListChecks,
-  Mail,
-  MessageSquareText,
   Plus,
   ReceiptText,
   RefreshCw,
@@ -110,7 +107,7 @@ const initialCounts: DashboardCounts = {
 const defaultViewSettings: WorkspaceViewSettings = {
   companyDisplayName: "New Company",
   dashboardStyle: "Executive",
-  accent: "#2563eb",
+  accent: "#0c8b84",
   currency: "USD",
   showSetup: true,
   showFinancePulse: true,
@@ -437,30 +434,9 @@ export function DashboardOverview() {
     { label: "Upload PDF", href: "/dashboard/documents", icon: FileText },
   ];
 
-  const supportActions = [
-    {
-      label: "Ask AI support",
-      text: "Get instant help with trials, billing, modules, and setup.",
-      href: "/dashboard/ai-assistant",
-      icon: MessageSquareText,
-    },
-    {
-      label: "Billing and plan help",
-      text: "Review subscription status, trials, and plan access.",
-      href: "/dashboard/subscription",
-      icon: CreditCard,
-    },
-    {
-      label: "Contact support",
-      text: "Send a message for account, payment, or workspace help.",
-      href: "/contact",
-      icon: Mail,
-    },
-  ];
-
   return (
-    <main className="comvexa-dashboard-main mx-auto w-full max-w-[1500px] flex-1 p-3 sm:p-6">
-      <section className="overflow-hidden rounded-[1.35rem] border comvexa-theme-surface shadow-sm sm:rounded-[var(--comvexa-radius,2rem)]">
+    <main className="comvexa-dashboard-main mx-auto w-full max-w-[1500px] flex-1 p-3 sm:p-6" aria-busy={isLoading}>
+      <section className="dashboard-overview-hero overflow-hidden rounded-[1.35rem] border comvexa-theme-surface shadow-sm sm:rounded-[var(--comvexa-radius,2rem)]">
         <div className="grid gap-0 xl:grid-cols-[1fr_420px]">
           <div className="comvexa-theme-soft p-4 text-slate-950 sm:p-8">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -470,15 +446,14 @@ export function DashboardOverview() {
                   style={{ borderColor: `${viewSettings.accent}33`, color: viewSettings.accent }}
                 >
                   <Sparkles size={14} />
-                  {viewSettings.dashboardStyle} operations center
+                  {viewSettings.dashboardStyle} overview
                 </p>
                 <h2 className="max-w-3xl text-2xl font-semibold tracking-normal sm:mt-5 sm:text-4xl">
-                  {viewSettings.companyDisplayName} workspace, built from real business records.
+                  {viewSettings.companyDisplayName}, here is your business at a glance.
                 </h2>
                 <p className="mt-3 hidden max-w-2xl text-sm leading-6 text-slate-600 sm:block">
-                  This dashboard updates from your company records. Add
-                  customers, services, tasks, invoices, payments, and documents
-                  to turn Comvexa into your daily operating system.
+                  Revenue, customers, open work, collections, and the next
+                  action that deserves your attention—all from live workspace records.
                 </p>
               </div>
               <button
@@ -519,7 +494,7 @@ export function DashboardOverview() {
             </div>
           </div>
 
-          <aside className="hidden comvexa-theme-surface p-6 sm:block sm:p-8">
+          <aside className="comvexa-theme-surface p-4 sm:p-8">
             {viewSettings.showSetup ? (
             <div className="rounded-[var(--comvexa-radius,1.5rem)] border border-blue-100 comvexa-theme-soft p-5">
               <div className="flex items-start justify-between gap-4">
@@ -568,8 +543,7 @@ export function DashboardOverview() {
                     <Link
                       key={action.label}
                       href={action.href}
-                      className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold text-white shadow-sm"
-                      style={{ backgroundColor: viewSettings.accent }}
+                      className="flex items-center gap-3 rounded-2xl bg-[var(--comvexa-action,#073d47)] px-4 py-3 text-sm font-semibold text-white shadow-sm hover:opacity-90"
                     >
                       <Plus size={16} />
                       <Icon size={17} className="text-cyan-200" />
@@ -588,51 +562,6 @@ export function DashboardOverview() {
               </div>
             </div>
           </aside>
-        </div>
-      </section>
-
-      <section className="mt-6 overflow-hidden rounded-[1.5rem] border comvexa-theme-surface shadow-sm">
-        <div className="grid gap-0 lg:grid-cols-[0.85fr_1.15fr]">
-          <div className="comvexa-theme-soft p-5 sm:p-6">
-            <span
-              className="flex size-12 items-center justify-center rounded-2xl text-white shadow-lg"
-              style={{ backgroundColor: viewSettings.accent }}
-            >
-              <LifeBuoy size={22} />
-            </span>
-            <p className="mt-5 text-sm font-semibold uppercase tracking-widest text-[var(--comvexa-accent,#2563eb)]">
-              Support center
-            </p>
-            <h2 className="mt-2 text-2xl font-semibold tracking-normal text-slate-950">
-              Need help with your workspace?
-            </h2>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
-              Find the fastest path for setup questions, billing issues, plan
-              access, and day-to-day Comvexa support.
-            </p>
-          </div>
-          <div className="grid gap-3 p-5 sm:p-6 md:grid-cols-3">
-            {supportActions.map((action) => {
-              const Icon = action.icon;
-
-              return (
-                <Link
-                  key={action.label}
-                  href={action.href}
-                  className="group rounded-2xl border comvexa-theme-card p-4 transition hover:-translate-y-0.5 hover:shadow-md"
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="flex size-10 items-center justify-center rounded-xl bg-blue-50 text-blue-700 ring-1 ring-blue-100">
-                      <Icon size={18} />
-                    </span>
-                    <ArrowRight size={16} className="text-slate-300 transition group-hover:text-blue-600" />
-                  </div>
-                  <h3 className="mt-4 font-semibold text-slate-950">{action.label}</h3>
-                  <p className="mt-2 text-sm leading-6 text-slate-500">{action.text}</p>
-                </Link>
-              );
-            })}
-          </div>
         </div>
       </section>
 
@@ -676,8 +605,7 @@ export function DashboardOverview() {
                   <p className="mt-1 text-sm text-slate-500">Workspace health score</p>
                 </div>
                 <div
-                  className="flex size-20 items-center justify-center rounded-full text-2xl font-semibold text-white shadow-lg"
-                  style={{ backgroundColor: viewSettings.accent }}
+                  className="flex size-20 items-center justify-center rounded-full bg-[var(--comvexa-action,#073d47)] text-2xl font-semibold text-white shadow-lg"
                 >
                   {isLoading ? "-" : healthScore}
                 </div>
@@ -741,8 +669,7 @@ export function DashboardOverview() {
           >
           <div className="p-5">
             <div
-              className="rounded-[var(--comvexa-radius,1.5rem)] p-5 text-white"
-              style={{ backgroundColor: viewSettings.accent }}
+              className="dashboard-dark-panel rounded-[var(--comvexa-radius,1.5rem)] bg-[var(--comvexa-action,#073d47)] p-5 text-white"
             >
               <div className="flex items-center justify-between">
                 <div>
@@ -818,8 +745,7 @@ export function DashboardOverview() {
           </div>
           <Link
             href={nextStep.href}
-            className="inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white"
-            style={{ backgroundColor: viewSettings.accent }}
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--comvexa-action,#073d47)] px-5 py-3 text-sm font-semibold text-white"
           >
             Continue
             <LayoutGrid size={17} />

@@ -128,8 +128,8 @@ export function LocalUltraCrudPage({
 
   return (
     <PlanGate moduleName={moduleName}>
-      <main className="mx-auto w-full max-w-[1500px] flex-1 p-4 sm:p-6">
-        <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/70">
+      <main className="dashboard-module-page mx-auto w-full max-w-[1500px] flex-1 p-4 sm:p-6">
+        <section className="dashboard-module-hero rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/70">
           <p className="text-xs font-semibold uppercase tracking-widest text-blue-700">Ultra module</p>
           <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>
@@ -155,7 +155,7 @@ export function LocalUltraCrudPage({
         </section>
 
         <section className="mt-6 grid gap-6 xl:grid-cols-[390px_1fr]">
-          <form onSubmit={handleSubmit} className="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/70">
+          <form onSubmit={handleSubmit} className="dashboard-module-form rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/70">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <h3 className="font-semibold text-slate-950">{editingRecord ? "Edit record" : actionLabel}</h3>
@@ -183,7 +183,7 @@ export function LocalUltraCrudPage({
             </div>
           </form>
 
-          <section className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm shadow-slate-200/70">
+          <section className="dashboard-module-records overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm shadow-slate-200/70">
             <div className="flex flex-col gap-4 border-b border-slate-200 p-5 lg:flex-row lg:items-center lg:justify-between">
               <div>
                 <h3 className="font-semibold text-slate-950">Records</h3>

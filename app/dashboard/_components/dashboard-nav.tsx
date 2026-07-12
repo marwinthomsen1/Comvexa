@@ -21,7 +21,9 @@ import {
   ListChecks,
   LineChart,
   MessageSquareText,
+  Menu,
   Package,
+  Plus,
   ReceiptText,
   Repeat,
   Settings,
@@ -32,6 +34,7 @@ import {
   Users,
   WalletCards,
   Workflow,
+  X,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { hasOwnerDashboardAccess } from "@/src/lib/admin/access";
@@ -81,7 +84,7 @@ function readWorkspaceModules() {
     const saved = window.localStorage.getItem("comvexa-workspace-settings");
     const settings = saved ? JSON.parse(saved) : null;
     return Array.isArray(settings?.modules)
-      ? Array.from(new Set([...(settings.modules as string[]), ...defaultVisibleModules]))
+      ? Array.from(new Set([...(settings.modules as string[]), ...alwaysVisibleModules]))
       : defaultVisibleModules;
   } catch {
     return defaultVisibleModules;
@@ -96,6 +99,7 @@ export function DashboardNav() {
   const [trialLabel, setTrialLabel] = useState("");
   const [visibleModules, setVisibleModules] = useState<string[]>(defaultVisibleModules);
   const [expandedGroups, setExpandedGroups] = useState<string[]>(["Workspace", "Operations"]);
+  const [mobilePanel, setMobilePanel] = useState<"create" | "more" | null>(null);
 
   useEffect(() => {
     async function loadState() {
@@ -126,6 +130,27 @@ export function DashboardNav() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!mobilePanel) {
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setMobilePanel(null);
+      }
+    }
+
+    window.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [mobilePanel]);
+
   const navGroups = useMemo(
     () =>
       [
@@ -151,39 +176,93 @@ export function DashboardNav() {
     [accessActive, plan, visibleModules],
   );
   const mobileItems = navGroups.flatMap((group) => group.items);
-  const mobilePrimaryLabels = accessActive
-    ? ["Dashboard", "Customers", "Invoices", "Payments", "Settings"]
-    : ["Subscription", "Settings"];
-  const mobilePrimaryItems = mobilePrimaryLabels
+  const mobileHomeItem = mobileItems.find((item) => item.label === "Dashboard");
+  const mobileCustomerItem = mobileItems.find((item) => item.label === "Customers");
+  const mobileInvoiceItem = mobileItems.find((item) => item.label === "Invoices");
+  const lockedMobileItems = ["Subscription", "Settings"]
+    .map((label) => mobileItems.find((item) => item.label === label))
+    .filter((item): item is (typeof navItems)[number] => Boolean(item));
+  const quickActionItems = ["Customers", "Tasks", "Invoices", "Payments", "Bookings", "Documents"]
     .map((label) => mobileItems.find((item) => item.label === label))
     .filter((item): item is (typeof navItems)[number] => Boolean(item));
 
   return (
     <>
-    <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-slate-200 bg-white/95 px-2 pb-[max(0.65rem,env(safe-area-inset-bottom))] pt-2 shadow-2xl shadow-slate-950/10 backdrop-blur-xl lg:hidden">
-      {mobilePrimaryItems.map((item) => {
-        const Icon = item.icon;
-        const isActive =
-          item.href === "/dashboard"
-            ? pathname === item.href
-            : item.href !== "#" && pathname.startsWith(item.href);
-
-        return (
-          <Link
-            key={item.label}
-            href={item.href}
-            className={`flex min-w-0 flex-col items-center justify-center gap-1 rounded-2xl px-2 py-2 text-[11px] font-semibold transition ${
-              isActive
-                ? "bg-[var(--comvexa-accent-soft,#eff6ff)] text-[var(--comvexa-accent,#2563eb)]"
-                : "text-slate-500"
-            }`}
-          >
-            <Icon size={18} />
-            <span className="max-w-full truncate">{navLabel(item.label)}</span>
-          </Link>
-        );
-      })}
+    <nav aria-label="Mobile dashboard" className={`comvexa-mobile-nav fixed inset-x-0 bottom-0 z-40 grid ${accessActive ? "grid-cols-5" : "grid-cols-3"} border-t border-[var(--comvexa-border,#d8e2dc)] bg-[color-mix(in_srgb,var(--comvexa-surface,#fffefa)_94%,transparent)] px-2 pb-[max(0.6rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-12px_35px_rgba(7,61,71,0.10)] backdrop-blur-xl lg:hidden`}>
+      {accessActive ? (
+        <>
+          {mobileHomeItem ? <MobileNavLink item={mobileHomeItem} pathname={pathname} label={navLabel(mobileHomeItem.label)} /> : null}
+          {mobileCustomerItem ? <MobileNavLink item={mobileCustomerItem} pathname={pathname} label={navLabel(mobileCustomerItem.label)} /> : null}
+          <button type="button" onClick={() => setMobilePanel("create")} className="flex min-w-0 flex-col items-center justify-center gap-1 rounded-2xl px-2 py-1 text-[10px] font-bold text-[var(--comvexa-text,#073d47)]">
+            <span className="-mt-5 grid size-12 place-items-center rounded-2xl bg-[var(--comvexa-text,#073d47)] text-white shadow-[0_10px_24px_rgba(7,61,71,0.24)] ring-4 ring-[var(--comvexa-surface,#fffefa)]"><Plus size={21} /></span>
+            <span>Create</span>
+          </button>
+          {mobileInvoiceItem ? <MobileNavLink item={mobileInvoiceItem} pathname={pathname} label={navLabel(mobileInvoiceItem.label)} /> : null}
+          <button type="button" onClick={() => setMobilePanel("more")} className="flex min-w-0 flex-col items-center justify-center gap-1 rounded-2xl px-2 py-2 text-[10px] font-bold text-[var(--comvexa-muted,#5d7477)]">
+            <Menu size={19} />
+            <span>More</span>
+          </button>
+        </>
+      ) : (
+        <>
+          {lockedMobileItems.map((item) => <MobileNavLink key={item.label} item={item} pathname={pathname} label={navLabel(item.label)} />)}
+          <button type="button" onClick={() => setMobilePanel("more")} className="flex min-w-0 flex-col items-center justify-center gap-1 rounded-2xl px-2 py-2 text-[10px] font-bold text-[var(--comvexa-muted,#5d7477)]">
+            <Menu size={19} />
+            <span>More</span>
+          </button>
+        </>
+      )}
     </nav>
+
+    {mobilePanel ? (
+      <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label={mobilePanel === "create" ? "Create menu" : "All dashboard modules"}>
+        <button type="button" className="absolute inset-0 bg-[#052f37]/55 backdrop-blur-sm" onClick={() => setMobilePanel(null)} aria-label="Close menu" />
+        <section className="absolute inset-x-0 bottom-0 max-h-[86dvh] overflow-hidden rounded-t-[2rem] border-t border-[var(--comvexa-border,#d8e2dc)] bg-[var(--comvexa-surface,#fffefa)] shadow-2xl">
+          <div className="flex items-center justify-between border-b border-[var(--comvexa-border,#d8e2dc)] px-5 py-4">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--comvexa-accent,#0c8b84)]">Comvexa workspace</p>
+              <h2 className="mt-1 text-xl font-black tracking-[-0.04em] text-[var(--comvexa-text,#073d47)]">{mobilePanel === "create" ? "Create something new" : "All modules"}</h2>
+            </div>
+            <button type="button" onClick={() => setMobilePanel(null)} className="grid size-10 place-items-center rounded-2xl border border-[var(--comvexa-border,#d8e2dc)] text-[var(--comvexa-muted,#5d7477)]" aria-label="Close menu"><X size={18} /></button>
+          </div>
+          <div className="max-h-[calc(86dvh-5rem)] overflow-y-auto p-4 pb-[max(2rem,env(safe-area-inset-bottom))]">
+            {mobilePanel === "create" ? (
+              <div className="grid grid-cols-2 gap-3">
+                {quickActionItems.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <Link key={item.label} href={item.href} onClick={() => setMobilePanel(null)} className="rounded-2xl border border-[var(--comvexa-border,#d8e2dc)] bg-[var(--comvexa-soft-surface,#eef9f5)] p-4">
+                      <span className="grid size-10 place-items-center rounded-xl bg-[var(--comvexa-accent-soft,#dffff8)] text-[var(--comvexa-accent,#0c8b84)]"><Icon size={18} /></span>
+                      <span className="mt-4 block text-sm font-black text-[var(--comvexa-text,#073d47)]">New {navLabel(item.label).replace(/s$/, "")}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="space-y-5">
+                {navGroups.map((group) => (
+                  <div key={group.title}>
+                    <p className="px-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--comvexa-muted,#5d7477)]">{groupLabel(group.title)}</p>
+                    <div className="mt-2 grid grid-cols-2 gap-2">
+                      {group.items.map((item) => {
+                        const Icon = item.icon;
+                        const isActive = item.href === "/dashboard" ? pathname === item.href : pathname.startsWith(item.href);
+                        return (
+                          <Link key={item.label} href={item.href} onClick={() => setMobilePanel(null)} aria-current={isActive ? "page" : undefined} className={`flex min-w-0 items-center gap-3 rounded-2xl border px-3 py-3 text-sm font-bold ${isActive ? "border-[var(--comvexa-accent,#0c8b84)] bg-[var(--comvexa-accent-soft,#dffff8)] text-[var(--comvexa-accent,#0c8b84)]" : "border-[var(--comvexa-border,#d8e2dc)] text-[var(--comvexa-text,#073d47)]"}`}>
+                            <Icon size={17} className="shrink-0" />
+                            <span className="truncate">{navLabel(item.label)}</span>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+      </div>
+    ) : null}
     <div className="hidden min-h-0 flex-1 flex-col overflow-hidden lg:flex">
       <nav className="min-h-0 flex-1 space-y-2 overflow-y-auto px-3 py-3 [scrollbar-width:thin]">
       {navGroups.map((group) => {
@@ -227,6 +306,7 @@ export function DashboardNav() {
           <Link
             key={item.label}
             href={item.href}
+            aria-current={isActive ? "page" : undefined}
             className={`group flex w-full items-center gap-2.5 rounded-lg px-3 py-1.5 text-sm font-medium transition ${
               isActive
                 ? "bg-[var(--comvexa-nav-active-bg,#ffffff)] text-[var(--comvexa-nav-active-text,#0f172a)] shadow-sm ring-1 ring-[var(--comvexa-sidebar-border,rgba(255,255,255,0.10))]"
@@ -285,6 +365,34 @@ export function DashboardNav() {
       </div>
     </div>
     </>
+  );
+}
+
+function MobileNavLink({
+  item,
+  pathname,
+  label,
+}: {
+  item: (typeof navItems)[number];
+  pathname: string;
+  label: string;
+}) {
+  const Icon = item.icon;
+  const isActive = item.href === "/dashboard" ? pathname === item.href : pathname.startsWith(item.href);
+
+  return (
+    <Link
+      href={item.href}
+      aria-current={isActive ? "page" : undefined}
+      className={`flex min-w-0 flex-col items-center justify-center gap-1 rounded-2xl px-2 py-2 text-[10px] font-bold transition ${
+        isActive
+          ? "bg-[var(--comvexa-accent-soft,#dffff8)] text-[var(--comvexa-accent,#0c8b84)]"
+          : "text-[var(--comvexa-muted,#5d7477)]"
+      }`}
+    >
+      <Icon size={19} />
+      <span className="max-w-full truncate">{label}</span>
+    </Link>
   );
 }
 

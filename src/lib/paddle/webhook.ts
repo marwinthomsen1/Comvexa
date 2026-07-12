@@ -37,6 +37,10 @@ type PaddleWebhookData = {
     };
     price_id?: string;
   }>;
+  scheduled_change?: {
+    action?: string;
+    effective_at?: string;
+  } | null;
 };
 
 const activeStatuses = new Set(["active", "trialing"]);
@@ -186,17 +190,34 @@ export async function handlePaddleWebhook(rawBody: string) {
   const plan = getWebhookPlan(data);
   const subscriptionStatus = getSubscriptionStatus(eventType, data.status);
   const supabase = createSupabaseAdminClient();
-  const { error } = await supabase
+  const updates: Record<string, string | null> = {
+    plan: planToDatabaseValue(plan),
+    subscription_status: subscriptionStatus,
+    payment_provider: "paddle",
+    paddle_customer_id: data.customer_id ?? null,
+    paddle_subscription_id: subscriptionId ?? null,
+    billing_cycle: normalizeBillingCycle(data.custom_data?.billing_cycle),
+  };
+
+  if (eventType.startsWith("subscription.")) {
+    const scheduledCancellation = data.scheduled_change?.action === "cancel";
+    updates.cancellation_scheduled_at = scheduledCancellation ? new Date().toISOString() : null;
+    updates.cancellation_effective_at = scheduledCancellation
+      ? data.scheduled_change?.effective_at ?? null
+      : null;
+  }
+
+  let { error } = await supabase
     .from("companies")
-    .update({
-      plan: planToDatabaseValue(plan),
-      subscription_status: subscriptionStatus,
-      payment_provider: "paddle",
-      paddle_customer_id: data.customer_id ?? null,
-      paddle_subscription_id: subscriptionId ?? null,
-      billing_cycle: normalizeBillingCycle(data.custom_data?.billing_cycle),
-    })
+    .update(updates)
     .eq("id", companyId);
+
+  if (error?.message.includes("cancellation_")) {
+    delete updates.cancellation_scheduled_at;
+    delete updates.cancellation_effective_at;
+    const retry = await supabase.from("companies").update(updates).eq("id", companyId);
+    error = retry.error;
+  }
 
   if (error) {
     throw error;
