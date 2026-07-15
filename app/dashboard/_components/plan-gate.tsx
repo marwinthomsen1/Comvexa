@@ -3,10 +3,8 @@
 import Link from "next/link";
 import { LockKeyhole } from "lucide-react";
 import { useEffect, useState } from "react";
-import { hasOwnerDashboardAccess } from "@/src/lib/admin/access";
-import { supabase } from "@/src/lib/supabase/client";
-import { canUseModule, defaultPlan, normalizePlan, type PlanName } from "./plan-access";
-import { enableOwnerPlanAccess, getProTrialStatus, isOwnerPlanAccessActiveFor, isPaymentSetupComplete } from "./payment-status";
+import { canUseModule, defaultPlan, type PlanName } from "./plan-access";
+import { loadSubscriptionAccess } from "./subscription-access";
 
 const alwaysVisibleModules = ["Dashboard", "Subscription", "Settings"];
 
@@ -34,16 +32,10 @@ export function PlanGate({
 
   useEffect(() => {
     async function loadPlan() {
-      const { data: sessionData } = await supabase.auth.getSession();
-
-      if (hasOwnerDashboardAccess(sessionData.session?.user.email)) {
-        enableOwnerPlanAccess(window.localStorage.getItem("comvexa-selected-plan"), "monthly", sessionData.session?.user.email);
-      }
-
-      const sessionEmail = sessionData.session?.user.email?.trim().toLowerCase();
-      setPlan(normalizePlan(window.localStorage.getItem("comvexa-selected-plan")));
-      setAccessActive(isOwnerPlanAccessActiveFor(sessionEmail) || isPaymentSetupComplete() || getProTrialStatus().active);
-      setTrialExpired(getProTrialStatus().expired);
+      const access = await loadSubscriptionAccess();
+      setPlan(access.plan);
+      setAccessActive(access.accessActive);
+      setTrialExpired(access.trialExpired);
       const visibleModules = readWorkspaceModules();
       setModuleVisible(
         alwaysVisibleModules.includes(moduleName) ||

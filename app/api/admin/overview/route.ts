@@ -101,6 +101,18 @@ function groupCounts(rows: Array<Record<string, unknown>>, key: string) {
   }, {});
 }
 
+function companyNameFromRelation(company: unknown) {
+  if (Array.isArray(company)) {
+    return String((company[0] as Record<string, unknown> | undefined)?.name ?? "Company");
+  }
+
+  if (company && typeof company === "object") {
+    return String((company as Record<string, unknown>).name ?? "Company");
+  }
+
+  return "Company";
+}
+
 export async function GET(request: Request) {
   const admin = await requireAdmin(request);
 
@@ -125,6 +137,7 @@ export async function GET(request: Request) {
       inventory,
       branches,
       users,
+      profiles,
       activityCounts,
       emailLogs,
     ] = await Promise.all([
@@ -190,6 +203,9 @@ export async function GET(request: Request) {
         .order("created_at", { ascending: false })
         .limit(20),
       supabase.auth.admin.listUsers({ page: 1, perPage: 20 }),
+      supabase
+        .from("profiles")
+        .select("id, company_id, full_name, role, companies(name, email)"),
       Promise.all(
         activityTables.map(async (table) => {
           const today = new Date();
@@ -227,6 +243,7 @@ export async function GET(request: Request) {
       documents,
       inventory,
       branches,
+      profiles,
     ];
     const failedQuery = queriedTables.find((result) => result.error);
 
@@ -242,6 +259,7 @@ export async function GET(request: Request) {
     const taskRows = (tasks.data ?? []) as Array<Record<string, unknown>>;
     const bookingRows = (bookings.data ?? []) as Array<Record<string, unknown>>;
     const inventoryRows = (inventory.data ?? []) as Array<Record<string, unknown>>;
+    const profileRows = (profiles.data ?? []) as Array<Record<string, unknown>>;
     const now = Date.now();
     const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
     const companyActivity = new Map<string, Record<string, unknown> & { activity: number }>();
@@ -259,6 +277,61 @@ export async function GET(request: Request) {
         companyActivity.set(companyId, current);
       });
     });
+
+    const companyDetails = new Map(
+      companyRows.map((company) => [
+        String(company.id),
+        {
+          name: String(company.name ?? "Company"),
+          email: String(company.email ?? ""),
+        },
+      ]),
+    );
+    const profileById = new Map(profileRows.map((profile) => [String(profile.id), profile]));
+
+    const activitySources: Array<{
+      rows: Array<Record<string, unknown>>;
+      type: string;
+      action: string;
+      subject: (row: Record<string, unknown>) => string;
+      detail: (row: Record<string, unknown>) => string;
+    }> = [
+      { rows: (customers.data ?? []) as Array<Record<string, unknown>>, type: "Customer", action: "Added customer", subject: (row) => String(row.name ?? "Customer"), detail: (row) => String(row.email ?? row.phone ?? "Customer record created") },
+      { rows: invoiceRows, type: "Invoice", action: "Created invoice", subject: (row) => String(row.invoice_number ?? "Invoice"), detail: (row) => `${String(row.payment_status ?? "unpaid")} · $${Number(row.total_amount ?? 0).toLocaleString()}` },
+      { rows: paymentRows, type: "Payment", action: "Recorded payment", subject: (row) => `$${Number(row.amount ?? 0).toLocaleString()}`, detail: (row) => String(row.payment_method ?? "Payment") },
+      { rows: expenseRows, type: "Expense", action: "Added expense", subject: (row) => String(row.title ?? "Expense"), detail: (row) => `${String(row.category ?? "Uncategorized")} · $${Number(row.amount ?? 0).toLocaleString()}` },
+      { rows: supplierBillRows, type: "Supplier bill", action: "Added supplier bill", subject: (row) => String(row.supplier_name ?? row.bill_number ?? "Supplier bill"), detail: (row) => `${String(row.payment_status ?? "unpaid")} · $${Number(row.total_amount ?? 0).toLocaleString()}` },
+      { rows: taskRows, type: "Task", action: "Created task", subject: (row) => String(row.title ?? "Task"), detail: (row) => `${String(row.priority ?? "normal")} priority · ${String(row.status ?? "pending")}` },
+      { rows: bookingRows, type: "Booking", action: "Created booking", subject: (row) => String(row.booking_date ?? "Booking"), detail: (row) => String(row.status ?? "pending") },
+      { rows: (employees.data ?? []) as Array<Record<string, unknown>>, type: "Employee", action: "Added employee", subject: (row) => String(row.name ?? "Employee"), detail: (row) => String(row.position ?? row.department ?? row.email ?? "Employee record created") },
+      { rows: (documents.data ?? []) as Array<Record<string, unknown>>, type: "Document", action: "Added document", subject: (row) => String(row.title ?? "Document"), detail: (row) => String(row.document_type ?? "Document uploaded") },
+      { rows: inventoryRows, type: "Inventory", action: "Added inventory item", subject: (row) => String(row.name ?? "Inventory item"), detail: (row) => `${Number(row.quantity ?? 0).toLocaleString()} ${String(row.unit ?? "units")}` },
+      { rows: (branches.data ?? []) as Array<Record<string, unknown>>, type: "Branch", action: "Added branch", subject: (row) => String(row.name ?? "Branch"), detail: (row) => String(row.phone ?? "Branch created") },
+    ];
+
+    const customerActivity = activitySources
+      .flatMap((source) =>
+        source.rows.map((row) => {
+          const companyId = String(row.company_id ?? "");
+          const company = companyDetails.get(companyId);
+
+          return {
+            id: `${source.type}-${String(row.id ?? row.created_at ?? "activity")}`,
+            type: source.type,
+            action: source.action,
+            subject: source.subject(row),
+            detail: source.detail(row),
+            companyId,
+            companyName: company?.name ?? companyNameFromRelation(row.companies),
+            customerEmail: company?.email ?? "",
+            actorName: "Workspace member",
+            date: row.created_at,
+          };
+        }),
+      )
+      .filter((item) => item.date)
+      .sort((left, right) => new Date(String(right.date)).getTime() - new Date(String(left.date)).getTime())
+      .slice(0, 100);
 
     return Response.json({
       adminEmail,
@@ -313,7 +386,23 @@ export async function GET(request: Request) {
       recentInventory: inventoryRows,
       recentBranches: branches.data ?? [],
       recentEmailLogs: emailLogs.error ? [] : emailLogs.data ?? [],
+      customerActivity,
       recentUsers: users.data.users.map((user) => ({
+        ...(() => {
+          const profile = profileById.get(user.id);
+          const company = profile?.companies;
+          const companyRecord = company && typeof company === "object" && !Array.isArray(company)
+            ? company as Record<string, unknown>
+            : null;
+
+          return {
+            full_name: profile?.full_name ?? "",
+            role: profile?.role ?? "",
+            company_id: profile?.company_id ?? "",
+            company_name: companyRecord?.name ?? "",
+            company_email: companyRecord?.email ?? "",
+          };
+        })(),
         id: user.id,
         email: user.email,
         created_at: user.created_at,

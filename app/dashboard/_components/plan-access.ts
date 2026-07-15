@@ -48,9 +48,11 @@ export const planModules: Record<PlanName, string[]> = {
 };
 
 export function normalizePlan(plan: string | null): PlanName {
-  if (plan === "Basic" || plan === "Pro" || plan === "Ultra") {
-    return plan;
-  }
+  const normalized = plan?.trim().toLowerCase();
+
+  if (normalized === "basic") return "Basic";
+  if (normalized === "pro") return "Pro";
+  if (normalized === "ultra") return "Ultra";
 
   return defaultPlan;
 }

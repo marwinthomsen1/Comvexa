@@ -4,6 +4,7 @@ import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { Download, Plus, Search, Trash2 } from "lucide-react";
 import { formatCurrencyAmount } from "@/app/_components/currency-display";
 import { supabase } from "@/src/lib/supabase/client";
+import { getWorkspaceCompanyId } from "@/src/lib/supabase/workspace";
 
 type Field = {
   name: string;
@@ -29,6 +30,8 @@ type CardWorkspacePageProps = {
 };
 
 type Row = Record<string, string | number | null>;
+
+const rowsCache = new Map<string, Row[]>();
 
 const defaultSettings = { currency: "USD" };
 
@@ -65,6 +68,8 @@ export function CardWorkspacePage({
   const [error, setError] = useState("");
   const [currency, setCurrency] = useState("USD");
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [cacheKey, setCacheKey] = useState("");
 
   const loadRows = useCallback(async function loadRows() {
     setCurrency(readCurrency());
@@ -73,30 +78,46 @@ export function CardWorkspacePage({
 
     if (!user) {
       setError("You must be logged in to view this page.");
+      setIsLoading(false);
       return;
     }
 
-    const { data: profile } = await supabase.from("profiles").select("company_id").eq("id", user.id).single();
+    const nextCacheKey = `${user.id}:${table}`;
+    const cachedRows = rowsCache.get(nextCacheKey);
+    setCacheKey(nextCacheKey);
 
-    if (!profile?.company_id) {
+    if (cachedRows) {
+      setRows(cachedRows);
+      setIsLoading(false);
+    }
+
+    const workspaceCompanyId = await getWorkspaceCompanyId(user.id);
+
+    if (!workspaceCompanyId) {
       setError("Your profile is not connected to a company yet.");
+      setIsLoading(false);
       return;
     }
 
-    setCompanyId(profile.company_id);
+    setCompanyId(workspaceCompanyId);
+    const selectedColumns = Array.from(new Set(["id", "company_id", "created_at", ...fields.map((field) => field.name)])).join(",");
     const { data, error: rowsError } = await supabase
       .from(table)
-      .select("*")
-      .eq("company_id", profile.company_id)
+      .select(selectedColumns)
+      .eq("company_id", workspaceCompanyId)
       .order("created_at", { ascending: false });
 
     if (rowsError) {
       setError(rowsError.message);
+      setIsLoading(false);
       return;
     }
 
-    setRows((data ?? []) as Row[]);
-  }, [table]);
+    const nextRows = (data ?? []) as unknown as Row[];
+    rowsCache.set(nextCacheKey, nextRows);
+    setRows(nextRows);
+    setIsLoading(false);
+  }, [fields, table]);
 
   useEffect(() => {
     const timeout = window.setTimeout(() => void loadRows(), 0);
@@ -125,28 +146,56 @@ export function CardWorkspacePage({
       return;
     }
 
-    const formData = new FormData(event.currentTarget);
+    const form = event.currentTarget;
+    const formData = new FormData(form);
     const payload: Row = { company_id: companyId };
     fields.forEach((field) => {
       const rawValue = String(formData.get(field.name) ?? "").trim();
       payload[field.name] = field.type === "number" ? Number(rawValue || 0) : rawValue || null;
     });
 
-    setIsSaving(true);
-    const { data: savedRow, error: saveError } = await supabase
-      .from(table)
-      .insert(payload)
-      .select("*")
-      .single();
-    setIsSaving(false);
+    const optimisticRow: Row = {
+      id: crypto.randomUUID(),
+      ...payload,
+    };
 
-    if (saveError) {
-      setError(saveError.message);
-      return;
+    setRows((currentRows) => {
+      const nextRows = [optimisticRow, ...currentRows];
+      if (cacheKey) rowsCache.set(cacheKey, nextRows);
+      return nextRows;
+    });
+    form.reset();
+    setIsSaving(true);
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 15000);
+    let saveError = "";
+
+    try {
+      const { error } = await supabase.from(table).insert(optimisticRow).abortSignal(controller.signal);
+      saveError = error?.message ?? "";
+    } catch (caughtError) {
+      saveError = caughtError instanceof Error ? caughtError.message : "Could not save this record.";
+    } finally {
+      window.clearTimeout(timeout);
+      setIsSaving(false);
     }
 
-    event.currentTarget.reset();
-    setRows((currentRows) => [savedRow as Row, ...currentRows]);
+    if (saveError) {
+      setRows((currentRows) => {
+        const nextRows = currentRows.filter((row) => row.id !== optimisticRow.id);
+        if (cacheKey) rowsCache.set(cacheKey, nextRows);
+        return nextRows;
+      });
+      fields.forEach((field) => {
+        const control = form.elements.namedItem(field.name);
+
+        if (control instanceof HTMLInputElement || control instanceof HTMLTextAreaElement || control instanceof HTMLSelectElement) {
+          control.value = String(payload[field.name] ?? "");
+        }
+      });
+      setError(controller.signal.aborted ? "Saving timed out. Please try again." : saveError);
+      return;
+    }
   }
 
   async function deleteRow(id: string | number | null) {
@@ -156,7 +205,11 @@ export function CardWorkspacePage({
       setError(deleteError.message);
       return;
     }
-    setRows((currentRows) => currentRows.filter((row) => row.id !== id));
+    setRows((currentRows) => {
+      const nextRows = currentRows.filter((row) => row.id !== id);
+      if (cacheKey) rowsCache.set(cacheKey, nextRows);
+      return nextRows;
+    });
   }
 
   function exportCsv() {
@@ -219,7 +272,13 @@ export function CardWorkspacePage({
           </div>
 
           <div className={`mt-5 grid gap-4 ${variant === "ledger" ? "lg:grid-cols-1" : "md:grid-cols-2 xl:grid-cols-3"}`}>
-            {filteredRows.map((row) => (
+            {isLoading ? Array.from({ length: 3 }, (_, index) => (
+              <div key={index} className="h-32 animate-pulse rounded-2xl border border-slate-200 bg-slate-50 p-4" role="status" aria-label="Loading records">
+                <div className="h-4 w-2/5 rounded-full bg-slate-200" />
+                <div className="mt-4 h-3 w-3/4 rounded-full bg-slate-200" />
+                <div className="mt-3 h-7 w-1/2 rounded-full bg-slate-200" />
+              </div>
+            )) : filteredRows.map((row) => (
               <article key={String(row.id)} className="rounded-2xl border border-slate-200 bg-[#f7fbff] p-4 shadow-sm">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
@@ -238,7 +297,7 @@ export function CardWorkspacePage({
               </article>
             ))}
           </div>
-          {!filteredRows.length ? (
+          {!isLoading && !filteredRows.length ? (
             <div className="mt-5 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-sm text-slate-500">
               No records yet.
             </div>

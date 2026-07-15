@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { hasOwnerDashboardAccess } from "@/src/lib/admin/access";
 import { supabase } from "@/src/lib/supabase/client";
+import { getWorkspaceCompanyId } from "@/src/lib/supabase/workspace";
 import { enableOwnerPlanAccess } from "./payment-status";
 
 export function DashboardAuthGuard({ children }: { children: React.ReactNode }) {
@@ -23,6 +24,7 @@ export function DashboardAuthGuard({ children }: { children: React.ReactNode }) 
         enableOwnerPlanAccess(window.localStorage.getItem("comvexa-selected-plan"), "monthly", data.session.user.email);
       }
 
+      void getWorkspaceCompanyId(data.session.user.id);
       setIsChecking(false);
     }
 

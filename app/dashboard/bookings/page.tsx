@@ -138,7 +138,8 @@ function BookingsCalendar() {
     setIsSaving(true);
     setError("");
 
-    const formData = new FormData(event.currentTarget);
+    const form = event.currentTarget;
+    const formData = new FormData(form);
     const payload = {
       company_id: companyId,
       booking_date: String(formData.get("booking_date") ?? selectedDate),
@@ -161,7 +162,7 @@ function BookingsCalendar() {
     }
 
     setEditingBooking(null);
-    event.currentTarget.reset();
+    form.reset();
     await loadBookings();
   }
 

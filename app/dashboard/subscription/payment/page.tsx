@@ -78,6 +78,7 @@ export default function PaymentPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${sessionData.session?.access_token ?? ""}`,
         },
         body: JSON.stringify({
           plan: selectedPlan,

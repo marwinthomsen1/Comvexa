@@ -33,7 +33,11 @@ export function LoginForm() {
     setIsLoading(false);
 
     if (loginError) {
-      setError(loginError.message);
+      setError(
+        loginError.message.toLowerCase().includes("email not confirmed")
+          ? "Confirm your email before logging in. Check your inbox for the confirmation link."
+          : loginError.message,
+      );
       return;
     }
 

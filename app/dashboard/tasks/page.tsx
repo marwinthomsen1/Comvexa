@@ -86,7 +86,8 @@ function TasksBoard() {
     }
 
     setIsSaving(true);
-    const formData = new FormData(event.currentTarget);
+    const form = event.currentTarget;
+    const formData = new FormData(form);
     const { error: insertError } = await supabase.from("tasks").insert({
       company_id: companyId,
       title: String(formData.get("title") ?? "").trim(),
@@ -102,7 +103,7 @@ function TasksBoard() {
       return;
     }
 
-    event.currentTarget.reset();
+    form.reset();
     await loadTasks();
   }
 

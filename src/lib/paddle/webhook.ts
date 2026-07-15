@@ -239,18 +239,22 @@ export async function handlePaddleWebhook(rawBody: string) {
     plan,
   };
 
-  if (eventType === "transaction.completed") {
-    await sendPaymentSuccessfulEmail(emailInput);
-    await sendSubscriptionActivatedEmail(emailInput);
-    return;
-  }
+  try {
+    if (eventType === "transaction.completed") {
+      await sendPaymentSuccessfulEmail(emailInput);
+      await sendSubscriptionActivatedEmail(emailInput);
+      return;
+    }
 
-  if (eventType === "subscription.past_due") {
-    await sendPaymentFailedEmail(emailInput);
-    return;
-  }
+    if (eventType === "subscription.past_due") {
+      await sendPaymentFailedEmail(emailInput);
+      return;
+    }
 
-  if (eventType === "subscription.canceled") {
-    await sendSubscriptionCancelledEmail(emailInput);
+    if (eventType === "subscription.canceled") {
+      await sendSubscriptionCancelledEmail(emailInput);
+    }
+  } catch (emailError) {
+    console.error("Paddle event was saved, but its notification email could not be sent.", emailError);
   }
 }

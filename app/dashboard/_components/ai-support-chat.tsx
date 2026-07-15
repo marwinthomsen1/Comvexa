@@ -2,6 +2,7 @@
 
 import { FormEvent, useMemo, useState } from "react";
 import { Bot, LifeBuoy, Send, X } from "lucide-react";
+import { supabase } from "@/src/lib/supabase/client";
 
 type ChatMessage = {
   role: "user" | "assistant";
@@ -43,10 +44,12 @@ export function AiSupportChat() {
     setIsSending(true);
 
     try {
+      const { data: sessionData } = await supabase.auth.getSession();
       const response = await fetch("/api/support/ai", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${sessionData.session?.access_token ?? ""}`,
         },
         body: JSON.stringify({ messages: nextMessages }),
       });

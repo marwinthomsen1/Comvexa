@@ -1,25 +1,19 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
-  BellRing,
   Building2,
-  CalendarDays,
   Check,
-  FileText,
   Globe2,
   LayoutDashboard,
-  ListChecks,
   Palette,
   ReceiptText,
-  Save,
-  ShieldCheck,
   SlidersHorizontal,
   Sparkles,
-  WalletCards,
 } from "lucide-react";
 import { languageOptions } from "../_components/dashboard-i18n";
-import { canUseModule, defaultPlan, normalizePlan, planModules, type PlanName } from "../_components/plan-access";
+import { canUseModule, defaultPlan, planModules, type PlanName } from "../_components/plan-access";
+import { loadSubscriptionAccess } from "../_components/subscription-access";
 
 const accents = [
   { name: "Comvexa Lagoon", value: "#0c8b84" },
@@ -152,7 +146,6 @@ const defaultSettings: Settings = {
 
 export function WorkspaceCustomizer() {
   const [settings, setSettings] = useState<Settings>(defaultSettings);
-  const [saved, setSaved] = useState(false);
   const [currentPlan, setCurrentPlan] = useState<PlanName>(defaultPlan);
   const [activeSection, setActiveSection] = useState<SettingsSection>("basics");
 
@@ -169,15 +162,16 @@ export function WorkspaceCustomizer() {
         });
       }
 
-      setCurrentPlan(normalizePlan(window.localStorage.getItem("comvexa-selected-plan")));
+      void loadSubscriptionAccess().then((access) => setCurrentPlan(access.plan));
     }, 0);
 
     return () => window.clearTimeout(timeout);
   }, []);
 
   useEffect(() => {
-    function syncPlan() {
-      setCurrentPlan(normalizePlan(window.localStorage.getItem("comvexa-selected-plan")));
+    async function syncPlan() {
+      const access = await loadSubscriptionAccess();
+      setCurrentPlan(access.plan);
     }
 
     window.addEventListener("storage", syncPlan);
@@ -190,31 +184,10 @@ export function WorkspaceCustomizer() {
   }, []);
 
   const enabledCount = settings.modules.length;
-  const completionScore = useMemo(() => {
-    const fields = [
-      settings.companyDisplayName,
-      settings.industry,
-      settings.currency,
-      settings.timezone,
-      settings.invoicePrefix,
-      settings.paymentTerms,
-      enabledCount ? "modules" : "",
-    ];
-
-    return Math.round((fields.filter(Boolean).length / fields.length) * 100);
-  }, [enabledCount, settings]);
-
   function updateSettings(nextSettings: Settings) {
     setSettings(nextSettings);
     window.localStorage.setItem("comvexa-workspace-settings", JSON.stringify(nextSettings));
     window.dispatchEvent(new Event("comvexa-settings-change"));
-    setSaved(false);
-  }
-
-  function saveSettings() {
-    window.localStorage.setItem("comvexa-workspace-settings", JSON.stringify(settings));
-    window.dispatchEvent(new Event("comvexa-settings-change"));
-    setSaved(true);
   }
 
   function toggleModule(module: string) {
@@ -234,46 +207,36 @@ export function WorkspaceCustomizer() {
   }
 
   const sections = [
-    { id: "basics", label: "Basics", description: "Name, industry, language", icon: Building2 },
-    { id: "appearance", label: "Appearance", description: "Theme, color, layout", icon: Palette },
-    { id: "finance", label: "Finance & Workflow", description: "Currency, tax, reminders", icon: ReceiptText },
-    { id: "modules", label: "Modules", description: `${planModules[currentPlan].length} in ${currentPlan}`, icon: LayoutDashboard },
+    { id: "basics", label: "General", description: "Company and language", icon: Building2 },
+    { id: "appearance", label: "Look & feel", description: "Theme and layout", icon: Palette },
+    { id: "finance", label: "Billing & workflow", description: "Currency and reminders", icon: ReceiptText },
+    { id: "modules", label: "Modules", description: `${enabledCount} visible`, icon: LayoutDashboard },
   ] as const;
 
   return (
-    <main className="mx-auto w-full max-w-[1500px] flex-1 p-4 sm:p-6">
-      <section className="overflow-hidden rounded-[2rem] border border-blue-100 bg-white shadow-sm shadow-blue-100/70">
-        <div className="grid gap-0 xl:grid-cols-[1fr_460px]">
-          <div className="bg-[#f7fbff] p-6 sm:p-8">
-            <p className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-widest text-blue-700">
-              <Sparkles size={14} />
-              Workspace customization
-            </p>
-            <h2 className="mt-5 max-w-3xl text-3xl font-semibold tracking-normal text-slate-950 sm:text-4xl">
-              Make Comvexa look and work like your own business system.
-            </h2>
-            <p className="mt-4 max-w-3xl text-sm leading-6 text-slate-600">
-              Control the company identity, regional settings, accounting
-              defaults, dashboard layout, module visibility, and reminder
-              behavior from one place. Changes apply immediately across the
-              dashboard so the workspace matches the way your team operates.
-            </p>
-
-            <div className="mt-8 grid gap-3 sm:grid-cols-3">
-              <SummaryCard icon={Building2} label="Brand profile" value={settings.companyDisplayName} />
-              <SummaryCard icon={Globe2} label="Region" value={`${settings.currency} - ${settings.timezone}`} />
-              <SummaryCard icon={LayoutDashboard} label="Modules enabled" value={`${enabledCount}/${allModules.length}`} />
+    <main className="mx-auto w-full max-w-[1250px] flex-1 p-4 sm:p-6">
+      <section className="rounded-3xl border border-slate-200 bg-white px-5 py-5 shadow-sm sm:px-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="flex items-center gap-2 text-sm font-semibold text-blue-700">
+              <Sparkles size={16} />
+              Workspace settings
             </div>
+            <h2 className="mt-2 text-2xl font-semibold tracking-normal text-slate-950">Settings</h2>
+            <p className="mt-1 text-sm text-slate-500">Manage how your company workspace looks and works.</p>
           </div>
-
-          <div className="p-6 sm:p-8">
-            <PreviewPanel settings={settings} completionScore={completionScore} />
+          <div className="flex flex-wrap items-center gap-2 text-xs font-semibold">
+            <span className="rounded-full bg-slate-100 px-3 py-2 text-slate-600">{settings.companyDisplayName}</span>
+            <span className="rounded-full bg-blue-50 px-3 py-2 text-blue-700">{currentPlan} plan</span>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-2 text-emerald-700">
+              <Check size={14} /> Changes save automatically
+            </span>
           </div>
         </div>
       </section>
 
-      <section className="mt-6 rounded-[2rem] border border-blue-100 bg-white p-4 shadow-sm shadow-blue-100/70">
-        <div className="grid gap-3 md:grid-cols-4">
+      <section className="mt-4 rounded-3xl border border-slate-200 bg-white p-2 shadow-sm">
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
           {sections.map((section) => {
             const Icon = section.icon;
             const active = activeSection === section.id;
@@ -283,15 +246,15 @@ export function WorkspaceCustomizer() {
                 key={section.id}
                 type="button"
                 onClick={() => setActiveSection(section.id)}
-                className={`flex items-center gap-3 rounded-2xl border p-4 text-left transition ${
+                className={`flex items-center gap-3 rounded-2xl px-3 py-3 text-left transition ${
                   active
-                    ? "border-blue-300 bg-blue-50 text-blue-950 shadow-sm"
-                    : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                    ? "bg-slate-950 text-white shadow-sm"
+                    : "text-slate-600 hover:bg-slate-50"
                 }`}
               >
                 <span
                   className={`flex size-10 shrink-0 items-center justify-center rounded-xl ${
-                    active ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-500"
+                    active ? "bg-white/10 text-white" : "bg-slate-100 text-slate-500"
                   }`}
                 >
                   <Icon size={18} />
@@ -307,9 +270,9 @@ export function WorkspaceCustomizer() {
       </section>
 
       {activeSection === "basics" ? (
-      <section className="mt-6 grid gap-6 xl:grid-cols-[1fr_0.9fr]">
-        <SettingsCard title="Company Identity" description="How your workspace appears to staff and managers." icon={Building2}>
-          <div className="grid gap-4 sm:grid-cols-2">
+      <section className="mt-4 grid gap-4 lg:grid-cols-2">
+        <SettingsCard title="Company details" description="The name and business type shown across Comvexa." icon={Building2}>
+          <div className="grid gap-4">
             <TextInput
               label="Display name"
               value={settings.companyDisplayName}
@@ -321,6 +284,10 @@ export function WorkspaceCustomizer() {
               options={industries}
               onChange={(value) => updateSettings({ ...settings, industry: value })}
             />
+          </div>
+        </SettingsCard>
+        <SettingsCard title="Workspace defaults" description="Choose what your team sees when they open Comvexa." icon={Globe2}>
+          <div className="grid gap-4">
             <SelectInput
               label="Default start page"
               value={settings.startPage}
@@ -332,22 +299,15 @@ export function WorkspaceCustomizer() {
               value={settings.language}
               options={languageOptions}
               onChange={(value) => updateSettings({ ...settings, language: value })}
-              helper="Applies to the dashboard navigation, workspace header, and account controls."
+              helper="Updates navigation, headings, and account controls."
             />
-          </div>
-        </SettingsCard>
-        <SettingsCard title="What This Changes" description="These settings control the most visible workspace identity." icon={Sparkles}>
-          <div className="grid gap-3">
-            <InfoRow title="Workspace name" text="Shown in dashboard headings and shared workspace areas." />
-            <InfoRow title="Start page" text="Sets the module your team should open first during daily work." />
-            <InfoRow title="Language" text="Updates dashboard navigation, header labels, and account controls." />
           </div>
         </SettingsCard>
       </section>
       ) : null}
 
       {activeSection === "appearance" ? (
-      <section className="mt-6">
+      <section className="mt-4">
         <SettingsCard title="Appearance" description="Tune the visual style your team sees every day." icon={Palette}>
           <div className="mb-5">
             <p className="text-sm font-medium text-slate-700">Dashboard theme</p>
@@ -435,8 +395,8 @@ export function WorkspaceCustomizer() {
       ) : null}
 
       {activeSection === "finance" ? (
-      <section className="mt-6 grid gap-6 xl:grid-cols-[0.9fr_1fr]">
-        <SettingsCard title="Regional and Accounting Defaults" description="Set the values used by invoices, reports, and financial workflows." icon={ReceiptText}>
+      <section className="mt-4 grid gap-4 xl:grid-cols-[0.9fr_1fr]">
+        <SettingsCard title="Billing defaults" description="Values used by invoices, reports, and payments." icon={ReceiptText}>
           <div className="grid gap-4 sm:grid-cols-2">
             <SelectInput
               label="Currency"
@@ -474,7 +434,7 @@ export function WorkspaceCustomizer() {
           </div>
         </SettingsCard>
 
-        <SettingsCard title="Workflow Controls" description="Choose what the dashboard emphasizes and how reminders should behave." icon={SlidersHorizontal}>
+        <SettingsCard title="Dashboard & reminders" description="Choose what appears on the dashboard and how reminders behave." icon={SlidersHorizontal}>
           <div className="grid gap-3">
             <ToggleRow
               title="Show setup checklist"
@@ -520,28 +480,18 @@ export function WorkspaceCustomizer() {
       ) : null}
 
       {activeSection === "modules" ? (
-      <section className="mt-6 rounded-[2rem] border border-blue-100 bg-white p-6 shadow-sm shadow-blue-100/70">
+      <section className="mt-4 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-widest text-blue-700">Module Visibility</p>
-            <h3 className="mt-2 text-2xl font-semibold tracking-normal text-slate-950">
-              Decide what your team sees in the workspace.
-            </h3>
+            <p className="text-sm font-semibold uppercase tracking-widest text-blue-700">Visible modules</p>
+            <h3 className="mt-2 text-xl font-semibold tracking-normal text-slate-950">Choose what appears in the menu</h3>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
-              These switches control workspace visibility. Subscription rules
-              still decide which modules are allowed for the selected plan.
-              Your current plan is {currentPlan}, with {planModules[currentPlan].length} modules available.
+              Turn modules on or off for your team. Your {currentPlan} plan includes {planModules[currentPlan].length} modules.
             </p>
           </div>
-          <button
-            type="button"
-            onClick={saveSettings}
-            className="inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white shadow-sm"
-            style={{ backgroundColor: settings.accent }}
-          >
-            <Save size={16} />
-            {saved ? "Saved automatically" : "Confirm saved settings"}
-          </button>
+          <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-700">
+            <Check size={14} /> Saved automatically
+          </span>
         </div>
 
         <div className="mt-6 grid gap-5 lg:grid-cols-3">
@@ -600,97 +550,6 @@ export function WorkspaceCustomizer() {
   );
 }
 
-function PreviewPanel({
-  settings,
-  completionScore,
-}: {
-  settings: Settings;
-  completionScore: number;
-}) {
-  return (
-    <div className="rounded-[1.75rem] border border-blue-100 bg-white p-5 shadow-sm">
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <span
-            className="flex size-12 items-center justify-center rounded-2xl text-sm font-bold text-white"
-            style={{ backgroundColor: settings.accent }}
-          >
-            {settings.companyDisplayName.slice(0, 2).toUpperCase()}
-          </span>
-          <div>
-            <p className="font-semibold text-slate-950">{settings.companyDisplayName || "Company"}</p>
-            <p className="text-xs text-slate-500">{settings.industry}</p>
-          </div>
-        </div>
-        <span className="rounded-full bg-blue-50 px-3 py-1 text-sm font-semibold text-blue-700">
-          {completionScore}% ready
-        </span>
-      </div>
-
-      <div className="mt-5 h-2 rounded-full bg-slate-100">
-        <div
-          className="h-2 rounded-full"
-          style={{ width: `${completionScore}%`, backgroundColor: settings.accent }}
-        />
-      </div>
-
-      <div className="mt-6 rounded-3xl bg-[#10233f] p-4 text-white">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-xs uppercase tracking-widest text-blue-100/70">{settings.dashboardStyle} dashboard</p>
-            <p className="mt-1 font-semibold">{settings.theme} theme - {settings.startPage} first</p>
-          </div>
-          <ShieldCheck size={22} className="text-cyan-200" />
-        </div>
-        <div className="mt-5 grid gap-3 sm:grid-cols-3">
-          <PreviewStat icon={WalletCards} label="Currency" value={settings.currency} />
-          <PreviewStat icon={CalendarDays} label="Date" value={settings.dateFormat} />
-          <PreviewStat icon={ReceiptText} label="Terms" value={settings.paymentTerms} />
-        </div>
-      </div>
-
-      <div className="mt-5 grid gap-3 sm:grid-cols-2">
-        <PreviewToggle icon={BellRing} label="Email reminders" active={settings.enableEmailReminders} />
-        <PreviewToggle icon={FileText} label="Finance pulse" active={settings.showFinancePulse} />
-        <PreviewToggle icon={ListChecks} label="Setup checklist" active={settings.showSetup} />
-        <PreviewToggle icon={Globe2} label={settings.timezone} active />
-      </div>
-
-      <div className="mt-5 rounded-3xl border border-slate-200 bg-[#f7fbff] p-4">
-        <div className="flex items-center justify-between gap-3">
-          <p className="text-sm font-semibold text-slate-950">Visible modules</p>
-          <span className="text-sm font-semibold text-slate-500">{settings.modules.length}</span>
-        </div>
-        <div className="mt-3 flex flex-wrap gap-2">
-          {settings.modules.slice(0, 9).map((module) => (
-            <span key={module} className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-600 ring-1 ring-slate-200">
-              {module}
-            </span>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function SummaryCard({
-  icon: Icon,
-  label,
-  value,
-}: {
-  icon: React.ComponentType<{ size?: number; className?: string }>;
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="rounded-3xl border border-blue-100 bg-white p-5 shadow-sm">
-      <Icon className="text-blue-700" size={21} />
-      <p className="mt-4 text-xs font-semibold uppercase tracking-widest text-slate-500">{label}</p>
-      <p className="mt-2 truncate text-sm font-semibold text-slate-950">{value}</p>
-    </div>
-  );
-}
-
 function SettingsCard({
   title,
   description,
@@ -715,15 +574,6 @@ function SettingsCard({
       </div>
       {children}
     </section>
-  );
-}
-
-function InfoRow({ title, text }: { title: string; text: string }) {
-  return (
-    <div className="rounded-2xl border border-slate-200 bg-[#f7fbff] p-4">
-      <p className="text-sm font-semibold text-slate-950">{title}</p>
-      <p className="mt-1 text-sm leading-6 text-slate-500">{text}</p>
-    </div>
   );
 }
 
@@ -803,43 +653,5 @@ function ToggleRow({
         <span className={`size-5 rounded-full bg-white transition ${checked ? "translate-x-5" : ""}`} />
       </span>
     </button>
-  );
-}
-
-function PreviewStat({
-  icon: Icon,
-  label,
-  value,
-}: {
-  icon: React.ComponentType<{ size?: number; className?: string }>;
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="rounded-2xl border border-white/10 bg-white/8 p-3">
-      <Icon className="text-cyan-200" size={17} />
-      <p className="mt-3 text-xs text-blue-100/70">{label}</p>
-      <p className="mt-1 truncate text-sm font-semibold">{value}</p>
-    </div>
-  );
-}
-
-function PreviewToggle({
-  icon: Icon,
-  label,
-  active,
-}: {
-  icon: React.ComponentType<{ size?: number; className?: string }>;
-  label: string;
-  active: boolean;
-}) {
-  return (
-    <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-[#f7fbff] p-3">
-      <span className="flex min-w-0 items-center gap-3">
-        <Icon className="shrink-0 text-blue-700" size={17} />
-        <span className="truncate text-sm font-semibold text-slate-700">{label}</span>
-      </span>
-      <span className={`size-2.5 rounded-full ${active ? "bg-blue-600" : "bg-slate-300"}`} />
-    </div>
   );
 }

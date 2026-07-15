@@ -50,6 +50,7 @@ export function PricingCards({ plans }: { plans: Plan[] }) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${sessionData.session.access_token}`,
         },
         body: JSON.stringify({
           plan: plan.name,

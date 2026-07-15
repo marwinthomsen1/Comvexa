@@ -1,5 +1,5 @@
-import { createClient } from "@supabase/supabase-js";
 import { sendTrialStartedEmail } from "@/src/lib/email";
+import { requireUser } from "@/src/lib/auth/api";
 
 const trialLengthsMs = {
   Pro: 3 * 24 * 60 * 60 * 1000,
@@ -32,46 +32,16 @@ function trialErrorResponse(error: unknown, fallback: string) {
 }
 
 async function getSessionCompany(request: Request) {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  const authHeader = request.headers.get("authorization");
-  const token = authHeader?.startsWith("Bearer ") ? authHeader.slice("Bearer ".length) : null;
+  const auth = await requireUser(request);
 
-  if (!supabaseUrl || !supabaseAnonKey) {
-    return {
-      error: Response.json({ error: "Supabase is not configured." }, { status: 500 }),
-    };
+  if (auth.error) {
+    return { error: auth.error };
   }
 
-  if (!token) {
-    return {
-      error: Response.json({ error: "You must be signed in to start a trial." }, { status: 401 }),
-    };
-  }
-
-  const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-    },
-    global: {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    },
-  });
-  const { data: userData, error: userError } = await supabase.auth.getUser();
-
-  if (userError || !userData.user) {
-    return {
-      error: Response.json({ error: "Invalid session." }, { status: 401 }),
-    };
-  }
-
-  const { data: profile, error: profileError } = await supabase
+  const { data: profile, error: profileError } = await auth.supabase
     .from("profiles")
     .select("company_id")
-    .eq("id", userData.user.id)
+    .eq("id", auth.user.id)
     .single();
 
   if (profileError || !profile?.company_id) {
@@ -81,7 +51,7 @@ async function getSessionCompany(request: Request) {
   }
 
   return {
-    supabase,
+    supabase: auth.supabase,
     companyId: profile.company_id as string,
   };
 }
@@ -159,12 +129,16 @@ export async function POST(request: Request) {
     }
 
     if (company?.email) {
-      await sendTrialStartedEmail({
-        to: company.email,
-        companyName: company.name ?? "your company",
-        plan: trialPlan,
-        trialEndDate: endsAt.toISOString(),
-      });
+      try {
+        await sendTrialStartedEmail({
+          to: company.email,
+          companyName: company.name ?? "your company",
+          plan: trialPlan,
+          trialEndDate: endsAt.toISOString(),
+        });
+      } catch (emailError) {
+        console.error("Trial started, but the confirmation email could not be sent.", emailError);
+      }
     }
 
     return Response.json({

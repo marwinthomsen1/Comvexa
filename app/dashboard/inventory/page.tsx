@@ -82,7 +82,8 @@ function InventoryBoard() {
       return;
     }
 
-    const formData = new FormData(event.currentTarget);
+    const form = event.currentTarget;
+    const formData = new FormData(form);
     const { error: insertError } = await supabase.from("inventory_items").insert({
       company_id: companyId,
       name: String(formData.get("name") ?? "").trim(),
@@ -97,7 +98,7 @@ function InventoryBoard() {
       return;
     }
 
-    event.currentTarget.reset();
+    form.reset();
     await loadItems();
   }
 

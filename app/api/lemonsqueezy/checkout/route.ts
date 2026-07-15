@@ -1,3 +1,5 @@
+import { requireUser } from "@/src/lib/auth/api";
+
 const monthlyVariantIds: Record<string, string | undefined> = {
   Basic: process.env.LEMONSQUEEZY_BASIC_MONTHLY_VARIANT_ID,
   Pro: process.env.LEMONSQUEEZY_PRO_MONTHLY_VARIANT_ID,
@@ -22,6 +24,12 @@ function getVariantId(plan: string, billingCycle: string) {
 }
 
 export async function POST(request: Request) {
+  const auth = await requireUser(request);
+
+  if (auth.error) {
+    return auth.error;
+  }
+
   const apiKey = process.env.LEMONSQUEEZY_API_KEY;
   const storeId = process.env.LEMONSQUEEZY_STORE_ID;
 
@@ -33,6 +41,8 @@ export async function POST(request: Request) {
   }
 
   const body = (await request.json()) as CheckoutRequest;
+  body.email = auth.user.email ?? "";
+  body.userId = auth.user.id;
   const plan = body.plan === "Basic" || body.plan === "Ultra" ? body.plan : "Pro";
   const billingCycle = body.billingCycle === "yearly" ? "yearly" : "monthly";
   const variantId = getVariantId(plan, billingCycle);

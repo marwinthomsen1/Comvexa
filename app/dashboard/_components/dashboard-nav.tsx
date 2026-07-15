@@ -37,11 +37,11 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { hasOwnerDashboardAccess } from "@/src/lib/admin/access";
-import { supabase } from "@/src/lib/supabase/client";
-import { canUseModule, defaultPlan, normalizePlan, planModules, type PlanName } from "./plan-access";
-import { enableOwnerPlanAccess, formatTrialRemaining, getProTrialStatus, isOwnerPlanAccessActiveFor, isPaymentSetupComplete } from "./payment-status";
+import { canUseModule, defaultPlan, planModules, type PlanName } from "./plan-access";
+import { formatTrialRemaining } from "./payment-status";
+import { loadSubscriptionAccess } from "./subscription-access";
 import { useDashboardText } from "./dashboard-i18n";
+import { supabase } from "@/src/lib/supabase/client";
 
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: Home, group: "Workspace" },
@@ -96,6 +96,7 @@ export function DashboardNav() {
   const { text, navLabel, groupLabel } = useDashboardText();
   const [plan, setPlan] = useState<PlanName>(defaultPlan);
   const [accessActive, setAccessActive] = useState(false);
+  const [accessLoading, setAccessLoading] = useState(true);
   const [trialLabel, setTrialLabel] = useState("");
   const [visibleModules, setVisibleModules] = useState<string[]>(defaultVisibleModules);
   const [expandedGroups, setExpandedGroups] = useState<string[]>(["Workspace", "Operations"]);
@@ -103,27 +104,29 @@ export function DashboardNav() {
 
   useEffect(() => {
     async function loadState() {
-      const { data: sessionData } = await supabase.auth.getSession();
-
-      if (hasOwnerDashboardAccess(sessionData.session?.user.email)) {
-        enableOwnerPlanAccess(window.localStorage.getItem("comvexa-selected-plan"), "monthly", sessionData.session?.user.email);
+      try {
+        const access = await loadSubscriptionAccess();
+        setPlan(access.plan);
+        setAccessActive(access.accessActive);
+        const remainingMs = access.trialEndsAt ? new Date(access.trialEndsAt).getTime() - Date.now() : 0;
+        setTrialLabel(access.trialActive ? formatTrialRemaining(remainingMs) : "");
+        setVisibleModules(readWorkspaceModules());
+      } finally {
+        setAccessLoading(false);
       }
-
-      const sessionEmail = sessionData.session?.user.email?.trim().toLowerCase();
-      setPlan(normalizePlan(window.localStorage.getItem("comvexa-selected-plan")));
-      setAccessActive(isOwnerPlanAccessActiveFor(sessionEmail) || isPaymentSetupComplete() || getProTrialStatus().active);
-      const trial = getProTrialStatus();
-      setTrialLabel(trial.active ? formatTrialRemaining(trial.remainingMs) : "");
-      setVisibleModules(readWorkspaceModules());
     }
 
     const timeout = window.setTimeout(() => void loadState(), 0);
+    const { data: authListener } = supabase.auth.onAuthStateChange(() => {
+      window.setTimeout(() => void loadState(), 0);
+    });
     window.addEventListener("storage", loadState);
     window.addEventListener("comvexa-plan-change", loadState);
     window.addEventListener("comvexa-settings-change", loadState);
 
     return () => {
       window.clearTimeout(timeout);
+      authListener.subscription.unsubscribe();
       window.removeEventListener("storage", loadState);
       window.removeEventListener("comvexa-plan-change", loadState);
       window.removeEventListener("comvexa-settings-change", loadState);
@@ -339,10 +342,10 @@ export function DashboardNav() {
               </span>
               <div>
                 <p className="text-sm font-semibold text-[var(--comvexa-sidebar-title,#ffffff)]">
-                  {trialLabel ? text.trial : accessActive ? `${plan} ${text.plan}` : text.setupRequired}
+                  {accessLoading ? "Checking access" : trialLabel ? text.trial : accessActive ? `${plan} ${text.plan}` : text.setupRequired}
                 </p>
                 <p className="text-xs text-[var(--comvexa-sidebar-muted,#bfdbfe)]">
-                  {trialLabel || (accessActive ? `${planModulesCount(plan)} ${text.modules}` : text.paymentOrTrialRequired)}
+                  {accessLoading ? "Loading workspace" : trialLabel || (accessActive ? `${planModulesCount(plan)} ${text.modules}` : text.paymentOrTrialRequired)}
                 </p>
               </div>
             </div>
@@ -351,15 +354,15 @@ export function DashboardNav() {
             <div
               className="h-1.5 rounded-full bg-[var(--comvexa-accent,#2563eb)]"
               style={{
-                width: !accessActive ? "20%" : plan === "Basic" ? "48%" : plan === "Pro" ? "74%" : "100%",
+                width: accessLoading ? "36%" : !accessActive ? "20%" : plan === "Basic" ? "48%" : plan === "Pro" ? "74%" : "100%",
               }}
             />
           </div>
           <Link
-            href={accessActive ? "/dashboard/settings" : "/dashboard/subscription"}
+            href="/dashboard/subscription"
             className="mt-3 flex w-full items-center justify-center rounded-lg bg-[var(--comvexa-accent,#2563eb)] px-3 py-2 text-xs font-semibold text-white hover:opacity-90"
           >
-            {accessActive ? text.customize : trialLabel ? "Open dashboard" : "Choose plan"}
+            {accessLoading ? "Loading..." : trialLabel ? "View trial" : accessActive ? "Manage plan" : "Choose plan"}
           </Link>
         </div>
       </div>

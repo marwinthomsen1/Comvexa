@@ -1,3 +1,5 @@
+import { requireUser } from "@/src/lib/auth/api";
+
 type SupportMessage = {
   role: "user" | "assistant";
   content: string;
@@ -28,6 +30,21 @@ Do not claim that a payment or trial is active unless the app confirms it. If bi
 Keep answers short, practical, and friendly. Do not ask for secret keys, passwords, card numbers, CVC codes, or full access tokens.
 `;
 
+const requestWindows = new Map<string, { count: number; resetsAt: number }>();
+
+function isRateLimited(userId: string) {
+  const now = Date.now();
+  const current = requestWindows.get(userId);
+
+  if (!current || current.resetsAt <= now) {
+    requestWindows.set(userId, { count: 1, resetsAt: now + 60_000 });
+    return false;
+  }
+
+  current.count += 1;
+  return current.count > 15;
+}
+
 function sanitizeMessages(messages: SupportMessage[] | undefined) {
   return (messages ?? [])
     .filter((message) => message.role === "user" || message.role === "assistant")
@@ -52,6 +69,16 @@ function extractText(response: OpenAIResponse) {
 }
 
 export async function POST(request: Request) {
+  const auth = await requireUser(request);
+
+  if (auth.error) {
+    return auth.error;
+  }
+
+  if (isRateLimited(auth.user.id)) {
+    return Response.json({ reply: "Too many support requests. Please wait a minute and try again." }, { status: 429 });
+  }
+
   const apiKey = process.env.OPENAI_API_KEY;
 
   if (!apiKey) {

@@ -7,7 +7,9 @@ import { usePathname, useRouter } from "next/navigation";
 import { ArrowRight, Search, ShieldCheck } from "lucide-react";
 import { DashboardAccount } from "./dashboard-account";
 import { useDashboardText } from "./dashboard-i18n";
-import { canUseModule, defaultPlan, normalizePlan } from "./plan-access";
+import { canUseModule } from "./plan-access";
+import { loadSubscriptionAccess } from "./subscription-access";
+import { supabase } from "@/src/lib/supabase/client";
 
 const dashboardPages = [
   ["/dashboard/subscription/payment", "Subscription payment"],
@@ -51,7 +53,7 @@ export function DashboardHeader() {
   const [searchablePages, setSearchablePages] = useState<ReadonlyArray<(typeof dashboardPages)[number]>>(dashboardPages);
 
   useEffect(() => {
-    function syncSearchablePages() {
+    async function syncSearchablePages() {
       let visibleModules: string[] | null = null;
       try {
         const saved = window.localStorage.getItem("comvexa-workspace-settings");
@@ -61,21 +63,25 @@ export function DashboardHeader() {
         visibleModules = null;
       }
 
-      const plan = normalizePlan(window.localStorage.getItem("comvexa-selected-plan") ?? defaultPlan);
+      const access = await loadSubscriptionAccess();
       setSearchablePages(
         dashboardPages.filter(([, label]) => {
           const moduleName = label === "Overview" ? "Dashboard" : label === "Subscription payment" ? "Subscription" : label;
           const alwaysAvailable = ["Dashboard", "Subscription", "Settings"].includes(moduleName);
-          return (alwaysAvailable || !visibleModules || visibleModules.includes(moduleName)) && canUseModule(plan, moduleName);
+          return (alwaysAvailable || !visibleModules || visibleModules.includes(moduleName)) && canUseModule(access.plan, moduleName);
         }),
       );
     }
 
-    syncSearchablePages();
+    void syncSearchablePages();
+    const { data: authListener } = supabase.auth.onAuthStateChange(() => {
+      window.setTimeout(() => void syncSearchablePages(), 0);
+    });
     window.addEventListener("storage", syncSearchablePages);
     window.addEventListener("comvexa-plan-change", syncSearchablePages);
     window.addEventListener("comvexa-settings-change", syncSearchablePages);
     return () => {
+      authListener.subscription.unsubscribe();
       window.removeEventListener("storage", syncSearchablePages);
       window.removeEventListener("comvexa-plan-change", syncSearchablePages);
       window.removeEventListener("comvexa-settings-change", syncSearchablePages);

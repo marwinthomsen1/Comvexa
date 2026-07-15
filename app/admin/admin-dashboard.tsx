@@ -40,6 +40,19 @@ import { LeadsOutreachTab } from "./leads-outreach-tab";
 
 type AdminRow = Record<string, unknown>;
 
+type CustomerActivity = {
+  id: string;
+  type: string;
+  action: string;
+  subject: string;
+  detail: string;
+  companyId: string;
+  companyName: string;
+  customerEmail: string;
+  actorName: string;
+  date: unknown;
+};
+
 type AdminOverview = {
   adminEmail: string;
   counts: Record<string, number>;
@@ -62,6 +75,7 @@ type AdminOverview = {
   recentBranches: AdminRow[];
   recentUsers: AdminRow[];
   recentEmailLogs: AdminRow[];
+  customerActivity: CustomerActivity[];
 };
 
 type AdminTab = "overview" | "companies" | "users" | "email" | "leads" | "activity" | "tools";
@@ -539,7 +553,7 @@ export function AdminDashboard() {
           {activeTab === "leads" ? <LeadsOutreachTab /> : null}
 
           {activeTab === "activity" ? (
-            <ActivityTab overview={overview} activityFeed={activityFeed} financialCards={financialCards} />
+            <ActivityTab overview={overview} query={query} />
           ) : null}
 
           {activeTab === "tools" ? <ToolsTab overview={overview} onRefresh={loadOverview} /> : null}
@@ -1111,16 +1125,32 @@ function EmailTab({ overview, onSent }: { overview: AdminOverview | null; onSent
 
 function ActivityTab({
   overview,
-  activityFeed,
-  financialCards,
+  query,
 }: {
   overview: AdminOverview | null;
-  activityFeed: Array<{ type: string; title: string; detail: string; date: unknown }>;
-  financialCards: Array<[string, string, LucideIcon]>;
+  query: string;
 }) {
+  const [activityType, setActivityType] = useState("all");
+  const allActivity = overview?.customerActivity ?? [];
+  const activityTypes = Array.from(new Set(allActivity.map((item) => item.type))).sort();
+  const normalizedQuery = query.trim().toLowerCase();
+  const filteredActivity = allActivity.filter((item) => {
+    const matchesType = activityType === "all" || item.type === activityType;
+    const searchable = `${item.companyName} ${item.customerEmail} ${item.action} ${item.subject} ${item.detail}`.toLowerCase();
+    return matchesType && (!normalizedQuery || searchable.includes(normalizedQuery));
+  });
+  const activeWorkspaces = new Set(allActivity.map((item) => item.companyId).filter(Boolean)).size;
+  const signedInUsers = (overview?.recentUsers ?? []).filter((row) => row.last_sign_in_at).length;
+
   return (
     <div className="space-y-5">
-      <section className="grid gap-5 xl:grid-cols-[0.85fr_1.15fr]">
+      <section className="grid gap-4 md:grid-cols-3">
+        <MetricTile label="Recent actions" value={String(allActivity.length)} detail="Latest customer workspace records" icon={Activity} />
+        <MetricTile label="Active workspaces" value={String(activeWorkspaces)} detail="Customers represented in this feed" icon={Building2} tone="blue" />
+        <MetricTile label="Users signed in" value={String(signedInUsers)} detail="Accounts with recorded sign-in activity" icon={Users} />
+      </section>
+
+      <section className="grid gap-5 xl:grid-cols-[0.72fr_1.28fr]">
         <AdminPanel title="Activity last 30 days" icon={TrendingUp}>
           <div className="space-y-3">
             {Object.entries(overview?.activityLast30Days ?? {}).map(([label, value]) => (
@@ -1133,15 +1163,37 @@ function ActivityTab({
             ))}
           </div>
         </AdminPanel>
-        <AdminPanel title="Activity feed" icon={Activity}>
-          <Timeline items={activityFeed} />
+        <AdminPanel title="Customer activity" icon={Activity}>
+          <div className="mb-4 flex flex-col gap-3 border-b border-slate-100 pb-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold text-slate-700">Who did what</p>
+              <p className="mt-1 text-xs text-slate-500">Use the search bar above to find a company, email, or action.</p>
+            </div>
+            <select
+              value={activityType}
+              onChange={(event) => setActivityType(event.target.value)}
+              className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 outline-none focus:border-emerald-300"
+              aria-label="Filter customer activity by type"
+            >
+              <option value="all">All actions</option>
+              {activityTypes.map((type) => <option key={type} value={type}>{type}</option>)}
+            </select>
+          </div>
+          <CustomerActivityFeed items={filteredActivity} />
         </AdminPanel>
       </section>
-      <section className="grid gap-4 lg:grid-cols-3">
-        {financialCards.map(([label, value, Icon]) => (
-          <MetricTile key={label} label={label} value={value} detail="Current admin sample" icon={Icon} tone="blue" />
-        ))}
-      </section>
+
+      <AdminTable
+        title="Customer sign-ins"
+        columns={["Customer", "User", "Email", "Role", "Last sign-in"]}
+        rows={(overview?.recentUsers ?? []).map((row) => [
+          String(row.company_name ?? "Unassigned"),
+          String(row.full_name ?? "-"),
+          String(row.email ?? "-"),
+          titleize(String(row.role ?? "member")),
+          formatDate(row.last_sign_in_at),
+        ])}
+      />
       <AdminTable
         title="Email logs"
         columns={["Recipient", "Type", "Subject", "Status", "Created"]}
@@ -1153,6 +1205,39 @@ function ActivityTab({
           formatDate(row.created_at),
         ])}
       />
+    </div>
+  );
+}
+
+function CustomerActivityFeed({ items }: { items: CustomerActivity[] }) {
+  if (!items.length) {
+    return <p className="rounded-2xl bg-slate-50 px-4 py-6 text-center text-sm text-slate-500">No customer activity matches this filter.</p>;
+  }
+
+  return (
+    <div className="max-h-[720px] space-y-3 overflow-y-auto pr-1">
+      {items.map((item) => (
+        <article key={item.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+          <div className="flex items-start gap-3">
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-white text-emerald-700 ring-1 ring-slate-200">
+              <Activity size={16} />
+            </span>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="font-semibold text-slate-950">{item.companyName}</p>
+                <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold uppercase text-emerald-700 ring-1 ring-emerald-100">{item.type}</span>
+              </div>
+              <p className="mt-1 text-sm font-semibold text-slate-700">{item.action}: {item.subject}</p>
+              <p className="mt-1 text-sm text-slate-500">{item.detail}</p>
+              <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-400">
+                <span>{item.customerEmail || "No customer email"}</span>
+                <span>{item.actorName}</span>
+                <span>{formatDate(item.date)}</span>
+              </div>
+            </div>
+          </div>
+        </article>
+      ))}
     </div>
   );
 }

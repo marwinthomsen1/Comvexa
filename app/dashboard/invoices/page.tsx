@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { AlertCircle, CheckCircle2, FilePlus2, ReceiptText, Trash2 } from "lucide-react";
+import { AlertCircle, CalendarDays, CheckCircle2, FilePlus2, ReceiptText, Trash2 } from "lucide-react";
 import { formatCurrencyAmount } from "@/app/_components/currency-display";
 import { supabase } from "@/src/lib/supabase/client";
 import { PlanGate } from "../_components/plan-gate";
@@ -22,6 +22,18 @@ const lanes = [
   { key: "paid", title: "Paid", icon: CheckCircle2 },
 ];
 
+const laneStyles: Record<string, { accent: string; badge: string }> = {
+  unpaid: { accent: "bg-amber-400", badge: "bg-amber-50 text-amber-700 ring-amber-200" },
+  pending: { accent: "bg-blue-400", badge: "bg-blue-50 text-blue-700 ring-blue-200" },
+  paid: { accent: "bg-emerald-500", badge: "bg-emerald-50 text-emerald-700 ring-emerald-200" },
+};
+
+function formatInvoiceDate(value: string) {
+  return new Intl.DateTimeFormat("en", { month: "short", day: "numeric", year: "numeric" }).format(
+    new Date(`${value}T00:00:00`),
+  );
+}
+
 export default function InvoicesPage() {
   return (
     <PlanGate moduleName="Invoices">
@@ -35,6 +47,7 @@ function InvoicePipeline() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [error, setError] = useState("");
   const [currency, setCurrency] = useState("USD");
+  const [pendingInvoiceIds, setPendingInvoiceIds] = useState<Set<string>>(() => new Set());
 
   async function loadInvoices() {
     try {
@@ -96,7 +109,8 @@ function InvoicePipeline() {
       return;
     }
 
-    const formData = new FormData(event.currentTarget);
+    const form = event.currentTarget;
+    const formData = new FormData(form);
     const { error: insertError } = await supabase.from("invoices").insert({
       company_id: companyId,
       invoice_number: String(formData.get("invoice_number") ?? "").trim(),
@@ -110,19 +124,50 @@ function InvoicePipeline() {
       return;
     }
 
-    event.currentTarget.reset();
+    form.reset();
     await loadInvoices();
   }
 
   async function updateStatus(invoice: Invoice, status: string) {
-    const { error: updateError } = await supabase.from("invoices").update({ payment_status: status }).eq("id", invoice.id);
-
-    if (updateError) {
-      setError(updateError.message);
+    if (pendingInvoiceIds.has(invoice.id)) {
       return;
     }
 
-    await loadInvoices();
+    const previousStatus = invoice.payment_status;
+    setError("");
+    setPendingInvoiceIds((current) => new Set(current).add(invoice.id));
+    setInvoices((current) =>
+      current.map((item) => item.id === invoice.id ? { ...item, payment_status: status } : item),
+    );
+
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 10000);
+    let updateError = "";
+
+    try {
+      const { error } = await supabase
+        .from("invoices")
+        .update({ payment_status: status })
+        .eq("id", invoice.id)
+        .abortSignal(controller.signal);
+      updateError = error?.message ?? "";
+    } catch (caughtError) {
+      updateError = caughtError instanceof Error ? caughtError.message : "Could not update the invoice.";
+    } finally {
+      window.clearTimeout(timeout);
+      setPendingInvoiceIds((current) => {
+        const next = new Set(current);
+        next.delete(invoice.id);
+        return next;
+      });
+    }
+
+    if (updateError) {
+      setInvoices((current) =>
+        current.map((item) => item.id === invoice.id ? { ...item, payment_status: previousStatus } : item),
+      );
+      setError(controller.signal.aborted ? "The invoice update timed out. Please try again." : updateError);
+    }
   }
 
   async function deleteInvoice(id: string) {
@@ -188,21 +233,43 @@ function InvoicePipeline() {
                 </div>
                 <div className="mt-4 space-y-3">
                   {laneInvoices.map((invoice) => (
-                    <article key={invoice.id} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <p className="font-semibold text-slate-950">{invoice.invoice_number}</p>
-                          <p className="mt-1 text-2xl font-semibold tracking-normal text-slate-950">{formatCurrencyAmount(Number(invoice.total_amount ?? 0), currency)}</p>
-                          <p className="mt-2 text-sm text-slate-500">{invoice.due_date ? `Due ${invoice.due_date}` : "No due date"}</p>
-                        </div>
-                        <button onClick={() => void deleteInvoice(invoice.id)} className="rounded-lg p-1.5 text-red-600 hover:bg-red-50" aria-label="Delete invoice"><Trash2 size={15} /></button>
+                    <article key={invoice.id} className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md">
+                      <span className={`absolute inset-x-0 top-0 h-1 ${laneStyles[lane.key].accent}`} />
+                      <div className="flex items-center justify-between gap-3 pt-1">
+                        <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold ring-1 ${laneStyles[lane.key].badge}`}>
+                          <span className={`size-1.5 rounded-full ${laneStyles[lane.key].accent}`} />
+                          {pendingInvoiceIds.has(invoice.id) ? "Syncing" : lane.title}
+                        </span>
+                        <button type="button" onClick={() => void deleteInvoice(invoice.id)} className="rounded-lg p-1.5 text-slate-400 transition hover:bg-red-50 hover:text-red-600" aria-label="Delete invoice"><Trash2 size={15} /></button>
                       </div>
-                      <div className="mt-4 flex flex-wrap gap-2">
+                      <p className="mt-4 truncate text-sm font-semibold text-slate-600">{invoice.invoice_number}</p>
+                      <p className="mt-1 text-3xl font-semibold tracking-[-0.03em] text-slate-950">{formatCurrencyAmount(Number(invoice.total_amount ?? 0), currency)}</p>
+                      <div className="mt-3 flex items-center gap-2 text-sm text-slate-500">
+                        <CalendarDays size={15} className="text-slate-400" />
+                        <span>{invoice.due_date ? `Due ${formatInvoiceDate(invoice.due_date)}` : "No due date"}</span>
+                      </div>
+                      <div className="mt-4 border-t border-slate-100 pt-3">
+                        <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">Move to</p>
+                        <div className="flex flex-wrap gap-2">
                         {lanes.filter((item) => item.key !== lane.key).map((next) => (
-                          <button key={next.key} type="button" onClick={() => void updateStatus(invoice, next.key)} className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">
-                            Mark {next.title}
-                          </button>
+                          (() => {
+                            const NextIcon = next.icon;
+                            const isPrimary = next.key === "paid";
+                            return (
+                              <button
+                                key={next.key}
+                                type="button"
+                                disabled={pendingInvoiceIds.has(invoice.id)}
+                                onClick={() => void updateStatus(invoice, next.key)}
+                                className={`inline-flex min-h-9 flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold transition disabled:cursor-wait disabled:opacity-50 ${isPrimary ? "bg-emerald-600 text-white shadow-sm hover:bg-emerald-700" : "border border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50"}`}
+                              >
+                                <NextIcon size={14} />
+                                {next.title}
+                              </button>
+                            );
+                          })()
                         ))}
+                        </div>
                       </div>
                     </article>
                   ))}
