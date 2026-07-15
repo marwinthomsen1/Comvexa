@@ -4,7 +4,7 @@ import Link from "next/link";
 import { LockKeyhole } from "lucide-react";
 import { useEffect, useState } from "react";
 import { canUseModule, defaultPlan, type PlanName } from "./plan-access";
-import { loadSubscriptionAccess } from "./subscription-access";
+import { getCachedSubscriptionAccess, invalidateSubscriptionAccess, loadSubscriptionAccess } from "./subscription-access";
 
 const alwaysVisibleModules = ["Dashboard", "Subscription", "Settings"];
 
@@ -25,9 +25,10 @@ export function PlanGate({
   moduleName: string;
   children: React.ReactNode;
 }) {
-  const [plan, setPlan] = useState<PlanName>(defaultPlan);
-  const [accessActive, setAccessActive] = useState(false);
-  const [trialExpired, setTrialExpired] = useState(false);
+  const cachedAccess = getCachedSubscriptionAccess();
+  const [plan, setPlan] = useState<PlanName>(cachedAccess?.plan ?? defaultPlan);
+  const [accessActive, setAccessActive] = useState(cachedAccess?.accessActive ?? false);
+  const [trialExpired, setTrialExpired] = useState(cachedAccess?.trialExpired ?? false);
   const [moduleVisible, setModuleVisible] = useState(true);
 
   useEffect(() => {
@@ -45,14 +46,18 @@ export function PlanGate({
     }
 
     const timeout = window.setTimeout(() => void loadPlan(), 0);
+    function refreshPlan() {
+      invalidateSubscriptionAccess();
+      void loadPlan();
+    }
     window.addEventListener("storage", loadPlan);
-    window.addEventListener("comvexa-plan-change", loadPlan);
+    window.addEventListener("comvexa-plan-change", refreshPlan);
     window.addEventListener("comvexa-settings-change", loadPlan);
 
     return () => {
       window.clearTimeout(timeout);
       window.removeEventListener("storage", loadPlan);
-      window.removeEventListener("comvexa-plan-change", loadPlan);
+      window.removeEventListener("comvexa-plan-change", refreshPlan);
       window.removeEventListener("comvexa-settings-change", loadPlan);
     };
   }, [moduleName]);

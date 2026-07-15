@@ -26,6 +26,22 @@ type CompanySubscription = {
 
 const accessCache = new Map<string, { value: SubscriptionAccess; expiresAt: number }>();
 const pendingAccess = new Map<string, Promise<SubscriptionAccess>>();
+let latestAccess: SubscriptionAccess | null = null;
+
+export function getCachedSubscriptionAccess() {
+  return latestAccess;
+}
+
+export function invalidateSubscriptionAccess() {
+  latestAccess = null;
+  accessCache.clear();
+  pendingAccess.clear();
+}
+
+function rememberAccess(access: SubscriptionAccess) {
+  latestAccess = access;
+  return access;
+}
 
 async function loadCompanyAccess(userId: string): Promise<SubscriptionAccess> {
   const controller = new AbortController();
@@ -74,22 +90,22 @@ export async function loadSubscriptionAccess(): Promise<SubscriptionAccess> {
   const session = sessionData.session;
 
   if (!session) {
-    return inactiveAccess;
+    return rememberAccess(inactiveAccess);
   }
 
   if (hasOwnerDashboardAccess(session.user.email)) {
-    return {
+    return rememberAccess({
       plan: normalizePlan(window.localStorage.getItem("comvexa-selected-plan") ?? "Ultra"),
       accessActive: true,
       trialActive: false,
       trialExpired: false,
       trialEndsAt: null,
-    };
+    });
   }
 
   const cached = accessCache.get(session.user.id);
   if (cached && cached.expiresAt > Date.now()) {
-    return cached.value;
+    return rememberAccess(cached.value);
   }
 
   const existingRequest = pendingAccess.get(session.user.id);
@@ -98,8 +114,8 @@ export async function loadSubscriptionAccess(): Promise<SubscriptionAccess> {
   }
 
   const request = loadCompanyAccess(session.user.id).then((access) => {
-    accessCache.set(session.user.id, { value: access, expiresAt: Date.now() + 10_000 });
-    return access;
+    accessCache.set(session.user.id, { value: access, expiresAt: Date.now() + 5 * 60_000 });
+    return rememberAccess(access);
   }).finally(() => {
     pendingAccess.delete(session.user.id);
   });

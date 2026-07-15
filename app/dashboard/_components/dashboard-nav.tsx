@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   BarChart3,
   Bell,
@@ -39,7 +39,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { canUseModule, defaultPlan, planModules, type PlanName } from "./plan-access";
 import { formatTrialRemaining } from "./payment-status";
-import { loadSubscriptionAccess } from "./subscription-access";
+import { invalidateSubscriptionAccess, loadSubscriptionAccess } from "./subscription-access";
 import { useDashboardText } from "./dashboard-i18n";
 import { supabase } from "@/src/lib/supabase/client";
 
@@ -93,6 +93,7 @@ function readWorkspaceModules() {
 
 export function DashboardNav() {
   const pathname = usePathname();
+  const router = useRouter();
   const { text, navLabel, groupLabel } = useDashboardText();
   const [plan, setPlan] = useState<PlanName>(defaultPlan);
   const [accessActive, setAccessActive] = useState(false);
@@ -116,19 +117,24 @@ export function DashboardNav() {
       }
     }
 
+    function refreshState() {
+      invalidateSubscriptionAccess();
+      void loadState();
+    }
+
     const timeout = window.setTimeout(() => void loadState(), 0);
     const { data: authListener } = supabase.auth.onAuthStateChange(() => {
       window.setTimeout(() => void loadState(), 0);
     });
     window.addEventListener("storage", loadState);
-    window.addEventListener("comvexa-plan-change", loadState);
+    window.addEventListener("comvexa-plan-change", refreshState);
     window.addEventListener("comvexa-settings-change", loadState);
 
     return () => {
       window.clearTimeout(timeout);
       authListener.subscription.unsubscribe();
       window.removeEventListener("storage", loadState);
-      window.removeEventListener("comvexa-plan-change", loadState);
+      window.removeEventListener("comvexa-plan-change", refreshState);
       window.removeEventListener("comvexa-settings-change", loadState);
     };
   }, []);
@@ -188,6 +194,13 @@ export function DashboardNav() {
   const quickActionItems = ["Customers", "Tasks", "Invoices", "Payments", "Bookings", "Documents"]
     .map((label) => mobileItems.find((item) => item.label === label))
     .filter((item): item is (typeof navItems)[number] => Boolean(item));
+
+  useEffect(() => {
+    if (!accessActive) return;
+    const hrefs = navGroups.flatMap((group) => group.items.map((item) => item.href));
+    const timers = hrefs.map((href, index) => window.setTimeout(() => router.prefetch(href), 150 + index * 60));
+    return () => timers.forEach((timer) => window.clearTimeout(timer));
+  }, [accessActive, navGroups, router]);
 
   return (
     <>

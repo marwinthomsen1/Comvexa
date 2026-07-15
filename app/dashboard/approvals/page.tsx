@@ -8,6 +8,7 @@ export default function ApprovalsPage() {
       description="Manage approval requests for invoices, discounts, expenses, refunds, record deletes, and other sensitive actions."
       storageKey="comvexa-ultra-approvals"
       actionLabel="Add approval request"
+      variant="approvals"
       fields={[
         { name: "request", label: "Request", required: true },
         { name: "type", label: "Type", type: "select", options: ["expense", "invoice", "refund", "discount", "delete", "other"] },

@@ -8,6 +8,7 @@ export default function CustomerPortalPage() {
       description="Prepare portal access, document requests, customer invoice views, booking visibility, and client-facing notes."
       storageKey="comvexa-ultra-customer-portal"
       actionLabel="Add portal item"
+      variant="portal"
       fields={[
         { name: "customer", label: "Customer", required: true },
         { name: "portalItem", label: "Portal item", required: true },

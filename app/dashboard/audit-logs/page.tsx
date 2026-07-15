@@ -8,6 +8,7 @@ export default function AuditLogsPage() {
       description="Record important workspace events so owners can review changes, exports, permission updates, and sensitive actions."
       storageKey="comvexa-ultra-audit-logs"
       actionLabel="Add audit event"
+      variant="audit"
       fields={[
         { name: "event", label: "Event", required: true },
         { name: "area", label: "Area", type: "select", options: ["finance", "records", "settings", "permissions", "exports", "login"] },

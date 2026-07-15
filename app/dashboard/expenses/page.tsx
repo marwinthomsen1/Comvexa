@@ -14,6 +14,7 @@ export default function ExpensesPage() {
         metaKeys={["category", "vendor", "payment_method"]}
         moneyKey="amount"
         dateKey="expense_date"
+        variant="expenses"
         fields={[
           { name: "title", label: "Title", required: true },
           { name: "category", label: "Category" },

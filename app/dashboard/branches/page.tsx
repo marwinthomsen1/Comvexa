@@ -12,6 +12,7 @@ export default function BranchesPage() {
         actionLabel="Add branch"
         titleKey="name"
         metaKeys={["address", "phone"]}
+        variant="network"
         fields={[
           { name: "name", label: "Branch name", required: true },
           { name: "address", label: "Address" },

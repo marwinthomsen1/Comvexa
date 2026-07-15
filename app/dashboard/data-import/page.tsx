@@ -8,6 +8,7 @@ export default function DataImportPage() {
       description="Plan imports for customers, employees, inventory, invoices, payments, expenses, and older spreadsheet data."
       storageKey="comvexa-ultra-data-import"
       actionLabel="Add import job"
+      variant="data-import"
       fields={[
         { name: "source", label: "Source", required: true },
         { name: "recordType", label: "Record type", type: "select", options: ["customers", "employees", "inventory", "invoices", "payments", "expenses"] },

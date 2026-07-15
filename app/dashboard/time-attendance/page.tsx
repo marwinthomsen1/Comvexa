@@ -8,6 +8,7 @@ export default function TimeAttendancePage() {
       description="Record check-ins, absences, late arrivals, time-off requests, and shift coverage notes."
       storageKey="comvexa-ultra-time-attendance"
       actionLabel="Add attendance record"
+      variant="attendance"
       fields={[
         { name: "employee", label: "Employee", required: true },
         { name: "recordType", label: "Type", type: "select", options: ["check-in", "absence", "late", "time-off", "overtime"] },

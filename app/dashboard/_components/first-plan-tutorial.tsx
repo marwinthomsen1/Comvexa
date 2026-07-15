@@ -131,84 +131,79 @@ export function FirstPlanTutorial() {
   }
 
   return createPortal(
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center overflow-y-auto bg-[#052f37]/65 p-4 backdrop-blur-sm sm:p-6">
-      <section className="comvexa-tutorial-v2 relative max-h-[calc(100dvh-2rem)] w-full max-w-4xl overflow-hidden rounded-[1.75rem] border border-white/70 bg-[#fffefa] shadow-2xl shadow-slate-950/30 sm:max-h-[calc(100dvh-3rem)]" role="dialog" aria-modal="true" aria-label="Welcome to your Comvexa workspace">
-        <div className="absolute -right-20 -top-20 size-56 rounded-full bg-amber-200/70 blur-3xl" aria-hidden="true" />
-        <div className="absolute -bottom-24 -left-20 size-64 rounded-full bg-cyan-200/70 blur-3xl" aria-hidden="true" />
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center overflow-y-auto bg-[#172523]/70 p-4 backdrop-blur-md sm:p-6">
+      <section className="comvexa-tutorial-v3 relative max-h-[calc(100dvh-2rem)] w-full max-w-3xl overflow-hidden rounded-[2rem] border border-white/60 bg-[#f7f5ef] shadow-2xl shadow-slate-950/30 sm:max-h-[calc(100dvh-3rem)]" role="dialog" aria-modal="true" aria-label="Welcome to your Comvexa workspace">
+        <div className="absolute -right-20 -top-20 size-56 rounded-full bg-violet-200/50 blur-3xl" aria-hidden="true" />
+        <div className="absolute -bottom-24 -left-20 size-64 rounded-full bg-emerald-200/50 blur-3xl" aria-hidden="true" />
 
-        <div className="relative grid max-h-[calc(100dvh-2rem)] min-h-0 overflow-y-auto sm:max-h-[calc(100dvh-3rem)] lg:grid-cols-[0.9fr_1.1fr] lg:overflow-hidden">
-          <aside className="min-h-0 bg-[#073d47] p-5 text-white sm:p-6 lg:overflow-y-auto">
+        <div className="relative max-h-[calc(100dvh-2rem)] min-h-0 overflow-y-auto sm:max-h-[calc(100dvh-3rem)]">
+          <aside className="border-b border-[#dedbd1] bg-white/55 p-5 sm:p-6">
             <div className="flex items-start justify-between gap-4">
-              <p className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-amber-100 ring-1 ring-white/15">
+              <p className="inline-flex items-center gap-2 rounded-full bg-[#e9e5ff] px-3 py-1.5 text-xs font-bold uppercase tracking-[0.12em] text-[#554cae] ring-1 ring-[#d9d3ff]">
                 <Sparkles size={16} />
-                First plan unlocked
+                Workspace launch guide
               </p>
               <button
                 type="button"
                 onClick={closeTutorial}
-                className="rounded-xl bg-white/10 p-2 text-white hover:bg-white/15"
+                className="grid size-9 place-items-center rounded-xl border border-[#dedbd1] bg-white text-[#69665e] hover:bg-[#f2f0ea]"
                 aria-label="Close tutorial"
               >
                 <X size={18} />
               </button>
             </div>
 
-            <h2 className="mt-6 max-w-md text-3xl font-semibold leading-tight tracking-normal">
-              Welcome to your Comvexa workspace.
+            <h2 className="mt-4 text-2xl font-semibold leading-tight tracking-tight text-[#20231f] sm:text-3xl">
+              Your first four moves in Comvexa
             </h2>
-            <p className="mt-3 max-w-md text-sm leading-6 text-cyan-50/75">
-              This quick tour shows what to do first, where your daily work
-              lives, and how the dashboard becomes smarter as you add records.
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-[#6d7069]">
+              A short launch map for turning an empty workspace into a useful daily operating system.
             </p>
 
-            <div className="mt-6 grid gap-3">
+            <div className="mt-5 grid grid-cols-4 gap-2">
               {steps.map((item, index) => (
                 <button
                   key={item.title}
                   type="button"
                   onClick={() => setStepIndex(index)}
-                  className={`flex items-center gap-3 rounded-2xl border p-3 text-left text-sm transition ${
+                  className={`group min-w-0 rounded-xl border p-2.5 text-left transition sm:p-3 ${
                     index === stepIndex
-                      ? "border-amber-200 bg-white text-slate-950"
-                      : "border-white/10 bg-white/[0.07] text-cyan-50 hover:bg-white/10"
+                      ? "border-[#5d54b8] bg-[#5d54b8] text-white shadow-md shadow-violet-200"
+                      : "border-[#dedbd1] bg-white/70 text-[#77756e] hover:border-[#bbb5e5]"
                   }`}
                 >
                   <span
-                    className={`flex size-8 shrink-0 items-center justify-center rounded-xl ${
-                      index === stepIndex ? "bg-amber-100 text-cyan-950" : "bg-white/10 text-amber-100"
+                    className={`grid size-7 place-items-center rounded-lg text-xs font-bold ${
+                      index === stepIndex ? "bg-white/15 text-white" : "bg-[#eeece5] text-[#747169]"
                     }`}
                   >
                     {index + 1}
                   </span>
-                  {item.title}
+                  <span className="mt-2 hidden truncate text-[10px] font-semibold sm:block">{item.title}</span>
                 </button>
               ))}
             </div>
           </aside>
 
-          <div className="min-h-0 p-5 sm:p-6 lg:overflow-y-auto lg:p-8">
+          <div key={step.title} className="min-h-0 p-5 sm:p-7" aria-live="polite">
             <div className="flex items-center justify-between gap-4">
-              <span className="flex size-14 items-center justify-center rounded-2xl bg-cyan-50 text-cyan-700 ring-1 ring-cyan-100">
-                <Icon size={24} />
-              </span>
-              <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-600">
-                {stepIndex + 1} of {steps.length}
-              </span>
+              <div className="flex items-center gap-3"><span className="grid size-12 place-items-center rounded-2xl bg-[#e4f2e9] text-[#277156] ring-1 ring-[#cee5d7]"><Icon size={21} /></span><div><p className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#77756e]">Step {stepIndex + 1} of {steps.length}</p><p className="mt-1 text-xs font-semibold text-[#277156]">About 30 seconds</p></div></div>
+              <div className="flex gap-1.5">{steps.map((item, index) => <span key={item.title} className={`h-1.5 rounded-full transition-all ${index === stepIndex ? "w-8 bg-[#5d54b8]" : index < stepIndex ? "w-3 bg-[#8dc4aa]" : "w-3 bg-[#d8d5cd]"}`} />)}</div>
             </div>
 
-            <h3 className="mt-6 text-2xl font-semibold tracking-normal text-slate-950">
+            <h3 className="mt-5 text-2xl font-semibold tracking-tight text-[#20231f]">
               {step.title}
             </h3>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600">
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-[#636760] sm:text-base sm:leading-7">
               {step.text}
             </p>
 
-            <div className="mt-6 rounded-2xl border border-cyan-100 bg-[#f7fbff] p-5">
+            <div className="mt-5 rounded-2xl border border-[#d7e7dc] bg-[#edf6f0] p-4 sm:p-5">
               <div className="flex items-start gap-3">
-                <CheckCircle2 className="mt-0.5 shrink-0 text-cyan-700" size={20} />
+                <CheckCircle2 className="mt-0.5 shrink-0 text-[#277156]" size={19} />
                 <div>
-                  <p className="font-semibold text-slate-950">Recommended first flow</p>
-                  <p className="mt-2 text-sm leading-6 text-slate-600">
+                  <p className="text-sm font-semibold text-[#22332d]">Recommended first flow</p>
+                  <p className="mt-2 text-xs leading-5 text-[#617269] sm:text-sm sm:leading-6">
                     Add customers, create services, invite employees, create an
                     invoice, then record a payment. After that, your dashboard
                     metrics and activity feed start feeling genuinely useful.
@@ -217,13 +212,13 @@ export function FirstPlanTutorial() {
               </div>
             </div>
 
-            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="mt-5 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
               <button
                 type="button"
                 onClick={finishTutorial}
-                className="text-sm font-semibold text-slate-500 hover:text-slate-800"
+                className="text-xs font-semibold text-[#77756e] hover:text-[#20231f]"
               >
-                Don&apos;t show again
+                Skip and don&apos;t show again
               </button>
 
               <div className="flex gap-3">
@@ -231,7 +226,7 @@ export function FirstPlanTutorial() {
                   <button
                     type="button"
                     onClick={() => setStepIndex((current) => current - 1)}
-                    className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                    className="rounded-xl border border-[#d8d5cd] bg-white px-4 py-2.5 text-sm font-semibold text-[#555750] hover:bg-[#f2f0ea]"
                   >
                     Back
                   </button>
@@ -240,7 +235,7 @@ export function FirstPlanTutorial() {
                   <Link
                     href="/dashboard/customers"
                     onClick={finishTutorial}
-                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#c7432f] px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-200/70 hover:bg-[#ad3524]"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#5d54b8] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-violet-200 hover:bg-[#4e46a2]"
                   >
                     Add first customer
                     <ArrowRight size={16} />
@@ -249,7 +244,7 @@ export function FirstPlanTutorial() {
                   <button
                     type="button"
                     onClick={() => setStepIndex((current) => current + 1)}
-                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#c7432f] px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-200/70 hover:bg-[#ad3524]"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#5d54b8] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-violet-200 hover:bg-[#4e46a2]"
                   >
                     Next
                     <ArrowRight size={16} />

@@ -15,6 +15,7 @@ export default function RecurringInvoicesPage() {
         moneyKey="amount"
         statusKey="status"
         dateKey="next_invoice_date"
+        variant="subscription"
         fields={[
           { name: "title", label: "Title", required: true },
           { name: "customer_name", label: "Customer name" },

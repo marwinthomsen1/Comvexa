@@ -15,7 +15,7 @@ export default function SupplierBillsPage() {
         moneyKey="total_amount"
         statusKey="payment_status"
         dateKey="due_date"
-        variant="ledger"
+        variant="payables"
         fields={[
           { name: "supplier_name", label: "Supplier name", required: true },
           { name: "bill_number", label: "Bill number" },

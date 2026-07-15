@@ -13,6 +13,7 @@ export default function WhatsAppTemplatesPage() {
         titleKey="name"
         metaKeys={["category", "message"]}
         statusKey="status"
+        variant="messages"
         fields={[
           { name: "name", label: "Template name", required: true },
           { name: "category", label: "Category", type: "select", options: ["Reminder", "Booking", "Payment", "General"] },

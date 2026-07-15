@@ -8,6 +8,7 @@ export default function BranchAnalyticsPage() {
       description="Track branch performance snapshots for revenue, expenses, bookings, customers, inventory pressure, and staffing load."
       storageKey="comvexa-ultra-branch-analytics"
       actionLabel="Add branch snapshot"
+      variant="analytics"
       fields={[
         { name: "branch", label: "Branch", required: true },
         { name: "period", label: "Period", required: true },

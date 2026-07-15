@@ -434,9 +434,33 @@ export function DashboardOverview() {
     { label: "Upload PDF", href: "/dashboard/documents", icon: FileText },
   ];
 
+  const todayLabel = new Intl.DateTimeFormat(undefined, { weekday: "long", month: "long", day: "numeric" }).format(new Date());
+
   return (
     <main className="comvexa-dashboard-main mx-auto w-full max-w-[1500px] flex-1 p-3 sm:p-6" aria-busy={isLoading}>
-      <section className="dashboard-overview-hero overflow-hidden rounded-[1.35rem] border comvexa-theme-surface shadow-sm sm:rounded-[var(--comvexa-radius,2rem)]">
+      <section className="dashboard-custom-hero home-daily-header rounded-[1.5rem] border border-[#d7ddd5] bg-white px-4 py-4 shadow-sm sm:px-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex items-center gap-4"><span className="hidden size-12 place-items-center rounded-2xl bg-[#173c35] text-[#b8f0ce] sm:grid"><LayoutGrid size={21} /></span><div><div className="flex flex-wrap items-center gap-2"><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#53736a]">{viewSettings.dashboardStyle} workspace</p><span className="size-1 rounded-full bg-[#9ab0a9]" /><p className="text-[10px] font-semibold text-[#84958f]">{todayLabel}</p></div><h2 className="mt-1 text-2xl font-semibold tracking-tight text-[#17251f] sm:text-3xl">Good day, {viewSettings.companyDisplayName}</h2></div></div>
+          <div className="flex items-center gap-2"><button type="button" onClick={openFirstPlanTutorial} className="inline-flex h-10 items-center gap-2 rounded-xl border border-[#d7ddd5] bg-white px-3 text-xs font-semibold text-[#38534b] hover:bg-[#f5f8f6]"><Sparkles size={15} />Guide</button><button type="button" onClick={() => loadDashboard(true)} className="inline-flex h-10 items-center gap-2 rounded-xl bg-[#173c35] px-4 text-xs font-semibold text-white hover:bg-[#224f46]"><RefreshCw className={isRefreshing ? "animate-spin" : ""} size={15} />Refresh</button></div>
+        </div>
+      </section>
+
+      <section className="home-command-layout mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_350px]">
+        <div className="min-w-0 space-y-4">
+          <div className="home-pulse-ledger overflow-hidden rounded-[1.7rem] border border-[#d7ddd5] bg-white shadow-sm">
+            <div className="flex items-center justify-between border-b border-[#e5e9e6] px-5 py-4"><div><p className="text-[10px] font-bold uppercase tracking-[0.17em] text-[#53736a]">Live business pulse</p><p className="mt-1 text-sm text-[#71817b]">The four numbers that matter right now</p></div><span className="inline-flex items-center gap-1.5 rounded-full bg-[#e8f5ee] px-2.5 py-1 text-[10px] font-bold text-[#287054]"><span className="size-1.5 rounded-full bg-[#38a576]" />Live</span></div>
+            <div className="grid grid-cols-2 lg:grid-cols-4">{mainStats.map((stat, index) => <Link key={stat.label} href={stat.href} className={`group p-4 transition hover:bg-[#f6f9f7] sm:p-5 ${index % 2 === 0 ? "border-r border-[#e5e9e6]" : ""} ${index < 2 ? "border-b border-[#e5e9e6] lg:border-b-0" : ""} ${index === 1 || index === 2 ? "lg:border-r" : ""}`}><div className="flex items-start justify-between gap-3"><span className="grid size-9 place-items-center rounded-xl bg-[#eef4f1] text-[#356357]"><DashboardStatGlyph label={stat.label} /></span><ArrowRight size={14} className="text-[#b1bdb8] transition group-hover:translate-x-0.5 group-hover:text-[#356357]" /></div><p className="mt-4 text-[10px] font-bold uppercase tracking-wide text-[#7d8d87]">{stat.label}</p><p className="mt-1 text-2xl font-semibold text-[#17251f]" data-no-translate>{isLoading ? "—" : stat.value}</p><p className="mt-1 hidden text-[11px] text-[#84928d] sm:block">{stat.note}</p></Link>)}</div>
+          </div>
+
+          <div className="home-focus-board overflow-hidden rounded-[1.7rem] bg-[#173c35] text-white shadow-lg"><div className="grid md:grid-cols-[260px_minmax(0,1fr)]"><div className="border-b border-white/10 p-5 md:border-b-0 md:border-r"><p className="text-[10px] font-bold uppercase tracking-[0.17em] text-[#9fd7bd]">Recommended next move</p><h3 className="mt-3 text-xl font-semibold text-white">{nextStep.label}</h3><p className="mt-2 text-xs leading-5 text-[#aec5bd]">Based on setup progress, unpaid work, and current activity.</p><Link href={nextStep.href} className="mt-5 inline-flex h-10 items-center gap-2 rounded-xl bg-[#b8f0ce] px-4 text-xs font-semibold text-[#173c35] hover:bg-[#d0f7df]">Continue <ArrowRight size={14} /></Link></div><div className="p-5"><div className="flex items-center justify-between gap-3"><div><p className="text-[10px] font-bold uppercase tracking-[0.17em] text-[#9fd7bd]">Today&apos;s focus</p><p className="mt-1 text-sm text-[#d8e5e0]">{todayItems.length ? `${todayItems.length} item${todayItems.length === 1 ? "" : "s"} need attention` : "Nothing urgent right now"}</p></div><Target size={20} className="text-[#b8f0ce]" /></div><div className="mt-4 grid gap-2 sm:grid-cols-2">{todayItems.length ? todayItems.slice(0, 4).map((item) => <Link key={item.id} href={item.href} className="flex min-w-0 items-center gap-3 rounded-xl bg-white/6 p-3 ring-1 ring-white/10 hover:bg-white/10"><span className="size-2 shrink-0 rounded-full bg-[#b8f0ce]" /><div className="min-w-0"><p className="truncate text-xs font-semibold text-white">{item.title}</p><p className="mt-1 truncate text-[10px] text-[#9fb7af]">{item.meta}</p></div></Link>) : <div className="rounded-xl bg-white/6 p-4 text-xs text-[#aec5bd] ring-1 ring-white/10 sm:col-span-2">Your attention queue is clear. Use quick launch to add new work.</div>}</div></div></div></div>
+        </div>
+
+        <aside className="home-launch-rail self-start overflow-hidden rounded-[1.7rem] border border-[#d7ddd5] bg-[#f1f5f2] shadow-sm xl:sticky xl:top-24"><div className="border-b border-[#d7ddd5] p-5"><div className="flex items-center justify-between"><div><p className="text-[10px] font-bold uppercase tracking-[0.17em] text-[#53736a]">Quick launch</p><p className="mt-1 text-sm font-semibold text-[#17251f]">Start something new</p></div><Plus size={18} className="text-[#53736a]" /></div><div className="mt-4 grid grid-cols-2 gap-2">{quickActions.map((action) => <Link key={action.label} href={action.href} className="group rounded-xl bg-white p-3 ring-1 ring-[#d7ddd5] hover:ring-[#6c998b]"><span className="grid size-8 place-items-center rounded-lg bg-[#e5f1eb] text-[#356357]"><HomeActionGlyph label={action.label} /></span><p className="mt-3 text-[11px] font-semibold leading-4 text-[#29463e]">{action.label}</p></Link>)}</div></div>
+          {viewSettings.showSetup ? <div className="p-5"><div className="flex items-center justify-between gap-3"><div><p className="text-[10px] font-bold uppercase tracking-[0.17em] text-[#53736a]">Workspace foundations</p><p className="mt-1 text-xs text-[#73837d]">{completedSetup} of {setupItems.length} complete</p></div><span className="text-2xl font-semibold text-[#173c35]">{setupPercent}%</span></div><div className="mt-4 h-1.5 overflow-hidden rounded-full bg-[#dce4df]"><div className="h-full rounded-full" style={{ width: `${setupPercent}%`, backgroundColor: viewSettings.accent }} /></div><div className="mt-4 space-y-1.5">{setupItems.map((item) => <Link key={item.label} href={item.href} className="flex items-center justify-between rounded-xl px-2 py-2 text-xs hover:bg-white"><span className="flex items-center gap-2 text-[#52665f]"><CheckCircle2 size={14} className={item.complete ? "text-emerald-600" : "text-[#aab6b1]"} />{item.label}</span>{!item.complete ? <ArrowRight size={13} className="text-[#9eaaa5]" /> : null}</Link>)}</div></div> : null}
+        </aside>
+      </section>
+
+      <section className="dashboard-overview-hero hidden overflow-hidden rounded-[1.35rem] border comvexa-theme-surface shadow-sm sm:rounded-[var(--comvexa-radius,2rem)]">
         <div className="grid gap-0 xl:grid-cols-[1fr_420px]">
           <div className="comvexa-theme-soft p-4 text-slate-950 sm:p-8">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -792,6 +816,20 @@ function InsightLink({
       <ArrowRight size={16} className="text-slate-300 transition group-hover:text-blue-600" />
     </Link>
   );
+}
+
+function DashboardStatGlyph({ label }: { label: string }) {
+  if (label === "Customers") return <Users size={16} />;
+  if (label === "Revenue") return <WalletCards size={16} />;
+  if (label === "Open work") return <CalendarDays size={16} />;
+  return <ReceiptText size={16} />;
+}
+
+function HomeActionGlyph({ label }: { label: string }) {
+  if (label === "New customer") return <Users size={15} />;
+  if (label === "New invoice") return <ReceiptText size={15} />;
+  if (label === "Record payment") return <CreditCard size={15} />;
+  return <FileText size={15} />;
 }
 
 function HealthRow({ label, value, good }: { label: string; value: string; good: boolean }) {

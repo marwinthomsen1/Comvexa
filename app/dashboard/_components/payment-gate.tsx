@@ -3,11 +3,12 @@
 import Link from "next/link";
 import { LockKeyhole } from "lucide-react";
 import { useEffect, useState } from "react";
-import { loadSubscriptionAccess } from "./subscription-access";
+import { getCachedSubscriptionAccess, invalidateSubscriptionAccess, loadSubscriptionAccess } from "./subscription-access";
 
 export function PaymentGate({ children }: { children: React.ReactNode }) {
-  const [accessActive, setAccessActive] = useState(false);
-  const [trialExpired, setTrialExpired] = useState(false);
+  const cachedAccess = getCachedSubscriptionAccess();
+  const [accessActive, setAccessActive] = useState(cachedAccess?.accessActive ?? false);
+  const [trialExpired, setTrialExpired] = useState(cachedAccess?.trialExpired ?? false);
 
   useEffect(() => {
     async function loadPaymentStatus() {
@@ -17,13 +18,17 @@ export function PaymentGate({ children }: { children: React.ReactNode }) {
     }
 
     const timeout = window.setTimeout(() => void loadPaymentStatus(), 0);
+    function refreshPaymentStatus() {
+      invalidateSubscriptionAccess();
+      void loadPaymentStatus();
+    }
     window.addEventListener("storage", loadPaymentStatus);
-    window.addEventListener("comvexa-plan-change", loadPaymentStatus);
+    window.addEventListener("comvexa-plan-change", refreshPaymentStatus);
 
     return () => {
       window.clearTimeout(timeout);
       window.removeEventListener("storage", loadPaymentStatus);
-      window.removeEventListener("comvexa-plan-change", loadPaymentStatus);
+      window.removeEventListener("comvexa-plan-change", refreshPaymentStatus);
     };
   }, []);
 

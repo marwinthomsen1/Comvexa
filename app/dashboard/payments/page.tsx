@@ -14,7 +14,7 @@ export default function PaymentsPage() {
         metaKeys={["notes"]}
         moneyKey="amount"
         dateKey="payment_date"
-        variant="ledger"
+        variant="cashflow"
         fields={[
           { name: "amount", label: "Amount", type: "number", required: true },
           { name: "payment_method", label: "Payment method", type: "select", options: ["Card", "Bank transfer", "Cash", "Online"] },

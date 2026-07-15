@@ -13,6 +13,7 @@ export default function PermissionsPage() {
         titleKey="user_email"
         metaKeys={["role", "module"]}
         statusKey="access_level"
+        variant="permissions"
         fields={[
           { name: "user_email", label: "User email", type: "email", required: true },
           { name: "role", label: "Role", type: "select", options: ["Staff", "Manager", "Admin"] },

@@ -8,16 +8,17 @@ export default function ServicesPage() {
         table="services"
         title="Services & Products"
         eyebrow="Catalog"
-        description="Manage what your company sells as product/service cards with pricing and duration."
-        actionLabel="Add item"
+        description="Build a clean price list for timed services, products, and flat-fee offers."
+        actionLabel="Create item"
         titleKey="name"
         metaKeys={["duration_minutes", "description"]}
         moneyKey="price"
         statusKey="status"
+        variant="catalog"
         fields={[
           { name: "name", label: "Name", required: true },
           { name: "price", label: "Price", type: "number" },
-          { name: "duration_minutes", label: "Duration minutes", type: "number" },
+          { name: "duration_minutes", label: "Duration minutes (0 for product)", type: "number" },
           { name: "status", label: "Status", type: "select", options: ["Active", "Inactive"] },
           { name: "description", label: "Description", type: "textarea" },
         ]}

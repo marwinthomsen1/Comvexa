@@ -8,6 +8,7 @@ export default function PurchaseOrdersPage() {
       description="Create and track supplier purchase orders, delivery dates, branch needs, and approval status."
       storageKey="comvexa-ultra-purchase-orders"
       actionLabel="Add purchase order"
+      variant="procurement"
       fields={[
         { name: "supplier", label: "Supplier", required: true },
         { name: "item", label: "Item or order title", required: true },

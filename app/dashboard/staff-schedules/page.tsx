@@ -8,11 +8,12 @@ export default function StaffSchedulesPage() {
         table="staff_schedules"
         title="Staff Schedules"
         eyebrow="Shift planner"
-        description="Plan staff coverage as schedule cards by date, location, and shift time."
-        actionLabel="Add schedule"
+        description="Plan weekly coverage, compare shifts by day, and spot staffing gaps quickly."
+        actionLabel="New shift"
         titleKey="employee_name"
         metaKeys={["start_time", "end_time", "location"]}
         dateKey="work_date"
+        variant="schedule"
         fields={[
           { name: "employee_name", label: "Employee name", required: true },
           { name: "work_date", label: "Work date", type: "date", required: true },

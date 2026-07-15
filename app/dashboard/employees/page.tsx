@@ -14,6 +14,7 @@ export default function EmployeesPage() {
         metaKeys={["employee_code", "department", "position", "email", "phone"]}
         moneyKey="salary"
         statusKey="status"
+        variant="team"
         fields={[
           { name: "name", label: "Name", required: true },
           { name: "employee_code", label: "Employee ID" },

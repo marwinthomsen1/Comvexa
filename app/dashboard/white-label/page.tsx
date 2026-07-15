@@ -8,6 +8,7 @@ export default function WhiteLabelPage() {
       description="Manage branded invoice, portal, PDF, color, and customer-facing presentation tasks."
       storageKey="comvexa-ultra-white-label"
       actionLabel="Add branding task"
+      variant="white-label"
       fields={[
         { name: "asset", label: "Brand asset", required: true },
         { name: "type", label: "Type", type: "select", options: ["invoice", "portal", "pdf", "email", "signature"] },

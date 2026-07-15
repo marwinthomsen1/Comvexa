@@ -8,10 +8,11 @@ export default function CustomersPage() {
         table="customers"
         title="Customers"
         eyebrow="Customer directory"
-        description="Manage customer profiles as contact cards with quick search and customer details."
+        description="Find customer contact details quickly, keep profiles organized, and export the directory when needed."
         actionLabel="Add customer"
         titleKey="name"
         metaKeys={["email", "phone", "address"]}
+        variant="directory"
         fields={[
           { name: "name", label: "Name", required: true },
           { name: "email", label: "Email", type: "email" },

@@ -50,6 +50,204 @@
   }
 }
 
+/* Customer portal: client-experience studio with live portal preview. */
+.comvexa-dashboard-v2 .comvexa-dashboard-area .portal-studio-header {
+  background:
+    radial-gradient(circle at 84% 0%, rgba(240, 138, 111, 0.18), transparent 17rem),
+    linear-gradient(120deg, #fff5ee 0%, #ffffff 62%, #fff0e8 100%) !important;
+  border-color: #efc9bc !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .portal-readiness-card {
+  background: #2d2238 !important;
+  color: #ffffff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .portal-control-panel,
+.comvexa-dashboard-v2 .comvexa-dashboard-area article.portal-content-row,
+.comvexa-dashboard-v2 .comvexa-dashboard-area .portal-item-form {
+  background: #ffffff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .portal-client-preview {
+  border-color: #2d2238 !important;
+  background: #ffffff !important;
+}
+
+.comvexa-dashboard-v2 .portal-form-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+}
+
+.comvexa-dashboard-v2 .portal-item-form input:focus,
+.comvexa-dashboard-v2 .portal-item-form textarea:focus,
+.comvexa-dashboard-v2 .portal-item-form select:focus {
+  border-color: #d36d53 !important;
+  box-shadow: 0 0 0 4px #ffedd5 !important;
+}
+
+/* Branch analytics: executive scorecard, comparison chart, and rankings. */
+.comvexa-dashboard-v2 .comvexa-dashboard-area .analytics-command-header {
+  background:
+    radial-gradient(circle at 88% 4%, rgba(79, 99, 233, 0.15), transparent 17rem),
+    linear-gradient(120deg, #edf0ff 0%, #ffffff 62%, #f2efff 100%) !important;
+  border-color: #b9c5ff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .analytics-comparison,
+.comvexa-dashboard-v2 .comvexa-dashboard-area .analytics-snapshot-explorer,
+.comvexa-dashboard-v2 .comvexa-dashboard-area article.analytics-snapshot-card,
+.comvexa-dashboard-v2 .comvexa-dashboard-area .analytics-snapshot-form {
+  background: #ffffff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .analytics-leaderboard {
+  background: #171b38 !important;
+  color: #ffffff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .analytics-leaderboard h3 {
+  color: #ffffff !important;
+}
+
+.comvexa-dashboard-v2 .analytics-form-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+}
+
+.comvexa-dashboard-v2 .analytics-snapshot-form input:focus,
+.comvexa-dashboard-v2 .analytics-snapshot-form textarea:focus,
+.comvexa-dashboard-v2 .analytics-snapshot-form select:focus {
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 4px #e0e7ff !important;
+}
+
+/* WhatsApp templates: message wall, library rail, and variable health. */
+.comvexa-dashboard-v2 .comvexa-dashboard-area .message-studio-hero {
+  background:
+    radial-gradient(circle at 90% 8%, rgba(37, 211, 102, 0.17), transparent 15rem),
+    linear-gradient(115deg, #ecfdf5 0%, #ffffff 62%, #f0fdfa 100%) !important;
+  border-color: #a7d9c2 !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .message-filter-console {
+  background: #f5faf7 !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .message-category-rail {
+  background: #111b21 !important;
+  color: #ffffff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .message-chat-canvas {
+  background:
+    radial-gradient(rgba(17, 27, 33, 0.08) 0.7px, transparent 0.8px),
+    #efeae2 !important;
+  background-size: 14px 14px !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area article.message-template-bubble {
+  box-shadow: 0 1px 2px rgba(17, 27, 33, 0.12) !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .message-quality-panel {
+  background: #f3fbf7 !important;
+}
+
+/* Permissions: user-by-module access matrix and security scan. */
+.comvexa-dashboard-v2 .comvexa-dashboard-area .permission-matrix-hero {
+  background:
+    radial-gradient(circle at 89% 7%, rgba(59, 130, 246, 0.16), transparent 15rem),
+    linear-gradient(115deg, #eff6ff 0%, #ffffff 62%, #f8fafc 100%) !important;
+  border-color: #b8ccea !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .permission-filter-console {
+  background: #f8fafc !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .permission-matrix-shell {
+  background: #ffffff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .permission-risk-panel {
+  background: #101828 !important;
+  color: #ffffff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .permission-risk-panel h3 {
+  color: #ffffff !important;
+}
+
+/* AI assistant: operations-intelligence cockpit and decision briefs. */
+.comvexa-dashboard-v2 .comvexa-dashboard-area .ai-cockpit-header {
+  background:
+    radial-gradient(circle at 82% 10%, rgba(139, 114, 246, 0.24), transparent 18rem),
+    linear-gradient(135deg, #17152b 0%, #211c3e 58%, #151326 100%) !important;
+  border-color: #35305d !important;
+  color: #ffffff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .ai-cockpit-header h2,
+.comvexa-dashboard-v2 .comvexa-dashboard-area .ai-cockpit-status p,
+.comvexa-dashboard-v2 .comvexa-dashboard-area .ai-signal-index h3 {
+  color: #ffffff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .ai-command-console,
+.comvexa-dashboard-v2 .comvexa-dashboard-area .ai-briefing-stack,
+.comvexa-dashboard-v2 .comvexa-dashboard-area article.ai-decision-brief {
+  background: #ffffff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .ai-signal-index {
+  background: #17152b !important;
+  color: #ffffff !important;
+}
+
+/* Automations: event-to-action workflow engine and trigger radar. */
+.comvexa-dashboard-v2 .comvexa-dashboard-area .automation-engine-header {
+  background:
+    linear-gradient(rgba(255, 199, 91, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 199, 91, 0.045) 1px, transparent 1px),
+    #29251f !important;
+  background-size: 24px 24px !important;
+  border-color: #51452f !important;
+  color: #ffffff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .automation-engine-header h2,
+.comvexa-dashboard-v2 .comvexa-dashboard-area .automation-trigger-panel h3 {
+  color: #ffffff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .automation-toolbar,
+.comvexa-dashboard-v2 .comvexa-dashboard-area article.automation-pipeline,
+.comvexa-dashboard-v2 .comvexa-dashboard-area .automation-builder-form {
+  background: #ffffff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .automation-flow-canvas {
+  background: #f7f5f1 !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .automation-trigger-panel {
+  background: #29251f !important;
+  color: #ffffff !important;
+}
+
+.comvexa-dashboard-v2 .automation-form-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+}
+
+.comvexa-dashboard-v2 .automation-builder-form input:focus,
+.comvexa-dashboard-v2 .automation-builder-form textarea:focus,
+.comvexa-dashboard-v2 .automation-builder-form select:focus {
+  border-color: #f59e0b !important;
+  box-shadow: 0 0 0 4px #fef3c7 !important;
+}
+
 .comvexa-dashboard-sidebar nav {
   scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
   scrollbar-width: thin;
@@ -98,7 +296,7 @@
   box-shadow: var(--comvexa-card-shadow);
 }
 
-.comvexa-dashboard-v2 .comvexa-dashboard-area main > section:first-child:not(.dashboard-gate) {
+.comvexa-dashboard-v2 .comvexa-dashboard-area main > section:first-child:not(.dashboard-gate):not(.dashboard-custom-hero) {
   border-color: color-mix(in srgb, var(--comvexa-accent, #0c8b84) 22%, var(--comvexa-border, #d8e2dc)) !important;
   background:
     radial-gradient(circle at 90% 0%, color-mix(in srgb, var(--comvexa-warning-soft, #fff0ba) 82%, transparent), transparent 15rem),
@@ -218,6 +416,155 @@
   background: color-mix(in srgb, var(--comvexa-accent-soft, #dffff8) 65%, transparent) !important;
 }
 
+.comvexa-dashboard-v2 .comvexa-dashboard-area table.customer-directory-table thead {
+  background: #f8fafc !important;
+  color: #64748b !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area table.customer-directory-table tbody > tr {
+  background: #ffffff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area table.customer-directory-table tbody > tr:hover,
+.comvexa-dashboard-v2 .comvexa-dashboard-area table.customer-directory-table tbody > tr:focus-visible {
+  background: #f8fafc !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .customer-directory-mobile-card,
+.comvexa-dashboard-v2 .comvexa-dashboard-area .customer-details-panel {
+  background: #ffffff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .dashboard-module-records article.team-roster-card {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .dashboard-module-records article.team-roster-card:hover {
+  border-color: #cbd5e1 !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .team-roster-card > div:first-child {
+  background: #0f172a !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .team-roster-card > div:first-child h3 {
+  color: #ffffff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .schedule-day-column {
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .dashboard-module-records article.schedule-shift-card {
+  background: #ffffff !important;
+  border-top-color: #e2e8f0 !important;
+  border-right-color: #e2e8f0 !important;
+  border-bottom-color: #e2e8f0 !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .dashboard-module-records article.schedule-shift-card.border-l-violet-400 {
+  border-left-color: #a78bfa !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .dashboard-module-records article.schedule-shift-card.border-l-amber-400 {
+  border-left-color: #fbbf24 !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .dashboard-module-records article.schedule-shift-card.border-l-sky-400 {
+  border-left-color: #38bdf8 !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .dashboard-module-records article.schedule-shift-card.border-l-rose-400 {
+  border-left-color: #fb7185 !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .catalog-shelf,
+.comvexa-dashboard-v2 .comvexa-dashboard-area .dashboard-module-records article.catalog-item-row {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .catalog-shelf > header {
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .dashboard-module-records article.catalog-item-row:hover {
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: none !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .tasks-command-header {
+  background: #211c3d !important;
+  border-color: #332d59 !important;
+  color: #ffffff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .tasks-command-header h2 {
+  color: #ffffff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .tasks-focus-panel,
+.comvexa-dashboard-v2 .comvexa-dashboard-area article.task-queue-row,
+.comvexa-dashboard-v2 .comvexa-dashboard-area .task-composer {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .tasks-insights-panel {
+  background: #fff7f2 !important;
+  border-color: #ffd7c8 !important;
+}
+
+.task-composer-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .attendance-clock-header {
+  background: #083b43 !important;
+  border-color: #174d55 !important;
+  color: #ffffff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .attendance-clock-header h2 {
+  color: #ffffff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .attendance-sheet,
+.comvexa-dashboard-v2 .comvexa-dashboard-area article.attendance-row,
+.comvexa-dashboard-v2 .comvexa-dashboard-area .attendance-form {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .attendance-insights {
+  background: #f3faf8 !important;
+  border-color: #dbe9e7 !important;
+}
+
+.attendance-form-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+}
+
+.customer-details-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+}
+
+html[dir="rtl"] .customer-details-overlay {
+  justify-content: flex-start;
+}
+
+html[dir="rtl"] .customer-details-panel {
+  border-left: 0;
+  border-right: 1px solid #e2e8f0;
+}
+
 .comvexa-dashboard-v2 .comvexa-dashboard-area [class~="divide-slate-100"] > :not([hidden]) ~ :not([hidden]) {
   border-color: var(--comvexa-border, #d8e2dc) !important;
 }
@@ -307,10 +654,14 @@
 }
 
 @media (min-width: 1280px) {
-  .comvexa-dashboard-v2 .dashboard-module-form {
+  .comvexa-dashboard-v2 .dashboard-module-form:not(.dashboard-module-form-compact) {
     position: sticky;
     top: 6rem;
     align-self: start;
+  }
+
+  .comvexa-dashboard-v2 .dashboard-module-form-compact {
+    position: static;
   }
 }
 
@@ -498,5 +849,568 @@ html[data-comvexa-theme="Old School"] .comvexa-dashboard-v2 {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* Invoices: warm receivables ledger, intentionally distinct from module cards and boards. */
+.comvexa-dashboard-v2 .comvexa-dashboard-area .invoice-ledger-hero {
+  background: #fff8e8 !important;
+  border-color: #ead9b8 !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .invoice-ledger-panel,
+.comvexa-dashboard-v2 .comvexa-dashboard-area article.invoice-ledger-row,
+.comvexa-dashboard-v2 .comvexa-dashboard-area .invoice-composer {
+  background: #ffffff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .invoice-aging-panel {
+  background: #17202c !important;
+  border-color: #273444 !important;
+  color: #ffffff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .invoice-aging-panel h3 {
+  color: #ffffff !important;
+}
+
+.comvexa-dashboard-v2 .invoice-composer-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+}
+
+/* Recurring invoices: violet renewal timeline and cadence summary. */
+.comvexa-dashboard-v2 .comvexa-dashboard-area .subscription-renewal-hero {
+  background:
+    radial-gradient(circle at 92% 18%, rgba(167, 139, 250, 0.22), transparent 13rem),
+    linear-gradient(120deg, #f8f7ff 0%, #ffffff 58%, #f4f0ff 100%) !important;
+  border-color: #d8cff7 !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .subscription-filter-strip {
+  background: #fafafa !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .subscription-timeline,
+.comvexa-dashboard-v2 .comvexa-dashboard-area article.subscription-renewal-row {
+  background: #ffffff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .subscription-date-tile {
+  background: #f3efff !important;
+  color: #6d28d9 !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .subscription-rhythm-panel {
+  background: #1f2937 !important;
+  color: #ffffff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .subscription-rhythm-panel h3 {
+  color: #ffffff !important;
+}
+
+/* Payments: emerald cash-flow receipt, separate from finance ledgers and boards. */
+.comvexa-dashboard-v2 .comvexa-dashboard-area .cashflow-hero {
+  background:
+    radial-gradient(circle at 90% 8%, rgba(16, 185, 129, 0.18), transparent 14rem),
+    linear-gradient(115deg, #ecfdf5 0%, #ffffff 62%, #f0fdf4 100%) !important;
+  border-color: #a7d8c5 !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .cashflow-filter-strip {
+  background: #f7faf9 !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .cashflow-receipt,
+.comvexa-dashboard-v2 .comvexa-dashboard-area article.cashflow-entry {
+  background: #ffffff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .cashflow-method-panel {
+  background: #064e3b !important;
+  border-color: #065f46 !important;
+  color: #ffffff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .cashflow-method-panel h3 {
+  color: #ffffff !important;
+}
+
+/* Expenses: category envelopes and a warm spend map. */
+.comvexa-dashboard-v2 .comvexa-dashboard-area .expense-control-hero {
+  background:
+    radial-gradient(circle at 91% 6%, rgba(251, 113, 133, 0.2), transparent 14rem),
+    linear-gradient(115deg, #fff7f4 0%, #ffffff 60%, #fff1f2 100%) !important;
+  border-color: #efc7c0 !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .expense-filter-strip {
+  background: #fdf9f7 !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .expense-spend-map {
+  background: #2b1d1d !important;
+  color: #ffffff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .expense-spend-map h3 {
+  color: #ffffff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .expense-envelope,
+.comvexa-dashboard-v2 .comvexa-dashboard-area article.expense-envelope-row {
+  background: #ffffff !important;
+}
+
+/* Supplier bills: navy payables desk with urgency radar. */
+.comvexa-dashboard-v2 .comvexa-dashboard-area .payables-desk-hero {
+  background:
+    radial-gradient(circle at 91% 8%, rgba(251, 191, 36, 0.2), transparent 14rem),
+    linear-gradient(115deg, #eff6ff 0%, #ffffff 60%, #fffbeb 100%) !important;
+  border-color: #b9c9e8 !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .payables-filter-strip {
+  background: #f8fafc !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .payables-pressure-grid,
+.comvexa-dashboard-v2 .comvexa-dashboard-area .payables-inbox,
+.comvexa-dashboard-v2 .comvexa-dashboard-area article.payables-inbox-row {
+  background: #ffffff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .payables-radar {
+  background: #172554 !important;
+  color: #ffffff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .payables-radar h3 {
+  color: #ffffff !important;
+}
+
+/* Purchase orders: procurement blueprint and delivery manifest. */
+.comvexa-dashboard-v2 .comvexa-dashboard-area .procurement-blueprint-header {
+  background:
+    linear-gradient(rgba(131, 200, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(131, 200, 255, 0.06) 1px, transparent 1px),
+    #102a5e !important;
+  background-size: 28px 28px !important;
+  border-color: #274685 !important;
+  color: #ffffff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .procurement-blueprint-header h2 {
+  color: #ffffff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .procurement-stage-rail,
+.comvexa-dashboard-v2 .comvexa-dashboard-area .procurement-manifest,
+.comvexa-dashboard-v2 .comvexa-dashboard-area article.procurement-order-row,
+.comvexa-dashboard-v2 .comvexa-dashboard-area .procurement-form {
+  background: #ffffff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .procurement-suppliers {
+  background: #f3f6fb !important;
+}
+
+.comvexa-dashboard-v2 .procurement-form-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+}
+
+/* Documents: secure archive shelves and expiry watch. */
+.comvexa-dashboard-v2 .comvexa-dashboard-area .document-vault-header {
+  background:
+    radial-gradient(circle at 90% 8%, rgba(200, 184, 255, 0.14), transparent 16rem),
+    #211d34 !important;
+  border-color: #342f4d !important;
+  color: #ffffff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .document-vault-header h2 {
+  color: #ffffff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .document-archive,
+.comvexa-dashboard-v2 .comvexa-dashboard-area article.document-vault-row,
+.comvexa-dashboard-v2 .comvexa-dashboard-area .document-upload-form {
+  background: #ffffff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .document-expiry-watch {
+  background: #f7f5ff !important;
+}
+
+.comvexa-dashboard-v2 .document-upload-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+}
+
+.comvexa-dashboard-v2 .document-input {
+  margin-top: 0.5rem;
+  height: 2.75rem;
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.75rem;
+  padding-inline: 0.75rem;
+  font-size: 0.875rem;
+  outline: none;
+}
+
+.comvexa-dashboard-v2 .document-input:focus {
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 4px #ede9fe;
+}
+
+.comvexa-dashboard-v2 .document-drop-zone {
+  display: flex;
+  min-height: 13rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed #c4b5fd;
+  border-radius: 1.5rem;
+  background: #faf8ff;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+/* Inventory: industrial warehouse rack and reorder queue. */
+.comvexa-dashboard-v2 .comvexa-dashboard-area .inventory-warehouse-header {
+  background:
+    repeating-linear-gradient(135deg, transparent 0 18px, rgba(255, 255, 255, 0.025) 18px 20px),
+    #202830 !important;
+  border-color: #39434d !important;
+  color: #ffffff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .inventory-warehouse-header h2 {
+  color: #ffffff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .inventory-rack,
+.comvexa-dashboard-v2 .comvexa-dashboard-area article.inventory-bay-row,
+.comvexa-dashboard-v2 .comvexa-dashboard-area .inventory-stock-form {
+  background: #ffffff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .inventory-reorder-panel {
+  background: #fff9e8 !important;
+}
+
+.comvexa-dashboard-v2 .inventory-form-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+}
+
+.comvexa-dashboard-v2 .inventory-input {
+  margin-top: 0.5rem;
+  height: 2.75rem;
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.75rem;
+  padding-inline: 0.75rem;
+  font-size: 0.875rem;
+  outline: none;
+}
+
+.comvexa-dashboard-v2 .inventory-input:focus {
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 4px #fef3c7;
+}
+
+/* Branches: hub-and-spoke location network and switchboard. */
+.comvexa-dashboard-v2 .comvexa-dashboard-area .branch-network-hero {
+  background:
+    radial-gradient(circle at 90% 10%, rgba(34, 211, 238, 0.17), transparent 15rem),
+    linear-gradient(115deg, #ecfeff 0%, #ffffff 62%, #f0fdfa 100%) !important;
+  border-color: #a5d8df !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .branch-network-map {
+  background:
+    radial-gradient(circle at 12% 50%, rgba(34, 211, 238, 0.14), transparent 15rem),
+    #082f49 !important;
+  color: #ffffff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .branch-network-map h3 {
+  color: #ffffff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .branch-switchboard,
+.comvexa-dashboard-v2 .comvexa-dashboard-area article.branch-switchboard-row {
+  background: #ffffff !important;
+}
+
+@media (min-width: 1024px) {
+  .comvexa-dashboard-v2 .branch-node-grid {
+    position: relative;
+    padding-inline-start: 2rem;
+  }
+
+  .comvexa-dashboard-v2 .branch-node-grid::before {
+    position: absolute;
+    inset-block: 0.75rem;
+    inset-inline-start: 0.75rem;
+    width: 1px;
+    content: "";
+    background: rgba(165, 243, 252, 0.28);
+  }
+
+  .comvexa-dashboard-v2 .branch-map-node {
+    position: relative;
+  }
+
+  .comvexa-dashboard-v2 .branch-map-node::before {
+    position: absolute;
+    inset-inline-start: -1.25rem;
+    width: 1.25rem;
+    height: 1px;
+    content: "";
+    background: rgba(165, 243, 252, 0.28);
+  }
+}
+/* Audit logs: forensic timeline and risk triage. */
+.comvexa-dashboard-v2 .comvexa-dashboard-area .audit-forensic-header {
+  background: radial-gradient(circle at 88% 8%, rgba(225, 95, 95, 0.18), transparent 16rem), #1c2025 !important;
+  border-color: #3c4148 !important;
+  color: #fff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .audit-forensic-header h2,
+.comvexa-dashboard-v2 .comvexa-dashboard-area .audit-triage-panel h3 { color: #fff !important; }
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .audit-filter-strip,
+.comvexa-dashboard-v2 .comvexa-dashboard-area .audit-timeline,
+.comvexa-dashboard-v2 .comvexa-dashboard-area article.audit-event-node,
+.comvexa-dashboard-v2 .comvexa-dashboard-area .audit-event-form { background: #fff !important; }
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .audit-triage-panel {
+  background: #1c2025 !important;
+  color: #fff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .audit-form-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .audit-event-stream::before {
+  position: absolute;
+  inset-block: 0.75rem;
+  inset-inline-start: 0.2rem;
+  width: 1px;
+  content: "";
+  background: #e2e8f0;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .audit-event-form input:focus,
+.comvexa-dashboard-v2 .comvexa-dashboard-area .audit-event-form textarea:focus,
+.comvexa-dashboard-v2 .comvexa-dashboard-area .audit-event-form select:focus {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 4px #fee2e2 !important;
+}
+
+@media (min-width: 640px) {
+  .comvexa-dashboard-v2 .comvexa-dashboard-area .audit-event-stream::before { inset-inline-start: 0.7rem; }
+}
+/* Approvals: decision inbox and review cards. */
+.comvexa-dashboard-v2 .comvexa-dashboard-area .approval-command-header {
+  background:
+    radial-gradient(circle at 92% 12%, rgba(143, 109, 222, 0.2), transparent 18rem),
+    linear-gradient(135deg, #fbf9ff 0%, #f2ecff 100%) !important;
+  border-color: #d9cef8 !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .approval-toolbar,
+.comvexa-dashboard-v2 .comvexa-dashboard-area article.approval-request-card,
+.comvexa-dashboard-v2 .comvexa-dashboard-area .approval-request-form {
+  background: #fff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .approval-summary-panel {
+  background: #21163f !important;
+  color: #fff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .approval-summary-panel h3 {
+  color: #fff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .approval-form-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .approval-request-form input:focus,
+.comvexa-dashboard-v2 .comvexa-dashboard-area .approval-request-form textarea:focus,
+.comvexa-dashboard-v2 .comvexa-dashboard-area .approval-request-form select:focus {
+  border-color: #8b6ed1 !important;
+  box-shadow: 0 0 0 4px #eee8ff !important;
+}
+
+@media (max-width: 639px) {
+  .comvexa-dashboard-v2 .comvexa-dashboard-area .approval-card-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+/* White label: editorial brand studio and customer preview. */
+.comvexa-dashboard-v2 .comvexa-dashboard-area .brand-studio-header {
+  background:
+    radial-gradient(circle at 91% 5%, rgba(223, 115, 82, 0.15), transparent 17rem),
+    #fff9f4 !important;
+  border-color: #ead9cf !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .brand-asset-toolbar,
+.comvexa-dashboard-v2 .comvexa-dashboard-area article.brand-asset-card,
+.comvexa-dashboard-v2 .comvexa-dashboard-area .brand-asset-form {
+  background: #fff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .brand-preview-stage {
+  background: #172a2b !important;
+  color: #fff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .brand-form-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .brand-asset-form input:focus,
+.comvexa-dashboard-v2 .comvexa-dashboard-area .brand-asset-form textarea:focus,
+.comvexa-dashboard-v2 .comvexa-dashboard-area .brand-asset-form select:focus {
+  border-color: #df7352 !important;
+  box-shadow: 0 0 0 4px #fae9e2 !important;
+}
+
+@media (max-width: 639px) {
+  .comvexa-dashboard-v2 .comvexa-dashboard-area .brand-assets-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+/* Data import: migration command center and staged pipeline. */
+.comvexa-dashboard-v2 .comvexa-dashboard-area .migration-command-header {
+  background:
+    linear-gradient(rgba(98, 214, 255, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(98, 214, 255, 0.055) 1px, transparent 1px),
+    radial-gradient(circle at 88% 8%, rgba(49, 185, 232, 0.22), transparent 18rem),
+    #0b2237 !important;
+  background-size: 28px 28px, 28px 28px, auto, auto !important;
+  border-color: #214666 !important;
+  color: #fff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .migration-command-header h2 { color: #fff !important; }
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .migration-toolbar,
+.comvexa-dashboard-v2 .comvexa-dashboard-area article.migration-job-card,
+.comvexa-dashboard-v2 .comvexa-dashboard-area .migration-job-form { background: #fff !important; }
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .migration-pipeline { background: #f8fbfd !important; }
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .migration-readiness-panel { background: #eaf8fc !important; }
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .migration-form-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .migration-job-form input:focus,
+.comvexa-dashboard-v2 .comvexa-dashboard-area .migration-job-form textarea:focus,
+.comvexa-dashboard-v2 .comvexa-dashboard-area .migration-job-form select:focus {
+  border-color: #31b9e8 !important;
+  box-shadow: 0 0 0 4px #dff5fc !important;
+}
+/* Reports: editorial executive briefing and financial ledger. */
+.comvexa-dashboard-v2 .comvexa-dashboard-area .report-editorial-brief,
+.comvexa-dashboard-v2 .comvexa-dashboard-area .report-operations-strip {
+  background: #f4efe6 !important;
+  border-color: #d8d0c4 !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .report-finance-ledger {
+  background: #fff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .report-action-brief {
+  background: #202a35 !important;
+  color: #fff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .report-action-brief h3 {
+  color: #fff !important;
+}
+
+@media (max-width: 639px) {
+  .comvexa-dashboard-v2 .comvexa-dashboard-area .report-editorial-brief h2 {
+    font-size: 2.25rem;
+  }
+}
+/* Subscription: plan configurator, tier ladder, and checkout rail. */
+.comvexa-dashboard-v2 .comvexa-dashboard-area .plan-config-header {
+  background:
+    radial-gradient(circle at 88% 0%, rgba(91, 85, 197, 0.13), transparent 18rem),
+    #f5f4ff !important;
+  border-color: #d8d7f0 !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .plan-ladder,
+.comvexa-dashboard-v2 .comvexa-dashboard-area .plan-toolkit,
+.comvexa-dashboard-v2 .comvexa-dashboard-area .plan-option-row {
+  background-color: #fff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .plan-option-row[aria-pressed="true"] {
+  background-color: #f2f0ff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .plan-checkout-panel {
+  background: #1f2140 !important;
+  color: #fff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .plan-checkout-panel h3 {
+  color: #fff !important;
+}
+
+@media (max-width: 639px) {
+  .comvexa-dashboard-v2 .comvexa-dashboard-area .plan-option-row {
+    grid-template-columns: 3rem minmax(0, 1fr);
+  }
+
+  .comvexa-dashboard-v2 .comvexa-dashboard-area .plan-option-row > :last-child {
+    grid-column: 1 / -1;
+  }
+}
+/* Dashboard home: compact daily command center. */
+.comvexa-dashboard-v2 .comvexa-dashboard-area .home-daily-header,
+.comvexa-dashboard-v2 .comvexa-dashboard-area .home-pulse-ledger {
+  background: #fff !important;
+  border-color: #d7ddd5 !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .home-focus-board {
+  background: #173c35 !important;
+  color: #fff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .home-focus-board h3 {
+  color: #fff !important;
+}
+
+.comvexa-dashboard-v2 .comvexa-dashboard-area .home-launch-rail {
+  background: #f1f5f2 !important;
+  border-color: #d7ddd5 !important;
+}
+
+@media (max-width: 639px) {
+  .comvexa-dashboard-v2 .comvexa-dashboard-area .home-command-layout {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
