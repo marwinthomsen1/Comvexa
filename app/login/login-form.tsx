@@ -1,7 +1,6 @@
 "use client";
 
 import { FormEvent, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import { hasOwnerDashboardAccess, isAdminEmail } from "@/src/lib/admin/access";
 import { supabase } from "@/src/lib/supabase/client";
 import { enableOwnerPlanAccess } from "../dashboard/_components/payment-status";
@@ -9,7 +8,6 @@ import { enableOwnerPlanAccess } from "../dashboard/_components/payment-status";
 const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://comvexa.net").replace(/\/$/, "");
 
 export function LoginForm() {
-  const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   const [error, setError] = useState("");
   const [resetMessage, setResetMessage] = useState("");
@@ -22,17 +20,16 @@ export function LoginForm() {
     setIsLoading(true);
 
     const formData = new FormData(event.currentTarget);
-    const email = String(formData.get("email") ?? "");
+    const email = String(formData.get("email") ?? "").trim().toLowerCase();
     const password = String(formData.get("password") ?? "");
 
-    const { error: loginError } = await supabase.auth.signInWithPassword({
+    const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
-    setIsLoading(false);
-
     if (loginError) {
+      setIsLoading(false);
       setError(
         loginError.message.toLowerCase().includes("email not confirmed")
           ? "Confirm your email before logging in. Check your inbox for the confirmation link."
@@ -41,12 +38,19 @@ export function LoginForm() {
       return;
     }
 
+    if (!loginData.session) {
+      setIsLoading(false);
+      setError("Login succeeded, but the session could not be saved. Check that your browser allows site storage and try again.");
+      return;
+    }
+
     if (hasOwnerDashboardAccess(email)) {
       enableOwnerPlanAccess("Ultra", "monthly", email);
     }
 
-    router.push(isAdminEmail(email) ? "/admin" : "/dashboard");
-    router.refresh();
+    // A full replacement avoids a mobile routing race where refresh can reload
+    // the login page before the client-side dashboard navigation finishes.
+    window.location.replace(isAdminEmail(email) ? "/admin" : "/dashboard");
   }
 
   async function sendPasswordReset() {
@@ -86,6 +90,10 @@ export function LoginForm() {
           id="email"
           name="email"
           type="email"
+          inputMode="email"
+          autoCapitalize="none"
+          autoCorrect="off"
+          autoComplete="email"
           placeholder="you@company.com"
           required
           className="mt-2 w-full rounded-xl border border-cyan-900/15 bg-white px-4 py-3 text-sm shadow-sm outline-none transition placeholder:text-slate-400 hover:border-cyan-500/50 focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100 sm:rounded-2xl sm:py-3.5"
@@ -109,6 +117,7 @@ export function LoginForm() {
           id="password"
           name="password"
           type="password"
+          autoComplete="current-password"
           placeholder="Enter your password"
           required
           className="mt-2 w-full rounded-xl border border-cyan-900/15 bg-white px-4 py-3 text-sm shadow-sm outline-none transition placeholder:text-slate-400 hover:border-cyan-500/50 focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100 sm:rounded-2xl sm:py-3.5"

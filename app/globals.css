@@ -65,6 +65,16 @@ html {
   z-index: 40;
 }
 
+.comvexa-ai-support-backdrop {
+  position: fixed !important;
+  inset: 0;
+  z-index: 55;
+  display: none;
+  border: 0;
+  background: rgba(7, 61, 71, 0.3);
+  backdrop-filter: blur(3px);
+}
+
 html[dir="rtl"] .comvexa-ai-support-launcher,
 html[dir="rtl"] .comvexa-ai-support-panel {
   right: auto;
@@ -82,6 +92,14 @@ html[dir="rtl"] .comvexa-ai-support-panel {
   html[dir="rtl"] .comvexa-ai-support-panel {
     right: auto;
     left: 1rem;
+  }
+
+  body.comvexa-ai-support-open {
+    overflow: hidden;
+  }
+
+  .comvexa-ai-support-backdrop {
+    display: block;
   }
 }
 

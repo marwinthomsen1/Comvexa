@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { Bot, LifeBuoy, Send, X } from "lucide-react";
 import { supabase } from "@/src/lib/supabase/client";
 
@@ -30,6 +30,27 @@ export function AiSupportChat() {
   const [isSending, setIsSending] = useState(false);
 
   const canSend = useMemo(() => draft.trim().length > 0 && !isSending, [draft, isSending]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    document.body.classList.add("comvexa-ai-support-open");
+
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsOpen(false);
+      }
+    }
+
+    window.addEventListener("keydown", closeOnEscape);
+
+    return () => {
+      document.body.classList.remove("comvexa-ai-support-open");
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [isOpen]);
 
   async function sendMessage(content: string) {
     const text = content.trim();
@@ -100,8 +121,16 @@ export function AiSupportChat() {
   }
 
   return (
-    <section className="comvexa-ai-support-panel flex h-[min(620px,calc(100vh-2.5rem))] w-[min(420px,calc(100vw-2rem))] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-950/25" role="dialog" aria-label="Comvexa AI Support">
-      <header className="flex items-center justify-between gap-3 border-b border-slate-200 bg-slate-950 px-4 py-3 text-white">
+    <>
+      <button
+        type="button"
+        className="comvexa-ai-support-backdrop"
+        onClick={() => setIsOpen(false)}
+        aria-label="Close AI support"
+        tabIndex={-1}
+      />
+      <section className="comvexa-ai-support-panel flex h-[min(620px,calc(100vh-2.5rem))] w-[min(420px,calc(100vw-2rem))] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-950/25" role="dialog" aria-modal="true" aria-label="Comvexa AI Support">
+      <header className="comvexa-ai-support-header flex items-center justify-between gap-3 border-b border-slate-200 bg-slate-950 px-4 py-3 text-white">
         <div className="flex items-center gap-3">
           <span className="flex size-9 items-center justify-center rounded-xl bg-white/10">
             <Bot size={18} />
@@ -121,7 +150,7 @@ export function AiSupportChat() {
         </button>
       </header>
 
-      <div className="flex-1 space-y-3 overflow-y-auto bg-slate-50 p-4 [scrollbar-width:thin]" role="log" aria-live="polite" aria-label="Support conversation">
+      <div className="comvexa-ai-support-messages flex-1 space-y-3 overflow-y-auto bg-slate-50 p-4 [scrollbar-width:thin]" role="log" aria-live="polite" aria-label="Support conversation">
         {messages.map((message, index) => (
           <div
             key={`${message.role}-${index}`}
@@ -145,8 +174,8 @@ export function AiSupportChat() {
         ) : null}
       </div>
 
-      <div className="border-t border-slate-200 bg-white p-3">
-        <div className="mb-3 flex flex-wrap gap-2">
+      <div className="comvexa-ai-support-composer border-t border-slate-200 bg-white p-3">
+        <div className="comvexa-ai-support-prompts mb-3 flex flex-wrap gap-2">
           {quickPrompts.map((prompt) => (
             <button
               key={prompt}
@@ -159,7 +188,7 @@ export function AiSupportChat() {
             </button>
           ))}
         </div>
-        <form onSubmit={handleSubmit} className="flex gap-2">
+        <form onSubmit={handleSubmit} className="comvexa-ai-support-form flex gap-2">
           <label htmlFor="comvexa-support-message" className="sr-only">Ask AI support</label>
           <input
             id="comvexa-support-message"
@@ -178,6 +207,7 @@ export function AiSupportChat() {
           </button>
         </form>
       </div>
-    </section>
+      </section>
+    </>
   );
 }
