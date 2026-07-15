@@ -14,7 +14,8 @@ import { LanguageSelector, useHomeText } from "./language-display";
 
 type Plan = {
   name: string;
-  priceUsd: number;
+  monthlyPriceUsd: number;
+  yearlyPriceUsd: number;
   description: string;
   trial: string;
   featured?: boolean;
@@ -30,7 +31,7 @@ export function PricingCards({ plans }: { plans: Plan[] }) {
   const text = useHomeText();
 
   function priceFor(plan: Plan) {
-    return billing === "monthly" ? plan.priceUsd : plan.priceUsd * 10;
+    return billing === "monthly" ? plan.monthlyPriceUsd : plan.yearlyPriceUsd;
   }
 
   async function openCheckout(plan: Plan) {
@@ -153,7 +154,7 @@ export function PricingCards({ plans }: { plans: Plan[] }) {
 
               <div className="mt-6 flex items-end gap-1">
                 <p className="text-5xl font-black tracking-[-0.06em]">
-                  <CurrencyValue usd={priceFor(plan)} currency={currency} />
+                  <CurrencyValue usd={priceFor(plan)} currency={currency} maximumFractionDigits={2} />
                 </p>
                 <span className={`pb-1.5 text-sm font-bold ${plan.featured ? "text-white/50" : "text-[#74898d]"}`}>
                   /{billing === "monthly" ? text.month : text.year}
@@ -162,7 +163,7 @@ export function PricingCards({ plans }: { plans: Plan[] }) {
 
               {billing === "yearly" ? (
                 <p className={`mt-2 text-xs font-bold ${plan.featured ? "text-[#8ef0df]" : "text-[#0c8b84]"}`}>
-                  {text.equivalent} <CurrencyValue usd={priceFor(plan) / 12} currency={currency} />/{text.month}
+                  {text.equivalent} <CurrencyValue usd={priceFor(plan) / 12} currency={currency} maximumFractionDigits={2} />/{text.month}
                 </p>
               ) : null}
 

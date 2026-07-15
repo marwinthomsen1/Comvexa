@@ -26,6 +26,7 @@ import {
 import { CurrencyAmount, CurrencySelector } from "./_components/currency-display";
 import { HomeText, LanguageSelector } from "./_components/language-display";
 import { PricingCards } from "./_components/pricing-cards";
+import { comvexaPrices } from "@/src/lib/pricing";
 
 const modules = [
   { title: "Customers", text: "Profiles, balances, notes, history, and every conversation in one place.", icon: Users, tone: "coral" },
@@ -45,7 +46,8 @@ const modules = [
 const plans = [
   {
     name: "Basic",
-    priceUsd: 29,
+    monthlyPriceUsd: comvexaPrices.Basic.monthly,
+    yearlyPriceUsd: comvexaPrices.Basic.yearly,
     description: "Essential tools for small businesses and freelancers.",
     trial: "No free trial",
     features: [
@@ -63,7 +65,8 @@ const plans = [
   },
   {
     name: "Pro",
-    priceUsd: 79,
+    monthlyPriceUsd: comvexaPrices.Pro.monthly,
+    yearlyPriceUsd: comvexaPrices.Pro.yearly,
     description: "The best starting point for growing companies with staff.",
     trial: "3-day free trial",
     featured: true,
@@ -82,7 +85,8 @@ const plans = [
   },
   {
     name: "Ultra",
-    priceUsd: 149,
+    monthlyPriceUsd: comvexaPrices.Ultra.monthly,
+    yearlyPriceUsd: comvexaPrices.Ultra.yearly,
     description: "The complete operations suite for multi-branch companies.",
     trial: "7-day free trial",
     features: [

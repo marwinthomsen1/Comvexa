@@ -7,6 +7,7 @@ import {
   sendTrialStartedEmail,
   sendWelcomeEmail,
 } from "@/src/lib/email";
+import { comvexaPrices } from "@/src/lib/pricing";
 
 function isAuthorized(request: Request) {
   const configuredSecret = process.env.EMAIL_TEST_SECRET;
@@ -45,7 +46,7 @@ async function sendTestType(type: string, to: string) {
       customerName: "Comvexa Team",
       companyName: "Comvexa",
       plan: "Ultra",
-      amount: 149,
+      amount: comvexaPrices.Ultra.monthly,
       currency: "USD",
       dashboardLink,
     });

@@ -18,11 +18,13 @@ import {
 import { CurrencySelector, CurrencyValue, formatCurrencyAmount, useSelectedCurrency } from "../../_components/currency-display";
 import { trackMetaStartTrial } from "../../_components/meta-pixel";
 import { CancelSubscriptionCard } from "./cancel-subscription-card";
+import { comvexaPrices, getEffectiveMonthlyPrice } from "@/src/lib/pricing";
 
 const plans = [
   {
     name: "Basic",
-    price: 29,
+    monthlyPrice: comvexaPrices.Basic.monthly,
+    yearlyPrice: comvexaPrices.Basic.yearly,
     description: "For small teams starting with essential company management.",
     features: [
       "Dashboard",
@@ -40,7 +42,8 @@ const plans = [
   },
   {
     name: "Pro",
-    price: 79,
+    monthlyPrice: comvexaPrices.Pro.monthly,
+    yearlyPrice: comvexaPrices.Pro.yearly,
     description: "For growing companies that need staff, bookings, and richer operations.",
     features: [
       "Everything in Basic",
@@ -60,7 +63,8 @@ const plans = [
   },
   {
     name: "Ultra",
-    price: 149,
+    monthlyPrice: comvexaPrices.Ultra.monthly,
+    yearlyPrice: comvexaPrices.Ultra.yearly,
     description: "For companies that want the full Comvexa operating system with automation and control.",
     features: [
       "Everything in Pro",
@@ -102,14 +106,6 @@ const trialDaysByPlan: Record<string, number> = {
   Pro: 3,
   Ultra: 7,
 };
-
-function getYearlyTotal(monthlyPrice: number) {
-  return monthlyPrice * 10;
-}
-
-function getEffectiveMonthly(monthlyPrice: number) {
-  return getYearlyTotal(monthlyPrice) / 12;
-}
 
 export default function SubscriptionPage() {
   const router = useRouter();
@@ -190,7 +186,7 @@ export default function SubscriptionPage() {
     [selectedPlan],
   );
 
-  const subtotal = billingCycle === "yearly" ? getYearlyTotal(plan.price) : plan.price;
+  const subtotal = billingCycle === "yearly" ? plan.yearlyPrice : plan.monthlyPrice;
   const selectedTrialDays = trialDaysByPlan[selectedPlan] ?? 0;
   const selectedPlanHasTrial = selectedTrialDays > 0;
   const selectedTrialAvailable = selectedPlanHasTrial && !trialStatus.used;
@@ -305,7 +301,7 @@ export default function SubscriptionPage() {
               }`}
             >
               {cycle}
-              {cycle === "yearly" ? " - 2 months free" : ""}
+              {cycle === "yearly" ? " - save more" : ""}
             </button>
           ))}
         </div>
@@ -344,16 +340,16 @@ export default function SubscriptionPage() {
                 {billingCycle === "yearly" ? (
                   <div className="mt-7">
                     <p className="text-4xl font-semibold tracking-normal text-slate-950">
-                      <CurrencyValue usd={getYearlyTotal(item.price)} currency={currency} />
+                      <CurrencyValue usd={item.yearlyPrice} currency={currency} maximumFractionDigits={2} />
                       <span className="text-base font-medium text-slate-500">/year</span>
                     </p>
                     <p className="mt-1 text-sm font-semibold text-slate-500">
-                      <CurrencyValue usd={getEffectiveMonthly(item.price)} currency={currency} />/month effective
+                      <CurrencyValue usd={getEffectiveMonthlyPrice(item.name)} currency={currency} maximumFractionDigits={2} />/month effective
                     </p>
                   </div>
                 ) : (
                   <p className="mt-7 text-4xl font-semibold tracking-normal text-slate-950">
-                    <CurrencyValue usd={item.price} currency={currency} />
+                    <CurrencyValue usd={item.monthlyPrice} currency={currency} maximumFractionDigits={2} />
                     <span className="text-base font-medium text-slate-500">/month</span>
                   </p>
                 )}
@@ -392,14 +388,14 @@ export default function SubscriptionPage() {
             <div className="flex justify-between">
               <span className="text-slate-500" data-no-translate>{plan.name} plan</span>
               <span className="font-semibold text-slate-950">
-                <CurrencyValue usd={subtotal} currency={currency} />
+                <CurrencyValue usd={subtotal} currency={currency} maximumFractionDigits={2} />
               </span>
             </div>
             {billingCycle === "yearly" ? (
               <div className="flex justify-between">
                 <span className="text-slate-500">Effective monthly</span>
                 <span className="font-semibold text-slate-950">
-                  <CurrencyValue usd={getEffectiveMonthly(plan.price)} currency={currency} />
+                  <CurrencyValue usd={getEffectiveMonthlyPrice(plan.name)} currency={currency} maximumFractionDigits={2} />
                 </span>
               </div>
             ) : null}
@@ -415,13 +411,13 @@ export default function SubscriptionPage() {
                   {isOwnerPlanTester ? "Owner access" : dueNow === 0 ? "Due today" : "Due on payment page"}
                 </span>
                 <span className="text-2xl font-semibold text-slate-950">
-                  <CurrencyValue usd={isOwnerPlanTester ? 0 : dueNow} currency={currency} />
+                  <CurrencyValue usd={isOwnerPlanTester ? 0 : dueNow} currency={currency} maximumFractionDigits={2} />
                 </span>
               </div>
               {selectedPlanHasTrial ? (
                 <p className="mt-2 text-xs leading-5 text-slate-500" data-no-translate>
                   {selectedTrialAvailable
-                    ? `After ${selectedTrialDays} days, ${billingCycle === "yearly" ? `${formatCurrencyAmount(subtotal, currency)}/year` : `${formatCurrencyAmount(plan.price, currency)}/month`} is due.`
+                    ? `After ${selectedTrialDays} days, ${billingCycle === "yearly" ? `${formatCurrencyAmount(subtotal, currency, false, 2)}/year` : `${formatCurrencyAmount(plan.monthlyPrice, currency, false, 2)}/month`} is due.`
                     : selectedTrialActive
                       ? `Payment is due when the trial ends: ${formatTrialRemaining(trialStatus.remainingMs)}.`
                       : "The trial was already used once. Payment is required to continue."}

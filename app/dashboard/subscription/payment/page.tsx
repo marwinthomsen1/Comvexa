@@ -15,12 +15,7 @@ import {
   setPendingPaidPlan,
 } from "../../_components/payment-status";
 import { CurrencySelector, CurrencyValue, useSelectedCurrency } from "../../../_components/currency-display";
-
-const planPrices: Record<string, number> = {
-  Basic: 29,
-  Pro: 79,
-  Ultra: 149,
-};
+import { getComvexaPrice } from "@/src/lib/pricing";
 
 export default function PaymentPage() {
   const router = useRouter();
@@ -55,10 +50,9 @@ export default function PaymentPage() {
     return () => window.clearTimeout(timeout);
   }, [router]);
 
-  const monthlyPrice = planPrices[selectedPlan] ?? 79;
   const total = useMemo(
-    () => (billingCycle === "yearly" ? monthlyPrice * 10 : monthlyPrice),
-    [billingCycle, monthlyPrice],
+    () => getComvexaPrice(selectedPlan, billingCycle),
+    [billingCycle, selectedPlan],
   );
 
   async function savePaymentSetup() {
@@ -185,7 +179,7 @@ export default function PaymentPage() {
               <div className="flex justify-between">
                 <span className="font-semibold text-slate-950">Due now</span>
                 <span className="text-2xl font-semibold text-slate-950">
-                  <CurrencyValue usd={isOwnerPlanTester ? 0 : total} currency={currency} />
+                  <CurrencyValue usd={isOwnerPlanTester ? 0 : total} currency={currency} maximumFractionDigits={2} />
                 </span>
               </div>
             </div>
