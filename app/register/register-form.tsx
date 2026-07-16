@@ -13,6 +13,7 @@ export function RegisterForm() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [registeredEmail, setRegisteredEmail] = useState("");
+  const [confirmationEmailSent, setConfirmationEmailSent] = useState(true);
   const [isResending, setIsResending] = useState(false);
   const [resendMessage, setResendMessage] = useState("");
 
@@ -50,12 +51,17 @@ export function RegisterForm() {
       }
 
       if (authData.session) {
-        router.push("/dashboard/subscription");
-        router.refresh();
+        await supabase.auth.signOut();
+        setRegisteredEmail(email);
+        setConfirmationEmailSent(false);
+        setError(
+          "Email confirmation is not enabled yet. Please contact Comvexa support before signing in.",
+        );
         return;
       }
 
       setRegisteredEmail(email);
+      setConfirmationEmailSent(true);
       setMessage("We sent you a confirmation link. Open it before logging in.");
     } catch (caughtError) {
       setError(caughtError instanceof Error ? caughtError.message : "Could not create your account.");
@@ -96,26 +102,40 @@ export function RegisterForm() {
           <MailCheck size={30} />
         </span>
         <p className="mt-5 text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">One last step</p>
-        <h3 className="mt-2 text-2xl font-semibold text-slate-950">Confirm your email</h3>
+        <h3 className="mt-2 text-2xl font-semibold text-slate-950">
+          {confirmationEmailSent ? "Confirm your email" : "Email confirmation unavailable"}
+        </h3>
         <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-slate-600">
-          We sent a confirmation link to <strong className="text-slate-900">{registeredEmail}</strong>. Open the link to activate your Comvexa account, then log in.
+          {confirmationEmailSent ? (
+            <>
+              We sent a confirmation link to <strong className="text-slate-900">{registeredEmail}</strong>. Open the link to activate your Comvexa account, then log in.
+            </>
+          ) : (
+            <>
+              Comvexa stopped the automatic login for <strong className="text-slate-900">{registeredEmail}</strong>. Email confirmation must be enabled before new accounts can sign in.
+            </>
+          )}
         </p>
-        <div className="mt-5 flex items-center justify-center gap-2 rounded-2xl bg-white px-4 py-3 text-sm text-slate-600 ring-1 ring-cyan-100">
-          <CheckCircle2 size={17} className="text-emerald-600" />
-          Check your inbox and spam folder
-        </div>
+        {confirmationEmailSent ? (
+          <div className="mt-5 flex items-center justify-center gap-2 rounded-2xl bg-white px-4 py-3 text-sm text-slate-600 ring-1 ring-cyan-100">
+            <CheckCircle2 size={17} className="text-emerald-600" />
+            Check your inbox and spam folder
+          </div>
+        ) : null}
         {error ? <p className="mt-4 text-sm font-medium text-red-700">{error}</p> : null}
         {resendMessage ? <p className="mt-4 text-sm font-medium text-emerald-700">{resendMessage}</p> : null}
-        <div className="mt-5 grid gap-3 sm:grid-cols-2">
-          <button
-            type="button"
-            onClick={() => void resendConfirmation()}
-            disabled={isResending}
-            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-cyan-200 bg-white px-4 text-sm font-semibold text-cyan-800 transition hover:bg-cyan-50 disabled:opacity-50"
-          >
-            <RefreshCw size={16} className={isResending ? "animate-spin" : ""} />
-            {isResending ? "Sending..." : "Resend email"}
-          </button>
+        <div className={`mt-5 grid gap-3 ${confirmationEmailSent ? "sm:grid-cols-2" : ""}`}>
+          {confirmationEmailSent ? (
+            <button
+              type="button"
+              onClick={() => void resendConfirmation()}
+              disabled={isResending}
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-cyan-200 bg-white px-4 text-sm font-semibold text-cyan-800 transition hover:bg-cyan-50 disabled:opacity-50"
+            >
+              <RefreshCw size={16} className={isResending ? "animate-spin" : ""} />
+              {isResending ? "Sending..." : "Resend email"}
+            </button>
+          ) : null}
           <button
             type="button"
             onClick={() => router.push("/login")}
