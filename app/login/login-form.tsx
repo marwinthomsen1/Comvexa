@@ -44,13 +44,29 @@ export function LoginForm() {
       return;
     }
 
+    const target = isAdminEmail(email) ? "/admin" : "/dashboard";
+    const { data: assurance, error: assuranceError } =
+      await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+
+    if (assuranceError) {
+      setIsLoading(false);
+      setError("Could not verify your account security settings. Please try again.");
+      return;
+    }
+
+    if (assurance?.currentLevel === "aal1" && assurance.nextLevel === "aal2") {
+      window.sessionStorage.setItem("comvexa-mfa-return-to", target);
+      window.location.replace("/mfa-verify");
+      return;
+    }
+
     if (hasOwnerDashboardAccess(email)) {
       enableOwnerPlanAccess("Ultra", "monthly", email);
     }
 
     // A full replacement avoids a mobile routing race where refresh can reload
     // the login page before the client-side dashboard navigation finishes.
-    window.location.replace(isAdminEmail(email) ? "/admin" : "/dashboard");
+    window.location.replace(target);
   }
 
   async function sendPasswordReset() {

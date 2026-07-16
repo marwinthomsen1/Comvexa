@@ -20,6 +20,22 @@ export function DashboardAuthGuard({ children }: { children: React.ReactNode }) 
         return;
       }
 
+      const { data: assurance, error: assuranceError } =
+        await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+
+      if (
+        !assuranceError &&
+        assurance?.currentLevel === "aal1" &&
+        assurance.nextLevel === "aal2"
+      ) {
+        window.sessionStorage.setItem(
+          "comvexa-mfa-return-to",
+          `${window.location.pathname}${window.location.search}`,
+        );
+        router.replace("/mfa-verify");
+        return;
+      }
+
       if (hasOwnerDashboardAccess(data.session.user.email)) {
         enableOwnerPlanAccess(window.localStorage.getItem("comvexa-selected-plan"), "monthly", data.session.user.email);
       }

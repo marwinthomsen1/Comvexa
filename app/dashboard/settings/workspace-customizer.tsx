@@ -8,12 +8,14 @@ import {
   LayoutDashboard,
   Palette,
   ReceiptText,
+  ShieldCheck,
   SlidersHorizontal,
   Sparkles,
 } from "lucide-react";
 import { languageOptions } from "../_components/dashboard-i18n";
 import { canUseModule, defaultPlan, planModules, type PlanName } from "../_components/plan-access";
 import { loadSubscriptionAccess } from "../_components/subscription-access";
+import { MfaSettingsCard } from "./mfa-settings-card";
 
 const accents = [
   { name: "Comvexa Lagoon", value: "#0c8b84" },
@@ -116,7 +118,7 @@ type Settings = {
   modules: string[];
 };
 
-type SettingsSection = "basics" | "appearance" | "finance" | "modules";
+type SettingsSection = "basics" | "appearance" | "finance" | "modules" | "security";
 
 const defaultSettings: Settings = {
   companyDisplayName: "New Company",
@@ -211,6 +213,7 @@ export function WorkspaceCustomizer() {
     { id: "appearance", label: "Look & feel", description: "Theme and layout", icon: Palette },
     { id: "finance", label: "Billing & workflow", description: "Currency and reminders", icon: ReceiptText },
     { id: "modules", label: "Modules", description: `${enabledCount} visible`, icon: LayoutDashboard },
+    { id: "security", label: "Security", description: "Two-step verification", icon: ShieldCheck },
   ] as const;
 
   return (
@@ -236,7 +239,7 @@ export function WorkspaceCustomizer() {
       </section>
 
       <section className="mt-4 rounded-3xl border border-slate-200 bg-white p-2 shadow-sm">
-        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
           {sections.map((section) => {
             const Icon = section.icon;
             const active = activeSection === section.id;
@@ -545,6 +548,12 @@ export function WorkspaceCustomizer() {
           ))}
         </div>
       </section>
+      ) : null}
+
+      {activeSection === "security" ? (
+        <section className="mt-4">
+          <MfaSettingsCard />
+        </section>
       ) : null}
     </main>
   );
