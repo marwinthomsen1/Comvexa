@@ -43,6 +43,25 @@ function rememberAccess(access: SubscriptionAccess) {
   return access;
 }
 
+async function getSessionWithTimeout() {
+  let timeoutId: number | undefined;
+
+  try {
+    return await Promise.race([
+      supabase.auth.getSession(),
+      new Promise<null>((resolve) => {
+        timeoutId = window.setTimeout(() => resolve(null), 4_000);
+      }),
+    ]);
+  } catch {
+    return null;
+  } finally {
+    if (timeoutId !== undefined) {
+      window.clearTimeout(timeoutId);
+    }
+  }
+}
+
 async function loadCompanyAccess(userId: string): Promise<SubscriptionAccess> {
   const controller = new AbortController();
   const timeout = window.setTimeout(() => controller.abort(), 4_000);
@@ -86,8 +105,8 @@ async function loadCompanyAccess(userId: string): Promise<SubscriptionAccess> {
 }
 
 export async function loadSubscriptionAccess(): Promise<SubscriptionAccess> {
-  const { data: sessionData } = await supabase.auth.getSession();
-  const session = sessionData.session;
+  const sessionResult = await getSessionWithTimeout();
+  const session = sessionResult?.data.session;
 
   if (!session) {
     return rememberAccess(inactiveAccess);
