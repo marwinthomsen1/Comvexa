@@ -4,7 +4,7 @@ import Link from "next/link";
 import { LockKeyhole } from "lucide-react";
 import { useEffect, useState } from "react";
 import { canUseModule, defaultPlan, type PlanName } from "./plan-access";
-import { getCachedSubscriptionAccess, invalidateSubscriptionAccess, loadSubscriptionAccess } from "./subscription-access";
+import { getCachedSubscriptionAccess, invalidateSubscriptionAccess, loadSubscriptionAccess, type SubscriptionAccess } from "./subscription-access";
 
 const alwaysVisibleModules = ["Dashboard", "Subscription", "Settings"];
 
@@ -32,8 +32,7 @@ export function PlanGate({
   const [moduleVisible, setModuleVisible] = useState(true);
 
   useEffect(() => {
-    async function loadPlan() {
-      const access = await loadSubscriptionAccess();
+    function applyAccess(access: SubscriptionAccess) {
       setPlan(access.plan);
       setAccessActive(access.accessActive);
       setTrialExpired(access.trialExpired);
@@ -45,6 +44,17 @@ export function PlanGate({
       );
     }
 
+    async function loadPlan() {
+      applyAccess(await loadSubscriptionAccess());
+    }
+
+    function syncPlan(event: Event) {
+      const access = (event as CustomEvent<SubscriptionAccess>).detail;
+      if (access) {
+        applyAccess(access);
+      }
+    }
+
     const timeout = window.setTimeout(() => void loadPlan(), 0);
     function refreshPlan() {
       invalidateSubscriptionAccess();
@@ -53,12 +63,14 @@ export function PlanGate({
     window.addEventListener("storage", loadPlan);
     window.addEventListener("comvexa-plan-change", refreshPlan);
     window.addEventListener("comvexa-settings-change", loadPlan);
+    window.addEventListener("comvexa-subscription-sync", syncPlan);
 
     return () => {
       window.clearTimeout(timeout);
       window.removeEventListener("storage", loadPlan);
       window.removeEventListener("comvexa-plan-change", refreshPlan);
       window.removeEventListener("comvexa-settings-change", loadPlan);
+      window.removeEventListener("comvexa-subscription-sync", syncPlan);
     };
   }, [moduleName]);
 

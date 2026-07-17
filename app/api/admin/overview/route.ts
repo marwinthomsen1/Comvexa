@@ -44,7 +44,7 @@ const allowedSubscriptionStatuses = new Set([
   "past_due",
   "cancelled",
 ]);
-const allowedBillingCycles = new Set(["monthly", "yearly", ""]);
+const allowedBillingCycles = new Set(["weekly", "monthly", "yearly", "lifetime", ""]);
 
 async function requireAdmin(request: Request) {
   const token = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");

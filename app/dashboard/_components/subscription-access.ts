@@ -64,15 +64,29 @@ async function getSessionWithTimeout() {
 
 async function loadCompanyAccess(userId: string): Promise<SubscriptionAccess> {
   const controller = new AbortController();
-  const timeout = window.setTimeout(() => controller.abort(), 4_000);
+  let timeoutId: number | undefined;
 
   try {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("company:companies(plan, subscription_status, trial_ends_at)")
-      .eq("id", userId)
-      .abortSignal(controller.signal)
-      .single();
+    const result = await Promise.race([
+      supabase
+        .from("profiles")
+        .select("company:companies(plan, subscription_status, trial_ends_at)")
+        .eq("id", userId)
+        .abortSignal(controller.signal)
+        .single(),
+      new Promise<null>((resolve) => {
+        timeoutId = window.setTimeout(() => {
+          controller.abort();
+          resolve(null);
+        }, 5_000);
+      }),
+    ]);
+
+    if (!result) {
+      return inactiveAccess;
+    }
+
+    const { data, error } = result;
 
     if (error || !data?.company) {
       return inactiveAccess;
@@ -100,11 +114,13 @@ async function loadCompanyAccess(userId: string): Promise<SubscriptionAccess> {
   } catch {
     return inactiveAccess;
   } finally {
-    window.clearTimeout(timeout);
+    if (timeoutId !== undefined) {
+      window.clearTimeout(timeoutId);
+    }
   }
 }
 
-export async function loadSubscriptionAccess(): Promise<SubscriptionAccess> {
+export async function loadSubscriptionAccess(options: { force?: boolean } = {}): Promise<SubscriptionAccess> {
   const sessionResult = await getSessionWithTimeout();
   const session = sessionResult?.data.session;
 
@@ -122,18 +138,18 @@ export async function loadSubscriptionAccess(): Promise<SubscriptionAccess> {
     });
   }
 
-  const cached = accessCache.get(session.user.id);
+  const cached = options.force ? undefined : accessCache.get(session.user.id);
   if (cached && cached.expiresAt > Date.now()) {
     return rememberAccess(cached.value);
   }
 
-  const existingRequest = pendingAccess.get(session.user.id);
+  const existingRequest = options.force ? undefined : pendingAccess.get(session.user.id);
   if (existingRequest) {
     return existingRequest;
   }
 
   const request = loadCompanyAccess(session.user.id).then((access) => {
-    accessCache.set(session.user.id, { value: access, expiresAt: Date.now() + 5 * 60_000 });
+    accessCache.set(session.user.id, { value: access, expiresAt: Date.now() + 15_000 });
     return rememberAccess(access);
   }).finally(() => {
     pendingAccess.delete(session.user.id);

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { LockKeyhole } from "lucide-react";
 import { useEffect, useState } from "react";
-import { getCachedSubscriptionAccess, invalidateSubscriptionAccess, loadSubscriptionAccess } from "./subscription-access";
+import { getCachedSubscriptionAccess, invalidateSubscriptionAccess, loadSubscriptionAccess, type SubscriptionAccess } from "./subscription-access";
 
 export function PaymentGate({ children }: { children: React.ReactNode }) {
   const cachedAccess = getCachedSubscriptionAccess();
@@ -11,10 +11,20 @@ export function PaymentGate({ children }: { children: React.ReactNode }) {
   const [trialExpired, setTrialExpired] = useState(cachedAccess?.trialExpired ?? false);
 
   useEffect(() => {
-    async function loadPaymentStatus() {
-      const access = await loadSubscriptionAccess();
+    function applyAccess(access: SubscriptionAccess) {
       setAccessActive(access.accessActive);
       setTrialExpired(access.trialExpired);
+    }
+
+    async function loadPaymentStatus() {
+      applyAccess(await loadSubscriptionAccess());
+    }
+
+    function syncPaymentStatus(event: Event) {
+      const access = (event as CustomEvent<SubscriptionAccess>).detail;
+      if (access) {
+        applyAccess(access);
+      }
     }
 
     const timeout = window.setTimeout(() => void loadPaymentStatus(), 0);
@@ -24,11 +34,13 @@ export function PaymentGate({ children }: { children: React.ReactNode }) {
     }
     window.addEventListener("storage", loadPaymentStatus);
     window.addEventListener("comvexa-plan-change", refreshPaymentStatus);
+    window.addEventListener("comvexa-subscription-sync", syncPaymentStatus);
 
     return () => {
       window.clearTimeout(timeout);
       window.removeEventListener("storage", loadPaymentStatus);
       window.removeEventListener("comvexa-plan-change", refreshPaymentStatus);
+      window.removeEventListener("comvexa-subscription-sync", syncPaymentStatus);
     };
   }, []);
 

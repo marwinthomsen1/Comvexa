@@ -1,14 +1,17 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import {
   Activity,
+  ArrowUpRight,
   AlertTriangle,
   BarChart3,
   Building2,
   CalendarClock,
   CheckCircle2,
+  ChevronRight,
+  Clock3,
   ClipboardList,
   CreditCard,
   Database,
@@ -16,6 +19,7 @@ import {
   Download,
   ExternalLink,
   FileText,
+  Gauge,
   HandCoins,
   LifeBuoy,
   LogOut,
@@ -26,12 +30,12 @@ import {
   ReceiptText,
   RefreshCw,
   Search,
-  ShieldCheck,
   SlidersHorizontal,
   Sparkles,
   TrendingUp,
   Users,
   WalletCards,
+  X,
   type LucideIcon,
 } from "lucide-react";
 import { isAdminEmail } from "@/src/lib/admin/access";
@@ -92,7 +96,14 @@ const tabs: Array<{ id: AdminTab; label: string; icon: LucideIcon }> = [
 
 const planOptions = ["basic", "pro", "ultra"];
 const statusOptions = ["inactive", "trialing", "trial_expired", "active", "past_due", "cancelled"];
-const billingOptions = ["", "monthly", "yearly"];
+const billingOptions = ["weekly", "monthly", "yearly", "lifetime", ""];
+const billingOptionLabels: Record<string, string> = {
+  weekly: "Weekly",
+  monthly: "Monthly",
+  yearly: "One year",
+  lifetime: "Lifetime",
+  "": "None",
+};
 const emailTemplates = [
   {
     id: "custom",
@@ -230,6 +241,8 @@ export function AdminDashboard() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [selectedCompanyId, setSelectedCompanyId] = useState("");
   const [savingCompanyId, setSavingCompanyId] = useState("");
+  const [lastUpdatedAt, setLastUpdatedAt] = useState<Date | null>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
 
   const loadOverview = useCallback(async () => {
     setError("");
@@ -263,6 +276,7 @@ export function AdminDashboard() {
     }
 
     setOverview(data);
+    setLastUpdatedAt(new Date());
     setSelectedCompanyId((current) => current || String(data.recentCompanies?.[0]?.id ?? ""));
   }, [router]);
 
@@ -273,6 +287,25 @@ export function AdminDashboard() {
 
     return () => window.clearTimeout(timeout);
   }, [loadOverview]);
+
+  useEffect(() => {
+    function focusGlobalSearch(event: KeyboardEvent) {
+      if (event.key !== "/" || event.metaKey || event.ctrlKey || event.altKey) {
+        return;
+      }
+
+      const target = event.target as HTMLElement | null;
+      if (target?.matches("input, textarea, select, [contenteditable='true']")) {
+        return;
+      }
+
+      event.preventDefault();
+      searchRef.current?.focus();
+    }
+
+    window.addEventListener("keydown", focusGlobalSearch);
+    return () => window.removeEventListener("keydown", focusGlobalSearch);
+  }, []);
 
   const selectedCompany = useMemo(
     () => overview?.recentCompanies.find((company) => String(company.id) === selectedCompanyId) ?? null,
@@ -369,6 +402,63 @@ export function AdminDashboard() {
       .slice(0, 18);
   }, [overview]);
 
+  const globalSearchResults = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+
+    if (normalizedQuery.length < 2) {
+      return [];
+    }
+
+    const companyResults = (overview?.recentCompanies ?? [])
+      .filter((row) => rowText(row).includes(normalizedQuery))
+      .slice(0, 3)
+      .map((row) => ({
+        tab: "companies" as const,
+        id: String(row.id ?? ""),
+        type: "Workspace",
+        title: String(row.name ?? "Company"),
+        detail: String(row.email ?? row.subscription_status ?? "Company record"),
+      }));
+    const userResults = (overview?.recentUsers ?? [])
+      .filter((row) => rowText(row).includes(normalizedQuery))
+      .slice(0, 3)
+      .map((row) => ({
+        tab: "users" as const,
+        type: "User",
+        title: String(row.full_name ?? row.email ?? "User"),
+        detail: String(row.email ?? row.company_name ?? "Account"),
+      }));
+    const activityResults = (overview?.customerActivity ?? [])
+      .filter((item) => `${item.companyName} ${item.customerEmail} ${item.action} ${item.subject} ${item.detail}`.toLowerCase().includes(normalizedQuery))
+      .slice(0, 3)
+      .map((item) => ({
+        tab: "activity" as const,
+        type: item.type,
+        title: item.subject,
+        detail: `${item.companyName} · ${item.action}`,
+      }));
+    const emailResults = (overview?.recentEmailLogs ?? [])
+      .filter((row) => rowText(row).includes(normalizedQuery))
+      .slice(0, 2)
+      .map((row) => ({
+        tab: "email" as const,
+        type: "Email",
+        title: String(row.subject ?? row.email_type ?? "Email"),
+        detail: String(row.recipient ?? row.status ?? "Email log"),
+      }));
+
+    return [...companyResults, ...userResults, ...activityResults, ...emailResults].slice(0, 7);
+  }, [overview, query]);
+
+  function openSearchResult(result: (typeof globalSearchResults)[number]) {
+    if (result.tab === "companies" && result.id) {
+      setSelectedCompanyId(result.id);
+    }
+
+    setActiveTab(result.tab);
+    setQuery("");
+  }
+
   async function signOut() {
     await supabase.auth.signOut();
     router.replace("/login");
@@ -425,97 +515,150 @@ export function AdminDashboard() {
 
   if (isLoading) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-[#edf3f8] p-6">
-        <div className="rounded-2xl border border-slate-200 bg-white px-6 py-5 text-sm font-semibold text-slate-600 shadow-sm">
-          Loading admin console...
+      <main className="admin-os flex min-h-screen items-center justify-center p-6">
+        <div className="admin-loader" role="status">
+          <span className="admin-loader-mark"><Gauge size={22} /></span>
+          <span>
+            <strong>Opening command center</strong>
+            <small>Checking secure platform signals...</small>
+          </span>
         </div>
       </main>
     );
   }
 
+  const attentionCount = Object.values(overview?.alerts ?? {}).reduce((total, value) => total + value, 0);
+  const failedEmails = (overview?.recentEmailLogs ?? []).filter(
+    (row) => String(row.status ?? "").toLowerCase() === "failed",
+  ).length;
+  const tabBadges: Partial<Record<AdminTab, number>> = {
+    overview: attentionCount,
+    companies: overview?.counts.companies ?? 0,
+    users: overview?.counts.profiles ?? 0,
+    email: failedEmails,
+    activity: overview?.customerActivity.length ?? 0,
+  };
+  const activeTabConfig = tabs.find((tab) => tab.id === activeTab) ?? tabs[0];
+
   return (
-    <main className="min-h-screen bg-[#edf3f8] text-slate-950">
-      <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-7xl flex-col gap-5 px-5 py-5 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <p className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold uppercase text-emerald-700 ring-1 ring-emerald-100">
-              <ShieldCheck size={14} />
-              Admin Console
-            </p>
-            <h1 className="mt-3 text-3xl font-semibold tracking-normal">Comvexa control center</h1>
-            <p className="mt-1 text-sm text-slate-500">Signed in as {overview?.adminEmail ?? "admin"}</p>
+    <main className="admin-os min-h-screen text-slate-950">
+      <header className="admin-topbar">
+        <div className="admin-topbar-inner">
+          <div className="admin-brand">
+            <span className="admin-brand-mark">CV</span>
+            <span className="min-w-0">
+              <strong>Comvexa Admin</strong>
+              <small><span className="admin-live-dot" /> Platform operations</small>
+            </span>
           </div>
-          <div className="grid gap-3 sm:grid-cols-[1fr_auto_auto] lg:min-w-[620px]">
-            <label className="relative">
-              <Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-              <input
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search companies, users, emails, leads"
-                className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 pl-11 pr-4 text-sm font-medium outline-none ring-0 transition focus:border-emerald-300 focus:bg-white"
-              />
-            </label>
+          <div className="admin-command-bar">
+            <div className="admin-search-shell">
+              <label className="admin-search">
+                <Search className="pointer-events-none" size={18} />
+                <input
+                  ref={searchRef}
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  placeholder="Search the platform..."
+                  aria-label="Search companies, users, emails, and activity"
+                />
+                {query ? <button type="button" onClick={() => setQuery("")} aria-label="Clear search"><span aria-hidden>×</span></button> : <kbd>/</kbd>}
+              </label>
+              {query.trim().length >= 2 ? (
+                <div className="admin-search-results">
+                  <div><span>Platform results</span><small>{globalSearchResults.length} found</small></div>
+                  {globalSearchResults.length ? globalSearchResults.map((result, index) => (
+                    <button key={`${result.tab}-${result.title}-${index}`} type="button" onClick={() => openSearchResult(result)}>
+                      <span>{result.type.slice(0, 1)}</span>
+                      <span><strong>{result.title}</strong><small>{result.type} · {result.detail}</small></span>
+                      <ArrowUpRight size={14} />
+                    </button>
+                  )) : <p>No company, user, activity, or email matches.</p>}
+                </div>
+              ) : null}
+            </div>
             <button
               type="button"
               onClick={loadOverview}
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+              className="admin-icon-button"
+              aria-label="Refresh platform data"
             >
-              <RefreshCw size={16} />
-              Refresh
+              <RefreshCw size={17} />
             </button>
             <button
               type="button"
               onClick={signOut}
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 text-sm font-semibold text-white shadow-sm hover:bg-slate-800"
+              className="admin-signout"
             >
               <LogOut size={16} />
-              Sign out
+              <span>Sign out</span>
             </button>
           </div>
         </div>
       </header>
 
-      <div className="mx-auto grid max-w-7xl gap-5 px-5 py-6 lg:grid-cols-[250px_1fr]">
-        <aside className="h-fit rounded-3xl border border-slate-200 bg-[#10233f] p-3 text-white shadow-sm">
-          <div className="flex items-center gap-3 px-3 py-3">
-            <span className="flex size-11 items-center justify-center rounded-2xl bg-white/10 ring-1 ring-white/15">
-              <PanelLeft size={20} />
-            </span>
-            <div>
-              <p className="font-semibold">Admin Menu</p>
-              <p className="text-xs text-slate-300">Manage Comvexa</p>
-            </div>
+      <div className="admin-shell">
+        <aside className="admin-sidebar">
+          <div className="admin-sidebar-heading">
+            <span><PanelLeft size={17} /></span>
+            <p>Control rooms</p>
           </div>
-          <nav className="mt-3 grid gap-2">
+          <nav className="admin-nav" aria-label="Admin sections">
             {tabs.map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
                 type="button"
                 onClick={() => setActiveTab(id)}
-                className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-semibold transition ${
-                  activeTab === id ? "bg-white text-slate-950" : "text-slate-200 hover:bg-white/10 hover:text-white"
-                }`}
+                className={activeTab === id ? "is-active" : ""}
+                aria-current={activeTab === id ? "page" : undefined}
               >
-                <Icon size={18} />
-                {label}
+                <span className="admin-nav-icon"><Icon size={17} /></span>
+                <span>{label}</span>
+                {tabBadges[id] ? <em>{tabBadges[id]}</em> : null}
               </button>
             ))}
           </nav>
-          <div className="mt-4 rounded-2xl bg-white/10 p-4 ring-1 ring-white/10">
-            <p className="text-xs font-semibold uppercase text-slate-300">Quick health</p>
-            <p className="mt-2 text-2xl font-semibold">{overview?.counts.companies ?? 0}</p>
-            <p className="text-sm text-slate-300">workspaces tracked</p>
+          <div className="admin-sidebar-health">
+            <div>
+              <p>Platform health</p>
+              <span className={error ? "is-warning" : "is-good"}>{error ? "Review" : "Operational"}</span>
+            </div>
+            <ul>
+              <li><span>Database</span><b className="is-good" /></li>
+              <li><span>Authentication</span><b className="is-good" /></li>
+              <li><span>Email delivery</span><b className={failedEmails ? "is-warning" : "is-good"} /></li>
+            </ul>
+            <small>{lastUpdatedAt ? `Synced ${lastUpdatedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : "Waiting for sync"}</small>
           </div>
         </aside>
 
-        <section className="min-w-0">
+        <section className="admin-workspace min-w-0">
+          <nav className="admin-mobile-tabs" aria-label="Admin sections">
+            {tabs.map(({ id, label, icon: Icon }) => (
+              <button key={id} type="button" onClick={() => setActiveTab(id)} className={activeTab === id ? "is-active" : ""}>
+                <Icon size={16} /><span>{label}</span>
+              </button>
+            ))}
+          </nav>
+
+          <div className="admin-page-heading">
+            <div>
+              <p>{activeTab === "overview" ? "Mission control" : "Admin workspace"}</p>
+              <h1>{activeTabConfig.label}</h1>
+            </div>
+            <div className="admin-sync-state">
+              <Clock3 size={15} />
+              <span>{lastUpdatedAt ? `Updated ${lastUpdatedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : "Live data"}</span>
+            </div>
+          </div>
+
           {error ? (
-            <div className="mb-4 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-semibold text-red-700">
+            <div className="admin-message is-error">
               {error}
             </div>
           ) : null}
           {notice ? (
-            <div className="mb-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-semibold text-emerald-700">
+            <div className="admin-message is-success">
               {notice}
             </div>
           ) : null}
@@ -528,6 +671,8 @@ export function AdminDashboard() {
               overview={overview}
               activityFeed={activityFeed}
               onOpenCompanies={() => setActiveTab("companies")}
+              onOpenActivity={() => setActiveTab("activity")}
+              onOpenEmail={() => setActiveTab("email")}
             />
           ) : null}
 
@@ -570,6 +715,8 @@ function OverviewTab({
   overview,
   activityFeed,
   onOpenCompanies,
+  onOpenActivity,
+  onOpenEmail,
 }: {
   metrics: Array<[string, number, LucideIcon, string]>;
   financialCards: Array<[string, string, LucideIcon]>;
@@ -577,62 +724,96 @@ function OverviewTab({
   overview: AdminOverview | null;
   activityFeed: Array<{ type: string; title: string; detail: string; date: unknown }>;
   onOpenCompanies: () => void;
+  onOpenActivity: () => void;
+  onOpenEmail: () => void;
 }) {
+  const financials = overview?.financials ?? {};
+  const companyCount = overview?.counts.companies ?? 0;
+  const activeCompanies = (overview?.recentCompanies ?? []).filter((company) =>
+    ["active", "trialing"].includes(String(company.subscription_status ?? "").toLowerCase()),
+  ).length;
+  const invoiceTotal = Number(financials.invoiceTotal ?? 0);
+  const collectionRate = invoiceTotal > 0 ? Math.round((Number(financials.paidInvoiceTotal ?? 0) / invoiceTotal) * 100) : 0;
+  const sentEmails = (overview?.recentEmailLogs ?? []).filter((row) => String(row.status ?? "").toLowerCase() === "sent").length;
+  const emailTotal = overview?.recentEmailLogs.length ?? 0;
+  const emailSuccessRate = emailTotal > 0 ? Math.round((sentEmails / emailTotal) * 100) : 100;
+  const attentionCount = Object.values(overview?.alerts ?? {}).reduce((total, value) => total + value, 0);
+
   return (
-    <div className="space-y-5">
-      <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
-        <div className="grid gap-6 p-6 lg:grid-cols-[1.2fr_0.8fr]">
+    <div className="admin-overview space-y-5">
+      <section className="admin-hero">
+        <div className="admin-hero-copy">
           <div>
-            <p className="text-sm font-semibold uppercase text-blue-700">Live operations</p>
-            <h2 className="mt-2 text-3xl font-semibold tracking-normal">See the whole SaaS from one place.</h2>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
-              Track customers, billing, trials, bookings, documents, inventory, emails, and support signals without
-              digging through every workspace one by one.
+            <p className="admin-eyebrow"><span /> Live platform pulse</p>
+            <h2>Operate Comvexa<br />without blind spots.</h2>
+            <p>
+              One practical view of workspace growth, collection risk, customer movement, and system delivery.
             </p>
-            <div className="mt-5 flex flex-wrap gap-3">
+            <div className="admin-hero-actions">
               <button
                 type="button"
                 onClick={onOpenCompanies}
-                className="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700"
+                className="is-primary"
               >
                 <Building2 size={17} />
-                Manage companies
+                Workspaces
+                <ArrowUpRight size={15} />
               </button>
-              <a
-                href="/api/test-email"
-                target="_blank"
-                className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+              <button
+                type="button"
+                onClick={onOpenActivity}
               >
+                <Activity size={17} />
+                Review movement
+              </button>
+              <button type="button" onClick={onOpenEmail}>
                 <Mail size={17} />
-                Test email route
-              </a>
+                Contact customer
+              </button>
             </div>
           </div>
-          <div className="rounded-3xl bg-slate-950 p-5 text-white">
-            <p className="text-sm font-semibold text-slate-300">Attention score</p>
-            <p className="mt-4 text-5xl font-semibold">
-              {Object.values(overview?.alerts ?? {}).reduce((total, value) => total + value, 0)}
-            </p>
-            <p className="mt-2 text-sm text-slate-300">items need admin review</p>
-            <div className="mt-5 grid gap-2">
-              {alertCards.map(([label, value]) => (
-                <div key={label} className="flex items-center justify-between rounded-2xl bg-white/10 px-3 py-2">
-                  <span className="text-sm text-slate-200">{label}</span>
-                  <span className="font-semibold">{value}</span>
-                </div>
-              ))}
+          <div className="admin-hero-pulse">
+            <span>Live estate</span>
+            <strong>{companyCount}</strong>
+            <small>workspaces under management</small>
+            <div>
+              <span><b>{activeCompanies}</b> active or trialing</span>
+              <span><b>{overview?.counts.profiles ?? 0}</b> user profiles</span>
+              <span><b>{overview?.counts.customers ?? 0}</b> customer records</span>
             </div>
           </div>
         </div>
+        <aside className="admin-attention-board">
+          <div className="admin-attention-heading">
+            <span className={attentionCount ? "is-hot" : "is-clear"}><AlertTriangle size={18} /></span>
+            <div><p>Attention queue</p><small>Live operational exceptions</small></div>
+            <strong>{attentionCount}</strong>
+          </div>
+          <div className="admin-attention-list">
+              {alertCards.map(([label, value]) => (
+              <button key={label} type="button" onClick={onOpenActivity}>
+                <span><i className={value ? "is-hot" : ""} />{label}</span>
+                <b>{value}</b>
+                <ArrowUpRight size={14} />
+              </button>
+              ))}
+          </div>
+        </aside>
       </section>
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      <section className="admin-metric-grid grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {metrics.map(([label, value, Icon, detail]) => (
           <MetricTile key={label} label={label} value={String(value)} detail={detail} icon={Icon} />
         ))}
       </section>
 
-      <section className="grid gap-4 lg:grid-cols-3">
+      <section className="admin-health-strip">
+        <HealthGauge label="Collection rate" value={collectionRate} detail={`${money(financials.paidInvoiceTotal)} collected`} tone="coral" />
+        <HealthGauge label="Workspace coverage" value={companyCount ? Math.round((activeCompanies / companyCount) * 100) : 0} detail={`${activeCompanies} ready workspaces`} tone="blue" />
+        <HealthGauge label="Email delivery" value={emailSuccessRate} detail={`${sentEmails} of ${emailTotal || 0} recent sent`} tone="green" />
+      </section>
+
+      <section className="admin-finance-grid grid gap-4 lg:grid-cols-3">
         {financialCards.map(([label, value, Icon]) => (
           <MetricTile key={label} label={label} value={value} detail="Financial rollup" icon={Icon} tone="blue" />
         ))}
@@ -676,8 +857,15 @@ function CompaniesTab({
   onUpdateCompany: (companyId: string, updates: Record<string, string>) => Promise<void>;
   onExportCompanies: () => void;
 }) {
+  const [isInspectorOpen, setIsInspectorOpen] = useState(false);
+
+  function selectCompany(companyId: string) {
+    onSelectCompany(companyId);
+    setIsInspectorOpen(true);
+  }
+
   return (
-    <div className="grid gap-5 xl:grid-cols-[1fr_360px]">
+    <div className="admin-company-layout grid gap-5 xl:grid-cols-[1fr_360px]">
       <section className="min-w-0 rounded-3xl border border-slate-200 bg-white shadow-sm">
         <div className="flex flex-col gap-3 border-b border-slate-200 p-5 lg:flex-row lg:items-center lg:justify-between">
           <div>
@@ -719,7 +907,7 @@ function CompaniesTab({
             </button>
           </div>
         </div>
-        <div className="overflow-x-auto">
+        <div className="admin-company-table overflow-x-auto">
           <table className="w-full min-w-[760px] text-left text-sm">
             <thead className="bg-slate-50 text-xs font-semibold uppercase text-slate-500">
               <tr>
@@ -729,6 +917,7 @@ function CompaniesTab({
                 <th className="px-5 py-3">Status</th>
                 <th className="px-5 py-3">Billing</th>
                 <th className="px-5 py-3">Created</th>
+                <th className="px-5 py-3"><span className="sr-only">Manage</span></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -736,30 +925,43 @@ function CompaniesTab({
                 companies.map((company) => (
                   <tr
                     key={String(company.id)}
-                    className="cursor-pointer text-slate-700 hover:bg-slate-50"
-                    onClick={() => onSelectCompany(String(company.id))}
+                    className={`cursor-pointer text-slate-700 hover:bg-slate-50 ${String(selectedCompany?.id) === String(company.id) ? "is-selected" : ""}`}
+                    onClick={() => selectCompany(String(company.id))}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        selectCompany(String(company.id));
+                      }
+                    }}
+                    tabIndex={0}
+                    aria-selected={String(selectedCompany?.id) === String(company.id)}
                   >
-                    <td className="px-5 py-4">
+                    <td data-label="Company" className="px-5 py-4">
                       <p className="font-semibold text-slate-950">{String(company.name ?? "Unnamed company")}</p>
                       <p className="text-xs text-slate-500">{String(company.id ?? "").slice(0, 8)}</p>
                     </td>
-                    <td className="px-5 py-4">
+                    <td data-label="Contact" className="px-5 py-4">
                       <p>{String(company.email ?? "-")}</p>
                       <p className="text-xs text-slate-500">{String(company.phone ?? "-")}</p>
                     </td>
-                    <td className="px-5 py-4">
+                    <td data-label="Plan" className="px-5 py-4">
                       <StatusPill value={String(company.plan ?? "basic")} />
                     </td>
-                    <td className="px-5 py-4">
+                    <td data-label="Status" className="px-5 py-4">
                       <StatusPill value={String(company.subscription_status ?? "inactive")} tone="amber" />
                     </td>
-                    <td className="px-5 py-4">{String(company.billing_cycle ?? "-") || "-"}</td>
-                    <td className="px-5 py-4">{formatDate(company.created_at)}</td>
+                    <td data-label="Billing" className="px-5 py-4">
+                      {billingOptionLabels[String(company.billing_cycle ?? "")] ?? titleize(String(company.billing_cycle ?? "-"))}
+                    </td>
+                    <td data-label="Created" className="px-5 py-4">{formatDate(company.created_at)}</td>
+                    <td data-label="Manage" className="px-5 py-4">
+                      <span className="admin-company-open">Manage <ChevronRight size={14} /></span>
+                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td className="px-5 py-7 text-slate-500" colSpan={6}>
+                  <td className="px-5 py-7 text-slate-500" colSpan={7}>
                     No companies match your filters.
                   </td>
                 </tr>
@@ -769,11 +971,27 @@ function CompaniesTab({
         </div>
       </section>
 
-      <CompanyInspector
-        company={selectedCompany}
-        savingCompanyId={savingCompanyId}
-        onUpdateCompany={onUpdateCompany}
-      />
+      <div className="admin-company-inspector-desktop">
+        <CompanyInspector
+          company={selectedCompany}
+          savingCompanyId={savingCompanyId}
+          onUpdateCompany={onUpdateCompany}
+        />
+      </div>
+
+      {isInspectorOpen && selectedCompany ? (
+        <div className="admin-company-drawer" role="dialog" aria-modal="true" aria-label={`Manage ${String(selectedCompany.name ?? "company")}`}>
+          <button type="button" className="admin-company-drawer-backdrop" onClick={() => setIsInspectorOpen(false)} aria-label="Close company manager" />
+          <div className="admin-company-drawer-panel">
+            <CompanyInspector
+              company={selectedCompany}
+              savingCompanyId={savingCompanyId}
+              onUpdateCompany={onUpdateCompany}
+              onClose={() => setIsInspectorOpen(false)}
+            />
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -782,10 +1000,12 @@ function CompanyInspector({
   company,
   savingCompanyId,
   onUpdateCompany,
+  onClose,
 }: {
   company: AdminRow | null;
   savingCompanyId: string;
   onUpdateCompany: (companyId: string, updates: Record<string, string>) => Promise<void>;
+  onClose?: () => void;
 }) {
   if (!company) {
     return (
@@ -799,16 +1019,23 @@ function CompanyInspector({
   const isSaving = savingCompanyId === companyId;
 
   return (
-    <aside className="h-fit rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+    <aside className="admin-company-inspector h-fit rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-xs font-semibold uppercase text-blue-700">Selected workspace</p>
           <h3 className="mt-2 text-xl font-semibold">{String(company.name ?? "Company")}</h3>
           <p className="mt-1 text-sm text-slate-500">{String(company.email ?? "-")}</p>
         </div>
-        <span className="flex size-11 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700">
-          <Building2 size={20} />
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="flex size-11 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700">
+            <Building2 size={20} />
+          </span>
+          {onClose ? (
+            <button type="button" onClick={onClose} className="admin-company-inspector-close" aria-label="Close company manager">
+              <X size={18} />
+            </button>
+          ) : null}
+        </div>
       </div>
 
       <div className="mt-5 grid gap-4">
@@ -827,23 +1054,27 @@ function CompanyInspector({
           onChange={(value) => onUpdateCompany(companyId, { subscriptionStatus: value })}
         />
         <ControlSelect
-          label="Billing cycle"
+          label="Access duration"
           value={String(company.billing_cycle ?? "")}
           options={billingOptions}
+          optionLabels={billingOptionLabels}
           disabled={isSaving}
           onChange={(value) => onUpdateCompany(companyId, { billingCycle: value })}
         />
+        <p className="-mt-2 text-xs leading-5 text-slate-500">
+          Weekly, monthly, and yearly identify the assigned access period. Lifetime stays active until an admin changes it.
+        </p>
       </div>
 
       <div className="mt-5 grid gap-2">
         <button
           type="button"
           disabled={isSaving}
-          onClick={() => onUpdateCompany(companyId, { plan: "ultra", subscriptionStatus: "active", billingCycle: "monthly" })}
+          onClick={() => onUpdateCompany(companyId, { subscriptionStatus: "active" })}
           className="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white disabled:opacity-60"
         >
           <Sparkles size={17} />
-          Give Ultra access
+          Activate selected plan
         </button>
         <button
           type="button"
@@ -1303,6 +1534,31 @@ function ToolsTab({ overview, onRefresh }: { overview: AdminOverview | null; onR
   );
 }
 
+function HealthGauge({
+  label,
+  value,
+  detail,
+  tone,
+}: {
+  label: string;
+  value: number;
+  detail: string;
+  tone: "coral" | "blue" | "green";
+}) {
+  const safeValue = Math.max(0, Math.min(100, value));
+
+  return (
+    <article className={`admin-health-gauge is-${tone}`}>
+      <div className="admin-health-gauge-top">
+        <span>{label}</span>
+        <strong>{safeValue}%</strong>
+      </div>
+      <div className="admin-health-track"><span style={{ width: `${safeValue}%` }} /></div>
+      <small>{detail}</small>
+    </article>
+  );
+}
+
 function MetricTile({
   label,
   value,
@@ -1319,7 +1575,7 @@ function MetricTile({
   const toneClass = tone === "blue" ? "bg-blue-50 text-blue-700" : "bg-emerald-50 text-emerald-700";
 
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div className="admin-metric-card rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-sm font-semibold text-slate-500">{label}</p>
@@ -1336,7 +1592,7 @@ function MetricTile({
 
 function AdminPanel({ title, icon: Icon, children }: { title: string; icon: LucideIcon; children: ReactNode }) {
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div className="admin-panel rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="mb-5 flex items-center gap-2">
         <Icon size={18} className="text-emerald-700" />
         <h2 className="font-semibold">{title}</h2>
@@ -1406,7 +1662,7 @@ function Timeline({ items }: { items: Array<{ type: string; title: string; detai
 
 function AdminTable({ title, columns, rows }: { title: string; columns: string[]; rows: string[][] }) {
   return (
-    <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+    <div className="admin-table overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
       <div className="border-b border-slate-200 px-5 py-4">
         <h2 className="font-semibold">{title}</h2>
       </div>
@@ -1426,7 +1682,7 @@ function AdminTable({ title, columns, rows }: { title: string; columns: string[]
               rows.map((row, index) => (
                 <tr key={`${title}-${index}`} className="text-slate-700">
                   {row.map((cell, cellIndex) => (
-                    <td key={`${title}-${index}-${cellIndex}`} className="px-5 py-4">
+                    <td key={`${title}-${index}-${cellIndex}`} data-label={columns[cellIndex]} className="px-5 py-4">
                       {cell}
                     </td>
                   ))}
@@ -1450,12 +1706,14 @@ function ControlSelect({
   label,
   value,
   options,
+  optionLabels,
   disabled,
   onChange,
 }: {
   label: string;
   value: string;
   options: string[];
+  optionLabels?: Record<string, string>;
   disabled: boolean;
   onChange: (value: string) => void;
 }) {
@@ -1470,7 +1728,7 @@ function ControlSelect({
       >
         {options.map((option) => (
           <option key={option || "none"} value={option}>
-            {option ? titleize(option) : "None"}
+            {optionLabels?.[option] ?? (option ? titleize(option) : "None")}
           </option>
         ))}
       </select>

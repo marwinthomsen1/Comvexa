@@ -39,7 +39,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { canUseModule, defaultPlan, planModules, type PlanName } from "./plan-access";
 import { formatTrialRemaining } from "./payment-status";
-import { invalidateSubscriptionAccess, loadSubscriptionAccess } from "./subscription-access";
+import { invalidateSubscriptionAccess, loadSubscriptionAccess, type SubscriptionAccess } from "./subscription-access";
 import { useDashboardText } from "./dashboard-i18n";
 import { supabase } from "@/src/lib/supabase/client";
 
@@ -104,14 +104,15 @@ export function DashboardNav() {
   const [mobilePanel, setMobilePanel] = useState<"create" | "more" | null>(null);
 
   useEffect(() => {
-    async function loadState() {
+    async function loadState(force = false) {
       try {
-        const access = await loadSubscriptionAccess();
+        const access = await loadSubscriptionAccess({ force });
         setPlan(access.plan);
         setAccessActive(access.accessActive);
         const remainingMs = access.trialEndsAt ? new Date(access.trialEndsAt).getTime() - Date.now() : 0;
         setTrialLabel(access.trialActive ? formatTrialRemaining(remainingMs) : "");
         setVisibleModules(readWorkspaceModules());
+        window.dispatchEvent(new CustomEvent<SubscriptionAccess>("comvexa-subscription-sync", { detail: access }));
       } finally {
         setAccessLoading(false);
       }
@@ -119,23 +120,39 @@ export function DashboardNav() {
 
     function refreshState() {
       invalidateSubscriptionAccess();
-      void loadState();
+      void loadState(true);
     }
 
-    const timeout = window.setTimeout(() => void loadState(), 0);
+    function loadCachedState() {
+      void loadState(false);
+    }
+
+    function refreshWhenVisible() {
+      if (document.visibilityState === "visible") {
+        refreshState();
+      }
+    }
+
+    const timeout = window.setTimeout(() => void loadState(true), 0);
+    const poll = window.setInterval(refreshWhenVisible, 15_000);
     const { data: authListener } = supabase.auth.onAuthStateChange(() => {
-      window.setTimeout(() => void loadState(), 0);
+      window.setTimeout(() => void loadState(true), 0);
     });
-    window.addEventListener("storage", loadState);
+    window.addEventListener("focus", refreshState);
+    document.addEventListener("visibilitychange", refreshWhenVisible);
+    window.addEventListener("storage", loadCachedState);
     window.addEventListener("comvexa-plan-change", refreshState);
-    window.addEventListener("comvexa-settings-change", loadState);
+    window.addEventListener("comvexa-settings-change", loadCachedState);
 
     return () => {
       window.clearTimeout(timeout);
+      window.clearInterval(poll);
       authListener.subscription.unsubscribe();
-      window.removeEventListener("storage", loadState);
+      window.removeEventListener("focus", refreshState);
+      document.removeEventListener("visibilitychange", refreshWhenVisible);
+      window.removeEventListener("storage", loadCachedState);
       window.removeEventListener("comvexa-plan-change", refreshState);
-      window.removeEventListener("comvexa-settings-change", loadState);
+      window.removeEventListener("comvexa-settings-change", loadCachedState);
     };
   }, []);
 
