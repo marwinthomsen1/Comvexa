@@ -300,7 +300,7 @@ export default function Home() {
               <CurrencySelector tone="light" />
               <LanguageSelector tone="light" />
             </div>
-            <Link href="/login" className="hidden px-2 text-sm font-bold text-[#41656b] transition hover:text-[#073d47] sm:inline">
+            <Link href="/login" className="inline-flex items-center justify-center rounded-full border border-[#073d47]/20 bg-white/70 px-3 py-2.5 text-xs font-black text-[#073d47] shadow-sm transition hover:-translate-y-0.5 hover:border-[#073d47]/35 hover:bg-white sm:px-4 sm:text-sm">
               <HomeText id="login" />
             </Link>
             <Link href="/register" className="inline-flex items-center justify-center gap-2 rounded-full bg-[#c7432f] px-4 py-2.5 text-xs font-black text-white shadow-[0_10px_25px_rgba(199,67,47,0.28)] transition hover:-translate-y-0.5 hover:bg-[#ad3524] sm:px-5 sm:text-sm">
@@ -642,38 +642,83 @@ export default function Home() {
 
       </main>
 
-      <footer className="bg-[#052f37] px-4 pb-8 pt-14 text-white sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl">
-          <div className="grid gap-10 border-b border-white/10 pb-12 md:grid-cols-[1.3fr_0.7fr_0.7fr]">
+      <footer className="relative overflow-hidden bg-[#052f37] px-4 pb-8 pt-16 text-white sm:px-6 sm:pt-20 lg:px-8">
+        <div className="pointer-events-none absolute -left-24 top-20 size-72 rounded-full bg-[#0c8b84]/20 blur-3xl" aria-hidden="true" />
+        <div className="pointer-events-none absolute -right-20 -top-28 size-80 rounded-full bg-[#ffc857]/15 blur-3xl" aria-hidden="true" />
+
+        <div className="relative mx-auto max-w-7xl">
+          <div className="grid gap-10 border-b border-white/10 pb-14 lg:grid-cols-[1.1fr_0.9fr] lg:items-end lg:gap-16">
             <div>
-              <Link href="/" className="flex items-center gap-3 font-black">
-                <Image src="/logo.png" alt="" width={44} height={44} className="size-11 rounded-xl bg-white object-contain p-1" />
-                <span className="text-xl tracking-[-0.04em]">Comvexa</span>
+              <Link href="/" className="inline-flex items-center gap-3 font-black" aria-label="Comvexa home">
+                <span className="grid size-12 place-items-center rounded-2xl bg-white shadow-[0_10px_30px_rgba(0,0,0,0.2)]">
+                  <Image src="/logo.png" alt="" width={48} height={48} className="size-full object-contain p-1.5" />
+                </span>
+                <span className="text-2xl tracking-[-0.05em]">Comvexa</span>
               </Link>
-              <p className="mt-5 max-w-md text-sm leading-6 text-white/50">One clear workspace for customers, people, operations, finance, documents, inventory, branches, and reports.</p>
+              <p className="mt-7 max-w-2xl text-3xl font-black leading-[1.05] tracking-[-0.05em] sm:text-5xl">
+                Your whole business.<br />
+                <span className="text-[#ffc857]">Finally in rhythm.</span>
+              </p>
+              <p className="mt-5 max-w-xl text-sm leading-6 text-white/55 sm:text-base sm:leading-7">
+                Customers, people, operations, and money moving together in one clear workspace.
+              </p>
+            </div>
+
+            <div className="rounded-[2rem] border border-white/10 bg-white/[0.07] p-2 shadow-2xl shadow-black/10 backdrop-blur">
+              <div className="rounded-[1.55rem] bg-[#ffc857] p-6 text-[#073d47] sm:p-7">
+                <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.18em]">
+                  <Sparkles size={15} /> Start here
+                </div>
+                <div className="mt-4 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+                  <p className="max-w-xs text-2xl font-black leading-tight tracking-[-0.04em]">Make tomorrow&apos;s workday the clear one.</p>
+                  <Link href="/register" className="group inline-flex shrink-0 items-center justify-center gap-3 rounded-full bg-[#073d47] px-5 py-3.5 text-sm font-black text-white transition hover:-translate-y-1 hover:bg-[#0a505c]">
+                    Start free
+                    <span className="grid size-7 place-items-center rounded-full bg-white/15 transition group-hover:translate-x-1"><ArrowRight size={15} /></span>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid gap-10 border-b border-white/10 py-12 sm:grid-cols-2 lg:grid-cols-[1.25fr_0.75fr_0.75fr_0.75fr]">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-[#8ef0df]">Built for momentum</p>
+              <p className="mt-4 max-w-sm text-sm leading-6 text-white/50">A calmer command center for ambitious teams who have outgrown scattered tools.</p>
+              <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-[#8ef0df]/20 bg-[#8ef0df]/10 px-3 py-2 text-xs font-bold text-[#8ef0df]">
+                <span className="size-2 rounded-full bg-[#8ef0df] shadow-[0_0_12px_#8ef0df]" /> All systems ready
+              </div>
             </div>
             <div>
               <h3 className="text-sm font-black text-white">Explore</h3>
-              <div className="mt-4 grid gap-3 text-sm text-white/50">
-                <a href="#platform" className="hover:text-[#ffc857]">Platform</a>
-                <a href="#accounting" className="hover:text-[#ffc857]">Accounting</a>
-                <a href="#pricing" className="hover:text-[#ffc857]">Pricing</a>
-                <a href="#faq" className="hover:text-[#ffc857]">FAQ</a>
+              <div className="mt-5 grid gap-3.5 text-sm text-white/50">
+                <a href="#platform" className="transition hover:translate-x-1 hover:text-[#ffc857]">Platform</a>
+                <a href="#accounting" className="transition hover:translate-x-1 hover:text-[#ffc857]">Accounting</a>
+                <a href="#pricing" className="transition hover:translate-x-1 hover:text-[#ffc857]">Pricing</a>
+                <a href="#faq" className="transition hover:translate-x-1 hover:text-[#ffc857]">FAQ</a>
               </div>
             </div>
             <div>
               <h3 className="text-sm font-black text-white">Company</h3>
-              <div className="mt-4 grid gap-3 text-sm text-white/50">
-                <Link href="/contact" className="hover:text-[#ffc857]">Contact</Link>
-                <Link href="/privacy" className="hover:text-[#ffc857]">Privacy</Link>
-                <Link href="/terms" className="hover:text-[#ffc857]">Terms</Link>
-                <Link href="/refund" className="hover:text-[#ffc857]">Refunds</Link>
+              <div className="mt-5 grid gap-3.5 text-sm text-white/50">
+                <Link href="/contact" className="transition hover:translate-x-1 hover:text-[#ffc857]">Contact</Link>
+                <Link href="/privacy" className="transition hover:translate-x-1 hover:text-[#ffc857]">Privacy</Link>
+                <Link href="/terms" className="transition hover:translate-x-1 hover:text-[#ffc857]">Terms</Link>
+                <Link href="/refund" className="transition hover:translate-x-1 hover:text-[#ffc857]">Refunds</Link>
+              </div>
+            </div>
+            <div>
+              <h3 className="text-sm font-black text-white">Get started</h3>
+              <div className="mt-5 grid gap-3.5 text-sm text-white/50">
+                <Link href="/register" className="transition hover:translate-x-1 hover:text-[#ffc857]">Create workspace</Link>
+                <Link href="/login" className="transition hover:translate-x-1 hover:text-[#ffc857]">Login</Link>
+                <Link href="/contact" className="transition hover:translate-x-1 hover:text-[#ffc857]">Get support</Link>
               </div>
             </div>
           </div>
-          <div className="flex flex-col gap-3 pt-6 text-xs text-white/35 sm:flex-row sm:items-center sm:justify-between">
+
+          <div className="flex flex-col gap-3 pt-7 text-xs text-white/35 sm:flex-row sm:items-center sm:justify-between">
             <p>Copyright 2026 Comvexa. All rights reserved.</p>
-            <p>Built for businesses that are ready to flow.</p>
+            <p className="flex items-center gap-2"><Globe2 size={13} /> Built for businesses everywhere.</p>
           </div>
         </div>
       </footer>
