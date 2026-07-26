@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useRef, useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { hasOwnerDashboardAccess, isAdminEmail } from "@/src/lib/admin/access";
 import { supabase } from "@/src/lib/supabase/client";
 import { enableOwnerPlanAccess } from "../dashboard/_components/payment-status";
@@ -13,6 +14,7 @@ export function LoginForm() {
   const [resetMessage, setResetMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSendingReset, setIsSendingReset] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -129,15 +131,26 @@ export function LoginForm() {
             {isSendingReset ? "Sending..." : "Forgot password?"}
           </button>
         </div>
-        <input
-          id="password"
-          name="password"
-          type="password"
-          autoComplete="current-password"
-          placeholder="Enter your password"
-          required
-          className="mt-2 w-full rounded-xl border border-cyan-900/15 bg-white px-4 py-3 text-sm shadow-sm outline-none transition placeholder:text-slate-400 hover:border-cyan-500/50 focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100 sm:rounded-2xl sm:py-3.5"
-        />
+        <div className="relative mt-2">
+          <input
+            id="password"
+            name="password"
+            type={showPassword ? "text" : "password"}
+            autoComplete="current-password"
+            placeholder="Enter your password"
+            required
+            className="w-full rounded-xl border border-cyan-900/15 bg-white py-3 pl-4 pr-12 text-sm shadow-sm outline-none transition placeholder:text-slate-400 hover:border-cyan-500/50 focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100 sm:rounded-2xl sm:py-3.5"
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword((visible) => !visible)}
+            aria-label={showPassword ? "Hide password" : "Show password"}
+            aria-pressed={showPassword}
+            className="absolute inset-y-0 right-0 flex w-12 items-center justify-center rounded-r-xl text-slate-500 transition hover:text-cyan-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-cyan-500 sm:rounded-r-2xl"
+          >
+            {showPassword ? <EyeOff aria-hidden="true" size={19} /> : <Eye aria-hidden="true" size={19} />}
+          </button>
+        </div>
       </div>
       {error ? (
         <p className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">

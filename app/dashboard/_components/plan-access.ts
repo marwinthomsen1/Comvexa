@@ -7,6 +7,7 @@ const basicModules = [
   "Customers",
   "Services",
   "Tasks",
+  "Quotes",
   "Invoices",
   "Payments",
   "Expenses",
@@ -23,6 +24,7 @@ const proModules = [
   "Recurring Invoices",
   "Staff Schedules",
   "WhatsApp Templates",
+  "Pro Growth",
 ];
 
 export const planModules: Record<PlanName, string[]> = {
@@ -44,6 +46,7 @@ export const planModules: Record<PlanName, string[]> = {
     "Branch Analytics",
     "White Label",
     "Data Import",
+    "Ultra Command",
   ],
 };
 
