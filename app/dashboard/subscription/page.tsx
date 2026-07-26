@@ -19,25 +19,32 @@ import { CurrencySelector, CurrencyValue, formatCurrencyAmount, useSelectedCurre
 import { trackMetaStartTrial } from "../../_components/meta-pixel";
 import { CancelSubscriptionCard } from "./cancel-subscription-card";
 import { comvexaPrices, getEffectiveMonthlyPrice } from "@/src/lib/pricing";
+import { normalizePlan, type PlanName } from "../_components/plan-access";
 
 const plans = [
   {
     name: "Basic",
     monthlyPrice: comvexaPrices.Basic.monthly,
     yearlyPrice: comvexaPrices.Basic.yearly,
-    description: "For small teams starting with essential company management.",
+    description: "For freelancers and small teams that need to quote, invoice, collect, and track costs.",
     features: [
-      "Dashboard",
-      "Customers",
+      "Dashboard and weekly business summary",
+      "Customers, notes, and balances",
       "Services/products",
-      "Tasks",
-      "Invoices",
-      "Payment status",
-      "Basic expense records",
-      "Customer balances",
+      "Quotes and estimates",
+      "Quote-to-invoice conversion",
+      "Tasks and due dates",
+      "Invoices and printable PDFs",
+      "Invoice sharing",
+      "Manual email and WhatsApp reminders",
+      "Payment tracking",
+      "Expenses and receipt links",
       "Simple tax fields",
-      "Income summary",
+      "Overdue and outstanding balances",
+      "Income and expense summary",
       "Basic reports",
+      "Customer and invoice CSV exports",
+      "Company branding and settings",
     ],
   },
   {
@@ -47,18 +54,28 @@ const plans = [
     description: "For growing companies that need staff, bookings, and richer operations.",
     features: [
       "Everything in Basic",
-      "Employee management",
-      "Bookings",
-      "Payment reminders",
+      "Up to 10 team members",
+      "Team invitations and staff roles",
+      "Employee management and leave",
+      "Timesheets and billable hours",
+      "Commission tracking",
+      "Sales leads and pipeline",
+      "Quote acceptance and signatures",
+      "Quote revisions",
+      "Bookings and customer details",
+      "Calendar export for Google and Outlook",
+      "Booking deposits and no-show tracking",
+      "Booking confirmations and reminders",
       "Recurring invoices",
+      "Automatic overdue reminders",
       "Partial payments",
-      "Expense categories",
-      "Accounts receivable aging",
-      "Tax summary report",
+      "Late fees and credit notes",
+      "Customer statements",
+      "Recurring tasks",
+      "Documents and expiry alerts",
       "Profit and loss summary",
-      "Documents",
-      "Advanced reports",
-      "CSV exports",
+      "Scheduled reports and advanced exports",
+      "Priority email support",
     ],
   },
   {
@@ -68,17 +85,33 @@ const plans = [
     description: "For companies that want the full Comvexa operating system with automation and control.",
     features: [
       "Everything in Pro",
+      "Ultra Command Center",
+      "Multiple legal entities",
       "Multiple branches",
+      "Cost centers and departments",
       "Branch profit and loss",
       "Branch performance comparison",
-      "Inventory",
+      "Multiple warehouses",
+      "Inter-branch stock transfers",
+      "Inventory batch and serial tracking",
+      "Barcode traceability",
+      "Cycle counts and stock adjustments",
       "Low-stock alerts",
       "Purchase orders",
       "Inventory valuation",
       "Supplier management",
+      "Supplier RFQs and quote comparison",
+      "Goods receipts and 3-way matching",
+      "Supplier scorecards",
+      "Contract and renewal tracking",
       "Custom roles and permissions",
+      "Enterprise security policies",
       "Audit logs",
       "Approval workflows",
+      "Integration connection manager",
+      "Webhooks",
+      "Custom fields and forms",
+      "Custom dashboards",
       "AI business assistant",
       "Automated invoice follow-ups",
       "Recurring task automation",
@@ -87,6 +120,8 @@ const plans = [
       "Employee performance reports",
       "Time-off and attendance tracking",
       "Cash flow overview",
+      "Budgets, forecasts, and variance",
+      "Projects and job costing",
       "Advanced expense management",
       "Supplier bills tracking",
       "Payment reconciliation",
@@ -96,8 +131,9 @@ const plans = [
       "Accountant-ready exports",
       "White-label invoices",
       "Data import help",
+      "Sandbox workspaces",
       "Setup guidance",
-      "Priority support",
+      "Enterprise support requests",
     ],
   },
 ];
@@ -110,7 +146,7 @@ const trialDaysByPlan: Record<string, number> = {
 export default function SubscriptionPage() {
   const router = useRouter();
   const currency = useSelectedCurrency();
-  const [selectedPlan, setSelectedPlan] = useState("Pro");
+  const [selectedPlan, setSelectedPlan] = useState<PlanName>("Pro");
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
   const [isStartingTrial, setIsStartingTrial] = useState(false);
   const [isCheckingTrial, setIsCheckingTrial] = useState(true);
@@ -133,7 +169,7 @@ export default function SubscriptionPage() {
       const storedCycle = pending.billingCycle ?? window.localStorage.getItem("comvexa-billing-cycle");
 
       if (storedPlan) {
-        setSelectedPlan(storedPlan);
+        setSelectedPlan(normalizePlan(storedPlan));
       }
 
       if (storedCycle === "monthly" || storedCycle === "yearly") {
@@ -148,7 +184,7 @@ export default function SubscriptionPage() {
         setIsOwnerPlanTester(ownerTesting);
 
         if (ownerTesting) {
-          enableOwnerPlanAccess(storedPlan ?? "Ultra", storedCycle === "monthly" || storedCycle === "yearly" ? storedCycle : "monthly");
+          enableOwnerPlanAccess(normalizePlan(storedPlan ?? "Ultra"), storedCycle === "monthly" || storedCycle === "yearly" ? storedCycle : "monthly");
         }
 
         if (!accessToken) {
@@ -187,11 +223,11 @@ export default function SubscriptionPage() {
   );
 
   const subtotal = billingCycle === "yearly" ? plan.yearlyPrice : plan.monthlyPrice;
-  const selectedTrialDays = trialDaysByPlan[selectedPlan] ?? 0;
+  const selectedTrialDays = trialDaysByPlan[plan.name] ?? 0;
   const selectedPlanHasTrial = selectedTrialDays > 0;
   const selectedTrialAvailable = selectedPlanHasTrial && !trialStatus.used;
-  const selectedTrialActive = selectedPlanHasTrial && trialStatus.active && trialStatus.plan === selectedPlan;
-  const selectedTrialExpired = selectedPlanHasTrial && trialStatus.expired && trialStatus.plan === selectedPlan;
+  const selectedTrialActive = selectedPlanHasTrial && trialStatus.active && trialStatus.plan === plan.name;
+  const selectedTrialExpired = selectedPlanHasTrial && trialStatus.expired && trialStatus.plan === plan.name;
   const trialText =
     isOwnerPlanTester
       ? "Dashboard test access"
@@ -226,7 +262,7 @@ export default function SubscriptionPage() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify({ plan: selectedPlan }),
+        body: JSON.stringify({ plan: plan.name }),
       });
       const trial = await response.json();
 
@@ -237,7 +273,7 @@ export default function SubscriptionPage() {
         return;
       }
 
-      activatePlanTrial(trial.plan ?? selectedPlan, trial.startsAt, trial.endsAt);
+      activatePlanTrial(trial.plan ?? plan.name, trial.startsAt, trial.endsAt);
       trackMetaStartTrial(trial.startsAt);
       setIsStartingTrial(false);
       router.push("/dashboard");
@@ -249,7 +285,7 @@ export default function SubscriptionPage() {
 
   function continueToPayment() {
     if (isOwnerPlanTester) {
-      enableOwnerPlanAccess(selectedPlan, billingCycle);
+      enableOwnerPlanAccess(plan.name, billingCycle);
       router.push("/dashboard");
       return;
     }
@@ -265,7 +301,7 @@ export default function SubscriptionPage() {
       return;
     }
 
-    setPendingPaidPlan(selectedPlan, billingCycle);
+    setPendingPaidPlan(plan.name, billingCycle);
     router.push("/dashboard/subscription/payment");
   }
 
@@ -285,7 +321,7 @@ export default function SubscriptionPage() {
             <div className="border-b border-slate-200 px-5 py-4"><p className="text-xs font-bold uppercase tracking-[0.16em] text-[#5b55c5]">Choose your operating level</p><p className="mt-1 text-sm text-slate-500">Select a tier to see exactly what your workspace includes.</p></div>
             <div className="divide-y divide-slate-200">{plans.map((item) => {
               const isSelected = item.name === selectedPlan;
-              return <button key={item.name} type="button" onClick={() => setSelectedPlan(item.name)} aria-pressed={isSelected} className={`plan-option-row grid w-full gap-4 p-5 text-left transition sm:grid-cols-[52px_minmax(0,1fr)_auto] sm:items-center ${isSelected ? "bg-[#f2f0ff]" : "bg-white hover:bg-slate-50"}`}>
+              return <button key={item.name} type="button" onClick={() => setSelectedPlan(item.name as PlanName)} aria-pressed={isSelected} className={`plan-option-row grid w-full gap-4 p-5 text-left transition sm:grid-cols-[52px_minmax(0,1fr)_auto] sm:items-center ${isSelected ? "bg-[#f2f0ff]" : "bg-white hover:bg-slate-50"}`}>
                 <span className={`grid size-12 place-items-center rounded-2xl ${isSelected ? "bg-[#5b55c5] text-white" : "bg-slate-100 text-slate-500"}`}><PlanTierGlyph plan={item.name} /></span>
                 <div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><h3 className="text-lg font-semibold text-slate-950">{item.name}</h3>{item.name === "Pro" ? <span className="rounded-full bg-[#fff1cb] px-2.5 py-1 text-[9px] font-bold uppercase tracking-wide text-[#8d6500]">Popular</span> : null}{isSelected ? <span className="rounded-full bg-[#dcd8ff] px-2.5 py-1 text-[9px] font-bold uppercase tracking-wide text-[#514ab8]">Selected</span> : null}</div><p className="mt-1 max-w-2xl text-xs leading-5 text-slate-500">{item.description}</p><p className={`mt-2 text-[11px] font-semibold ${trialDaysByPlan[item.name] ? "text-emerald-700" : "text-slate-400"}`}>{trialDaysByPlan[item.name] ? `${trialDaysByPlan[item.name]}-day trial included` : "Starts with paid access"}</p></div>
                 <div className="sm:text-right">{billingCycle === "yearly" ? <><p className="text-2xl font-semibold text-slate-950"><CurrencyValue usd={item.yearlyPrice} currency={currency} maximumFractionDigits={2} /><span className="text-xs font-medium text-slate-500">/year</span></p><p className="mt-1 text-[10px] font-semibold text-slate-400"><CurrencyValue usd={getEffectiveMonthlyPrice(item.name)} currency={currency} maximumFractionDigits={2} /> monthly equivalent</p></> : <p className="text-2xl font-semibold text-slate-950"><CurrencyValue usd={item.monthlyPrice} currency={currency} maximumFractionDigits={2} /><span className="text-xs font-medium text-slate-500">/month</span></p>}</div>
@@ -299,7 +335,7 @@ export default function SubscriptionPage() {
         <aside className="plan-checkout-panel self-start overflow-hidden rounded-[2rem] bg-[#1f2140] text-white shadow-xl xl:sticky xl:top-24"><div className="border-b border-white/10 p-6"><div className="flex items-center justify-between gap-3"><span className="grid size-11 place-items-center rounded-2xl bg-white/10 text-[#c8c4ff]"><ReceiptText size={20} /></span><span className="rounded-full bg-[#a9e8d3] px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-[#173b32]">{billingCycle} billing</span></div><p className="mt-6 text-xs font-semibold text-[#b8bad2]">Selected workspace</p><div className="mt-2 flex items-end justify-between gap-3"><h3 className="text-3xl font-semibold text-white">{plan.name}</h3><p className="text-xl font-semibold text-white"><CurrencyValue usd={subtotal} currency={currency} maximumFractionDigits={2} /></p></div><p className="mt-2 text-xs leading-5 text-[#b8bad2]" data-no-translate>{trialText}</p></div>
           <div className="p-6"><div className="space-y-3"><CheckoutLine icon={<CalendarClock size={15} />} label="Billing" value={billingCycle === "yearly" ? "Every year" : "Every month"} /><CheckoutLine icon={<BadgeDollarSign size={15} />} label="Trial" value={isOwnerPlanTester ? "Bypassed" : selectedTrialDays ? `${selectedTrialDays} days` : "None"} /><CheckoutLine icon={<Layers3 size={15} />} label="Capabilities" value={String(plan.features.length)} /></div><div className="mt-6 rounded-2xl bg-white/7 p-4 ring-1 ring-white/10"><div className="flex items-center justify-between gap-3"><span className="text-xs font-semibold text-[#c9cae0]" data-no-translate>{isOwnerPlanTester ? "Owner access" : dueNow === 0 ? "Due today" : "Due on payment page"}</span><span className="text-2xl font-semibold text-white"><CurrencyValue usd={isOwnerPlanTester ? 0 : dueNow} currency={currency} maximumFractionDigits={2} /></span></div>{selectedPlanHasTrial ? <p className="mt-3 text-[10px] leading-5 text-[#aeb0c9]" data-no-translate>{selectedTrialAvailable ? `After ${selectedTrialDays} days, ${billingCycle === "yearly" ? `${formatCurrencyAmount(subtotal, currency, false, 2)}/year` : `${formatCurrencyAmount(plan.monthlyPrice, currency, false, 2)}/month`} is due.` : selectedTrialActive ? `Payment is due when the trial ends: ${formatTrialRemaining(trialStatus.remainingMs)}.` : "The trial was already used once. Payment is required to continue."}</p> : null}</div>
             {trialError ? <p className="mt-4 rounded-xl bg-red-400/10 px-4 py-3 text-xs leading-5 text-red-200 ring-1 ring-red-300/20" role="alert">{trialError}</p> : null}
-            <button type="button" onClick={continueToPayment} disabled={isStartingTrial || isCheckingTrial} className="mt-5 inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#a9e8d3] px-5 text-sm font-semibold text-[#173b32] hover:bg-[#c2f1e1] disabled:opacity-60" data-no-translate>{isCheckingTrial ? "Checking trial..." : isStartingTrial ? "Starting trial..." : isOwnerPlanTester ? `Open ${selectedPlan} dashboard` : selectedPlanHasTrial && selectedTrialAvailable ? `Start ${selectedTrialDays}-day trial` : selectedTrialActive ? "Open dashboard" : "Continue to payment"}<ArrowRight size={16} /></button><div className="mt-4 flex items-center justify-center gap-2 text-[10px] text-[#9295b2]"><ShieldCheck size={13} />Secure checkout and workspace access</div>
+            <button type="button" onClick={continueToPayment} disabled={isStartingTrial || isCheckingTrial} className="mt-5 inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#a9e8d3] px-5 text-sm font-semibold text-[#173b32] hover:bg-[#c2f1e1] disabled:opacity-60" data-no-translate>{isCheckingTrial ? "Checking trial..." : isStartingTrial ? "Starting trial..." : isOwnerPlanTester ? `Open ${plan.name} dashboard` : selectedPlanHasTrial && selectedTrialAvailable ? `Start ${selectedTrialDays}-day trial` : selectedTrialActive ? "Open dashboard" : "Continue to payment"}<ArrowRight size={16} /></button><div className="mt-4 flex items-center justify-center gap-2 text-[10px] text-[#9295b2]"><ShieldCheck size={13} />Secure checkout and workspace access</div>
           </div>
         </aside>
       </section>

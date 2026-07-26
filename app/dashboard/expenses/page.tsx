@@ -8,7 +8,7 @@ export default function ExpensesPage() {
         table="expenses"
         title="Expenses"
         eyebrow="Cost tracker"
-        description="Track business costs as expense cards grouped by category, vendor, and payment date."
+        description="Track business costs, tax, vendors, payment dates, and links to receipt evidence."
         actionLabel="Add expense"
         titleKey="title"
         metaKeys={["category", "vendor", "payment_method"]}
@@ -23,6 +23,8 @@ export default function ExpensesPage() {
           { name: "expense_date", label: "Expense date", type: "date" },
           { name: "payment_method", label: "Payment method" },
           { name: "vendor", label: "Vendor" },
+          { name: "receipt_url", label: "Receipt link" },
+          { name: "notes", label: "Notes", type: "textarea" },
         ]}
       />
     </PlanGate>

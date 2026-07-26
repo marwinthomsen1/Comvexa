@@ -1,7 +1,7 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
-import { AlertTriangle, ArrowDownLeft, BadgeDollarSign, Banknote, Braces, BriefcaseBusiness, Building2, CalendarClock, CalendarDays, CheckCircle2, ChevronLeft, ChevronRight, CircleDollarSign, Clock3, CreditCard, Download, FileText, KeyRound, LockKeyhole, Mail, MapPin, MessageSquareText, Network, Package, Pause, Phone, PhoneCall, Play, Plus, Radar, Receipt, Search, Send, ShieldAlert, ShieldCheck, Smartphone, Store, Tags, Timer, Trash2, TrendingDown, WalletCards, X } from "lucide-react";
+import { ChangeEvent, FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { AlertTriangle, ArrowDownLeft, BadgeDollarSign, Banknote, Braces, BriefcaseBusiness, Building2, CalendarClock, CalendarDays, CheckCircle2, ChevronLeft, ChevronRight, CircleDollarSign, Clock3, CreditCard, Download, FileText, KeyRound, LockKeyhole, Mail, MapPin, MessageSquareText, Network, Package, Pause, Phone, PhoneCall, Play, Plus, Radar, Receipt, Search, Send, ShieldAlert, ShieldCheck, Smartphone, Store, Tags, Timer, Trash2, TrendingDown, Upload, WalletCards, X } from "lucide-react";
 import { formatCurrencyAmount } from "@/app/_components/currency-display";
 import { supabase } from "@/src/lib/supabase/client";
 import { getWorkspaceCompanyId } from "@/src/lib/supabase/workspace";
@@ -57,6 +57,38 @@ function readCurrency() {
 
 function csvEscape(value: string | number | null) {
   return `"${String(value ?? "").replaceAll('"', '""')}"`;
+}
+
+function parseCsv(text: string) {
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let cell = "";
+  let quoted = false;
+  for (let index = 0; index < text.length; index += 1) {
+    const character = text[index];
+    if (character === '"') {
+      if (quoted && text[index + 1] === '"') {
+        cell += '"';
+        index += 1;
+      } else {
+        quoted = !quoted;
+      }
+    } else if (character === "," && !quoted) {
+      row.push(cell);
+      cell = "";
+    } else if ((character === "\n" || character === "\r") && !quoted) {
+      if (character === "\r" && text[index + 1] === "\n") index += 1;
+      row.push(cell);
+      if (row.some((value) => value.length)) rows.push(row);
+      row = [];
+      cell = "";
+    } else {
+      cell += character;
+    }
+  }
+  row.push(cell);
+  if (row.some((value) => value.length)) rows.push(row);
+  return rows;
 }
 
 export function CardWorkspacePage({
@@ -420,6 +452,48 @@ export function CardWorkspacePage({
     URL.revokeObjectURL(url);
   }
 
+  async function importCustomerCsv(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file || variant !== "directory" || table !== "customers" || !companyId) return;
+    setError("");
+    const parsed = parseCsv(await file.text());
+    if (parsed.length < 2) {
+      setError("The CSV needs a header row and at least one customer.");
+      return;
+    }
+    const headers = parsed[0].map((value) => value.trim().toLowerCase().replace(/\s+/g, "_"));
+    if (!headers.includes("name")) {
+      setError("The customer CSV must include a Name column.");
+      return;
+    }
+    const allowed = new Set(["name", "email", "phone", "address", "notes"]);
+    const payload = parsed.slice(1).filter((values) => values.some((value) => value.trim())).map((values) => {
+      const customer: Row = { id: crypto.randomUUID(), company_id: companyId };
+      headers.forEach((header, index) => {
+        if (allowed.has(header)) customer[header] = values[index]?.trim() || null;
+      });
+      return customer;
+    }).filter((customer) => customer.name);
+    if (!payload.length) {
+      setError("No customers with a name were found in the CSV.");
+      return;
+    }
+    setIsSaving(true);
+    const { error: importError } = await supabase.from("customers").insert(payload);
+    setIsSaving(false);
+    if (importError) {
+      setError(importError.message);
+      return;
+    }
+    setRows((currentRows) => {
+      const nextRows = [...payload, ...currentRows];
+      if (cacheKey) rowsCache.set(cacheKey, nextRows);
+      return nextRows;
+    });
+    setPage(1);
+  }
+
   return (
     <main className="dashboard-module-page mx-auto w-full max-w-[1500px] flex-1 p-4 sm:p-6">
       <section className={`dashboard-module-hero rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/70 ${variant === "subscription" ? "dashboard-custom-hero subscription-renewal-hero" : variant === "cashflow" ? "dashboard-custom-hero cashflow-hero" : variant === "expenses" ? "dashboard-custom-hero expense-control-hero" : variant === "payables" ? "dashboard-custom-hero payables-desk-hero" : variant === "network" ? "dashboard-custom-hero branch-network-hero" : variant === "messages" ? "dashboard-custom-hero message-studio-hero" : variant === "permissions" ? "dashboard-custom-hero permission-matrix-hero" : ""}`}>
@@ -555,6 +629,13 @@ export function CardWorkspacePage({
               />
             </label>
             <div className="flex gap-2">
+              {variant === "directory" && table === "customers" ? (
+                <label className="inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                  <Upload size={16} />
+                  Import CSV
+                  <input type="file" accept=".csv,text/csv" onChange={(event) => void importCustomerCsv(event)} className="sr-only" />
+                </label>
+              ) : null}
               {usesCompactForm && !showForm ? (
                 <button type="button" onClick={() => setShowForm(true)} className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 text-sm font-semibold text-white hover:bg-blue-700">
                   <Plus size={16} />

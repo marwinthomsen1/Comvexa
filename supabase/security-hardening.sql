@@ -107,6 +107,7 @@ begin
       ('customers', 'basic'),
       ('services', 'basic'),
       ('tasks', 'basic'),
+      ('quotes', 'basic'),
       ('invoices', 'basic'),
       ('invoice_items', 'basic'),
       ('payments', 'basic'),
@@ -117,6 +118,15 @@ begin
       ('recurring_invoices', 'pro'),
       ('staff_schedules', 'pro'),
       ('whatsapp_templates', 'pro'),
+      ('sales_leads', 'pro'),
+      ('team_invitations', 'pro'),
+      ('employee_leave', 'pro'),
+      ('timesheets', 'pro'),
+      ('commissions', 'pro'),
+      ('credit_notes', 'pro'),
+      ('customer_statements', 'pro'),
+      ('report_schedules', 'pro'),
+      ('booking_settings', 'pro'),
       ('supplier_bills', 'ultra'),
       ('inventory_items', 'ultra'),
       ('branches', 'ultra'),
@@ -131,6 +141,25 @@ begin
       ('white_label_tasks', 'ultra'),
       ('data_import_jobs', 'ultra'),
       ('ai_assistant_notes', 'ultra')
+      ,('legal_entities', 'ultra')
+      ,('cost_centers', 'ultra')
+      ,('warehouses', 'ultra')
+      ,('stock_transfers', 'ultra')
+      ,('inventory_batches', 'ultra')
+      ,('stock_counts', 'ultra')
+      ,('supplier_quotes', 'ultra')
+      ,('goods_receipts', 'ultra')
+      ,('supplier_scorecards', 'ultra')
+      ,('business_contracts', 'ultra')
+      ,('enterprise_security_policies', 'ultra')
+      ,('integration_connections', 'ultra')
+      ,('webhook_endpoints', 'ultra')
+      ,('custom_fields', 'ultra')
+      ,('enterprise_budgets', 'ultra')
+      ,('enterprise_projects', 'ultra')
+      ,('custom_dashboards', 'ultra')
+      ,('enterprise_support_requests', 'ultra')
+      ,('sandbox_workspaces', 'ultra')
     ) as plans(table_name, required_plan)
   loop
     if to_regclass(format('public.%I', target.table_name)) is not null then

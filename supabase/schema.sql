@@ -107,10 +107,29 @@ create table if not exists invoices (
   id uuid primary key default gen_random_uuid(),
   company_id uuid references companies(id) on delete cascade,
   customer_id uuid references customers(id) on delete set null,
+  customer_name text,
+  customer_email text,
+  customer_phone text,
   invoice_number text,
   total_amount numeric,
   payment_status text default 'unpaid',
   due_date date,
+  notes text,
+  created_at timestamp default now()
+);
+
+create table if not exists quotes (
+  id uuid primary key default gen_random_uuid(),
+  company_id uuid references companies(id) on delete cascade,
+  customer_id uuid references customers(id) on delete set null,
+  quote_number text,
+  customer_name text,
+  customer_email text,
+  total_amount numeric,
+  status text default 'draft',
+  valid_until date,
+  notes text,
+  converted_invoice_id uuid references invoices(id) on delete set null,
   created_at timestamp default now()
 );
 
@@ -146,6 +165,7 @@ create table if not exists expenses (
   expense_date date,
   payment_method text,
   vendor text,
+  receipt_url text,
   notes text,
   created_at timestamp default now()
 );

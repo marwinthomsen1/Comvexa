@@ -39,6 +39,10 @@ type InvoiceEmailInput = BaseEmailInput & {
   invoiceLink?: string;
 };
 
+type InvoiceReminderEmailInput = InvoiceEmailInput & {
+  dueDate?: string;
+};
+
 type BookingEmailInput = BaseEmailInput & {
   bookingDateTime: string;
   bookingLink?: string;
@@ -364,6 +368,31 @@ export function sendInvoiceCreatedEmail(input: InvoiceEmailInput) {
     }),
     text: `Invoice ${input.invoiceNumber} created. View Invoice: ${invoiceLink}`,
     metadata: { invoiceNumber: input.invoiceNumber, amount: String(input.amount ?? ""), currency: input.currency, companyName: input.companyName },
+  });
+}
+
+export function sendInvoiceReminderEmail(input: InvoiceReminderEmailInput) {
+  const invoiceLink = input.invoiceLink ?? `${getAppUrl()}/dashboard/invoices`;
+  const amount = input.amount ? ` for <strong>${escapeHtml(money(input.amount, input.currency))}</strong>` : "";
+  const dueDate = input.dueDate ? ` was due on <strong>${escapeHtml(input.dueDate)}</strong>` : " is awaiting payment";
+  return sendEmail({
+    to: input.to,
+    type: "invoice_reminder",
+    subject: `Payment reminder: invoice ${input.invoiceNumber}`,
+    html: emailLayout({
+      title: "Invoice payment reminder",
+      preview: `Invoice ${input.invoiceNumber} is awaiting payment.`,
+      body: `<p>${greeting(input.customerName)}</p><p>This is a friendly reminder that invoice <strong>${escapeHtml(input.invoiceNumber)}</strong>${amount}${dueDate}.</p><p>If you have already paid, please disregard this message. Contact ${escapeHtml(input.companyName || "the sender")} if you have any questions.</p>`,
+      cta: { label: "View Invoice", href: invoiceLink },
+    }),
+    text: `Payment reminder: invoice ${input.invoiceNumber}${input.amount ? ` for ${money(input.amount, input.currency)}` : ""}${input.dueDate ? ` was due on ${input.dueDate}` : " is awaiting payment"}. View Invoice: ${invoiceLink}`,
+    metadata: {
+      invoiceNumber: input.invoiceNumber,
+      amount: String(input.amount ?? ""),
+      currency: input.currency,
+      dueDate: input.dueDate,
+      companyName: input.companyName,
+    },
   });
 }
 

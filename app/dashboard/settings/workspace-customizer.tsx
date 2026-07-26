@@ -68,7 +68,7 @@ const moduleGroups = [
   },
   {
     title: "Finance",
-    modules: ["Invoices", "Recurring Invoices", "Payments", "Expenses", "Supplier Bills", "Purchase Orders", "Reports"],
+    modules: ["Quotes", "Invoices", "Recurring Invoices", "Payments", "Expenses", "Supplier Bills", "Purchase Orders", "Reports"],
   },
   {
     title: "Assets and Control",
@@ -79,6 +79,8 @@ const moduleGroups = [
       "Customer Portal",
       "Branch Analytics",
       "WhatsApp Templates",
+      "Pro Growth",
+      "Ultra Command",
       "Permissions",
       "AI Assistant",
       "Automations",
@@ -110,6 +112,31 @@ type Settings = {
   defaultTaxRate: string;
   paymentTerms: string;
   reminderTone: string;
+  invoiceTemplate: string;
+  invoiceTitle: string;
+  invoiceAccent: string;
+  invoiceSecondaryColor: string;
+  invoiceBackgroundColor: string;
+  invoiceLogoUrl: string;
+  invoiceFont: string;
+  invoicePaperSize: string;
+  invoiceHeaderLayout: string;
+  invoiceBorderStyle: string;
+  invoiceLogoSize: string;
+  invoiceBillToLabel: string;
+  invoiceAmountLabel: string;
+  invoiceNotesLabel: string;
+  invoicePaymentInstructions: string;
+  invoiceFooter: string;
+  invoiceShowLogo: boolean;
+  invoiceShowCompanyContact: boolean;
+  invoiceShowPaymentTerms: boolean;
+  invoiceShowNotes: boolean;
+  invoiceShowCustomerContact: boolean;
+  invoiceShowStatus: boolean;
+  invoiceShowDates: boolean;
+  invoiceShowInvoiceNumber: boolean;
+  invoiceShowAmountBox: boolean;
   startPage: string;
   showSetup: boolean;
   showFinancePulse: boolean;
@@ -138,6 +165,31 @@ const defaultSettings: Settings = {
   defaultTaxRate: "0",
   paymentTerms: "Due on receipt",
   reminderTone: "Professional",
+  invoiceTemplate: "Modern",
+  invoiceTitle: "INVOICE",
+  invoiceAccent: "#c7642b",
+  invoiceSecondaryColor: "#17202c",
+  invoiceBackgroundColor: "#ffffff",
+  invoiceLogoUrl: "",
+  invoiceFont: "Modern sans",
+  invoicePaperSize: "A4",
+  invoiceHeaderLayout: "Split",
+  invoiceBorderStyle: "Soft",
+  invoiceLogoSize: "Medium",
+  invoiceBillToLabel: "BILL TO",
+  invoiceAmountLabel: "AMOUNT DUE",
+  invoiceNotesLabel: "NOTES",
+  invoicePaymentInstructions: "Thank you for your business. Please include the invoice number with your payment.",
+  invoiceFooter: "Generated with Comvexa",
+  invoiceShowLogo: true,
+  invoiceShowCompanyContact: true,
+  invoiceShowPaymentTerms: true,
+  invoiceShowNotes: true,
+  invoiceShowCustomerContact: true,
+  invoiceShowStatus: true,
+  invoiceShowDates: true,
+  invoiceShowInvoiceNumber: true,
+  invoiceShowAmountBox: true,
   startPage: "Dashboard",
   showSetup: true,
   showFinancePulse: true,
@@ -204,7 +256,7 @@ export function WorkspaceCustomizer() {
     updateSettings({ ...settings, modules: nextModules });
   }
 
-  function toggleBoolean(key: keyof Pick<Settings, "showSetup" | "showFinancePulse" | "enableEmailReminders" | "enableWhatsappTemplates">) {
+  function toggleBoolean(key: keyof Pick<Settings, "showSetup" | "showFinancePulse" | "enableEmailReminders" | "enableWhatsappTemplates" | "invoiceShowLogo" | "invoiceShowCompanyContact" | "invoiceShowPaymentTerms" | "invoiceShowNotes" | "invoiceShowCustomerContact" | "invoiceShowStatus" | "invoiceShowDates" | "invoiceShowInvoiceNumber" | "invoiceShowAmountBox">) {
     updateSettings({ ...settings, [key]: !settings[key] });
   }
 
@@ -479,6 +531,50 @@ export function WorkspaceCustomizer() {
             />
           </div>
         </SettingsCard>
+
+        <div className="xl:col-span-2">
+          <SettingsCard title="Invoice designer" description="Control how printed and PDF invoices look to customers." icon={ReceiptText}>
+            <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
+              <div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <SelectInput label="Template" value={settings.invoiceTemplate} options={["Modern", "Classic", "Minimal"]} onChange={(value) => updateSettings({ ...settings, invoiceTemplate: value })} />
+                  <TextInput label="Document title" value={settings.invoiceTitle} onChange={(value) => updateSettings({ ...settings, invoiceTitle: value.toUpperCase() })} />
+                  <ColorInput label="Brand color" value={settings.invoiceAccent} onChange={(value) => updateSettings({ ...settings, invoiceAccent: value })} />
+                  <ColorInput label="Text color" value={settings.invoiceSecondaryColor} onChange={(value) => updateSettings({ ...settings, invoiceSecondaryColor: value })} />
+                  <ColorInput label="Page color" value={settings.invoiceBackgroundColor} onChange={(value) => updateSettings({ ...settings, invoiceBackgroundColor: value })} />
+                  <TextInput label="Logo URL" value={settings.invoiceLogoUrl} onChange={(value) => updateSettings({ ...settings, invoiceLogoUrl: value })} />
+                  <SelectInput label="Typography" value={settings.invoiceFont} options={["Modern sans", "Classic serif", "Clean mono"]} onChange={(value) => updateSettings({ ...settings, invoiceFont: value })} />
+                  <SelectInput label="Paper size" value={settings.invoicePaperSize} options={["A4", "US Letter"]} onChange={(value) => updateSettings({ ...settings, invoicePaperSize: value })} />
+                  <SelectInput label="Header layout" value={settings.invoiceHeaderLayout} options={["Split", "Centered", "Company first"]} onChange={(value) => updateSettings({ ...settings, invoiceHeaderLayout: value })} />
+                  <SelectInput label="Border style" value={settings.invoiceBorderStyle} options={["Soft", "Sharp", "Double", "None"]} onChange={(value) => updateSettings({ ...settings, invoiceBorderStyle: value })} />
+                  <SelectInput label="Logo size" value={settings.invoiceLogoSize} options={["Small", "Medium", "Large"]} onChange={(value) => updateSettings({ ...settings, invoiceLogoSize: value })} />
+                </div>
+                <p className="mt-6 text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Wording</p>
+                <div className="mt-3 grid gap-4 sm:grid-cols-3">
+                  <TextInput label="Customer section" value={settings.invoiceBillToLabel} onChange={(value) => updateSettings({ ...settings, invoiceBillToLabel: value })} />
+                  <TextInput label="Total label" value={settings.invoiceAmountLabel} onChange={(value) => updateSettings({ ...settings, invoiceAmountLabel: value })} />
+                  <TextInput label="Notes label" value={settings.invoiceNotesLabel} onChange={(value) => updateSettings({ ...settings, invoiceNotesLabel: value })} />
+                </div>
+                <div className="mt-4 grid gap-4">
+                  <TextAreaInput label="Payment instructions" value={settings.invoicePaymentInstructions} onChange={(value) => updateSettings({ ...settings, invoicePaymentInstructions: value })} />
+                  <TextInput label="Footer text" value={settings.invoiceFooter} onChange={(value) => updateSettings({ ...settings, invoiceFooter: value })} />
+                </div>
+                <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                  <ToggleRow title="Show logo" description="Place your logo in the invoice header." checked={settings.invoiceShowLogo} onClick={() => toggleBoolean("invoiceShowLogo")} />
+                  <ToggleRow title="Company contact details" description="Show email, phone, and address." checked={settings.invoiceShowCompanyContact} onClick={() => toggleBoolean("invoiceShowCompanyContact")} />
+                  <ToggleRow title="Payment terms" description="Show your default terms and instructions." checked={settings.invoiceShowPaymentTerms} onClick={() => toggleBoolean("invoiceShowPaymentTerms")} />
+                  <ToggleRow title="Invoice notes" description="Include notes added to each invoice." checked={settings.invoiceShowNotes} onClick={() => toggleBoolean("invoiceShowNotes")} />
+                  <ToggleRow title="Customer contacts" description="Show customer email and phone." checked={settings.invoiceShowCustomerContact} onClick={() => toggleBoolean("invoiceShowCustomerContact")} />
+                  <ToggleRow title="Invoice status" description="Show paid, pending, or unpaid." checked={settings.invoiceShowStatus} onClick={() => toggleBoolean("invoiceShowStatus")} />
+                  <ToggleRow title="Issue and due dates" description="Show both invoice dates." checked={settings.invoiceShowDates} onClick={() => toggleBoolean("invoiceShowDates")} />
+                  <ToggleRow title="Invoice number" description="Show the document reference." checked={settings.invoiceShowInvoiceNumber} onClick={() => toggleBoolean("invoiceShowInvoiceNumber")} />
+                  <ToggleRow title="Amount box" description="Highlight the amount due." checked={settings.invoiceShowAmountBox} onClick={() => toggleBoolean("invoiceShowAmountBox")} />
+                </div>
+              </div>
+              <InvoicePreview settings={settings} />
+            </div>
+          </SettingsCard>
+        </div>
       </section>
       ) : null}
 
@@ -604,6 +700,38 @@ function TextInput({
         className="mt-2 h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
       />
     </label>
+  );
+}
+
+function TextAreaInput({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) {
+  return <label><span className="text-sm font-medium text-slate-700">{label}</span><textarea value={value} onChange={(event) => onChange(event.target.value)} rows={3} className="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100" /></label>;
+}
+
+function ColorInput({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) {
+  return <label><span className="text-sm font-medium text-slate-700">{label}</span><span className="mt-2 flex h-11 items-center gap-3 rounded-xl border border-slate-300 bg-white px-3"><input type="color" value={value} onChange={(event) => onChange(event.target.value)} className="size-7 cursor-pointer border-0 bg-transparent p-0" /><input value={value} onChange={(event) => /^#[0-9a-f]{0,6}$/i.test(event.target.value) && onChange(event.target.value)} className="min-w-0 flex-1 bg-transparent font-mono text-sm uppercase outline-none" /></span></label>;
+}
+
+function InvoicePreview({ settings }: { settings: Settings }) {
+  const minimal = settings.invoiceTemplate === "Minimal";
+  const centered = settings.invoiceHeaderLayout === "Centered";
+  const companyFirst = settings.invoiceHeaderLayout === "Company first";
+  const fontClass = settings.invoiceFont === "Classic serif" ? "font-serif" : settings.invoiceFont === "Clean mono" ? "font-mono" : "font-sans";
+  const borderClass = settings.invoiceBorderStyle === "Double" ? "border-4 border-double" : settings.invoiceBorderStyle === "None" ? "border-transparent" : settings.invoiceBorderStyle === "Sharp" ? "border" : "rounded-2xl border";
+  const logoSize = settings.invoiceLogoSize === "Large" ? "h-14 w-36" : settings.invoiceLogoSize === "Small" ? "h-6 w-20" : "h-9 w-28";
+  const companyBlock = <div className={centered ? "mt-3 text-center" : "text-right"}><p className="text-sm font-bold">{settings.companyDisplayName}</p>{settings.invoiceShowCompanyContact ? <p className="mt-1 text-[10px] leading-4 opacity-60">hello@company.com<br />+1 555 0100</p> : null}</div>;
+  const invoiceBlock = <div className={centered ? "text-center" : ""}>{settings.invoiceShowLogo && settings.invoiceLogoUrl ? <span aria-label="Invoice logo preview" className={`mb-3 block bg-contain bg-no-repeat ${centered ? "mx-auto bg-center" : "bg-left"} ${logoSize}`} style={{ backgroundImage: `url("${settings.invoiceLogoUrl.replaceAll('"', "%22")}")` }} /> : null}<p className="text-xl font-bold tracking-tight">{settings.invoiceTitle || "INVOICE"}</p>{settings.invoiceShowInvoiceNumber ? <p className="mt-1 text-xs opacity-50">INV-001</p> : null}</div>;
+  return (
+    <aside className={`self-start overflow-hidden shadow-lg ${borderClass} ${fontClass}`} style={{ backgroundColor: settings.invoiceBackgroundColor, color: settings.invoiceSecondaryColor, borderColor: settings.invoiceBorderStyle === "Double" ? settings.invoiceSecondaryColor : "#dbe2ea", aspectRatio: settings.invoicePaperSize === "US Letter" ? "8.5 / 11" : "210 / 297" }}>
+      <div className="p-5" style={minimal ? undefined : { borderTop: `6px solid ${settings.invoiceAccent}` }}>
+        <div className={centered ? "text-center" : "flex items-start justify-between gap-4"}>{companyFirst ? companyBlock : invoiceBlock}{companyFirst ? invoiceBlock : companyBlock}</div>
+        <div className="my-5 h-px" style={{ backgroundColor: settings.invoiceAccent }} />
+        <div className="grid grid-cols-2 gap-4 text-xs"><div><p className="text-[9px] font-bold uppercase opacity-50">{settings.invoiceBillToLabel}</p><p className="mt-2 font-semibold">Sample Customer</p>{settings.invoiceShowCustomerContact ? <p className="mt-1 text-[10px] opacity-60">customer@example.com<br />+1 555 0199</p> : null}</div>{settings.invoiceShowDates || settings.invoiceShowStatus ? <div className="text-right opacity-60">{settings.invoiceShowDates ? <><p>Issued: Jul 26, 2026</p><p className="mt-1">Due: Aug 9, 2026</p></> : null}{settings.invoiceShowStatus ? <p className="mt-1">Status: unpaid</p> : null}</div> : null}</div>
+        {settings.invoiceShowAmountBox ? <div className={`mt-6 p-4 text-right ${minimal ? "border-y border-slate-200" : "rounded-xl"}`} style={minimal ? undefined : { backgroundColor: `${settings.invoiceAccent}12` }}><p className="text-[9px] font-bold uppercase opacity-50">{settings.invoiceAmountLabel}</p><p className="mt-1 text-xl font-bold" style={{ color: settings.invoiceAccent }}>$1,250.00</p></div> : null}
+        {settings.invoiceShowPaymentTerms ? <div className="mt-5"><p className="text-[9px] font-bold uppercase opacity-50">Payment</p><p className="mt-1 text-[10px] leading-4 opacity-60">{settings.paymentTerms}. {settings.invoicePaymentInstructions}</p></div> : null}
+        {settings.invoiceShowNotes ? <div className="mt-4"><p className="text-[9px] font-bold uppercase opacity-50">{settings.invoiceNotesLabel}</p><p className="mt-1 text-[10px] opacity-60">Thank you for choosing us.</p></div> : null}
+        <div className="mt-6 flex items-end justify-between gap-3 border-t border-slate-200 pt-3 text-[9px] opacity-50"><span>{settings.invoiceFooter}</span><span className="shrink-0 font-semibold">Made with Comvexa.net</span></div>
+      </div>
+    </aside>
   );
 }
 

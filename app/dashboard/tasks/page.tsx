@@ -29,6 +29,8 @@ type Task = {
   priority: string | null;
   due_date: string | null;
   created_at: string | null;
+  recurrence: string | null;
+  next_recurrence_date: string | null;
 };
 
 const taskCache = new Map<string, Task[]>();
@@ -37,6 +39,14 @@ const statusOptions = [
   { value: "in progress", label: "In progress" },
   { value: "completed", label: "Completed" },
 ];
+
+function nextRecurringDate(current: string | null, recurrence: string) {
+  const date = current ? new Date(`${current}T00:00:00`) : new Date();
+  if (recurrence === "daily") date.setDate(date.getDate() + 1);
+  else if (recurrence === "weekly") date.setDate(date.getDate() + 7);
+  else date.setMonth(date.getMonth() + 1);
+  return date.toISOString().slice(0, 10);
+}
 
 export default function TasksPage() {
   return (
@@ -163,6 +173,8 @@ function TasksQueue() {
       status: "pending",
       due_date: String(formData.get("due_date") ?? "") || null,
       description: String(formData.get("description") ?? "").trim() || null,
+      recurrence: String(formData.get("recurrence") ?? "none"),
+      next_recurrence_date: String(formData.get("next_recurrence_date") ?? "") || null,
       created_at: new Date().toISOString(),
     };
 
@@ -187,6 +199,13 @@ function TasksQueue() {
     if (updateError) {
       updateLocalTasks(previousTasks);
       setError(updateError.message);
+      return;
+    }
+    if (status === "completed" && task.recurrence && task.recurrence !== "none") {
+      const nextDate = nextRecurringDate(task.due_date, task.recurrence);
+      const nextTask = { ...task, id: crypto.randomUUID(), status: "pending", due_date: nextDate, next_recurrence_date: nextDate, created_at: new Date().toISOString() };
+      const { error: recurrenceError } = await supabase.from("tasks").insert(nextTask);
+      if (!recurrenceError) updateLocalTasks([nextTask, ...tasks.map((item) => item.id === task.id ? { ...item, status } : item)]);
     }
   }
 
@@ -303,6 +322,7 @@ function TasksQueue() {
                 <label><span className="text-sm font-medium text-slate-700">Priority</span><select name="priority" defaultValue="normal" className="mt-2 h-12 w-full rounded-xl border border-slate-300 px-4 text-sm outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-100"><option value="low">Low</option><option value="normal">Normal</option><option value="high">High</option></select></label>
                 <label><span className="text-sm font-medium text-slate-700">Due date</span><input name="due_date" type="date" className="mt-2 h-12 w-full rounded-xl border border-slate-300 px-4 text-sm outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-100" /></label>
               </div>
+              <div className="grid gap-4 sm:grid-cols-2"><label><span className="text-sm font-medium text-slate-700">Repeat</span><select name="recurrence" defaultValue="none" className="mt-2 h-12 w-full rounded-xl border border-slate-300 px-4 text-sm"><option value="none">Does not repeat</option><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select></label><label><span className="text-sm font-medium text-slate-700">First recurrence</span><input name="next_recurrence_date" type="date" className="mt-2 h-12 w-full rounded-xl border border-slate-300 px-4 text-sm" /></label></div>
               <label><span className="text-sm font-medium text-slate-700">Details</span><textarea name="description" rows={4} placeholder="Add context or the next step" className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-100" /></label>
               <button disabled={isSaving || !companyId} className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-[#6d4aff] px-4 text-sm font-semibold text-white hover:bg-[#5c3ce0] disabled:opacity-50"><Plus size={17} />{isSaving ? "Saving..." : "Create task"}</button>
             </div>

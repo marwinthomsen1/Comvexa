@@ -301,11 +301,11 @@ export function DashboardOverview() {
     () => [
       { label: "Add customers", complete: counts.customers > 0, href: "/dashboard/customers" },
       { label: "Create services", complete: counts.services > 0, href: "/dashboard/services" },
-      { label: "Invite employees", complete: counts.employees > 0, href: "/dashboard/employees" },
+      { label: "Create a task", complete: counts.tasks > 0, href: "/dashboard/tasks" },
       { label: "Create invoices", complete: counts.invoices > 0, href: "/dashboard/invoices" },
-      { label: "Upload documents", complete: counts.documents > 0, href: "/dashboard/documents" },
+      { label: "Record a payment", complete: revenue > 0, href: "/dashboard/payments" },
     ],
-    [counts],
+    [counts, revenue],
   );
 
   const completedSetup = setupItems.filter((item) => item.complete).length;
@@ -429,9 +429,9 @@ export function DashboardOverview() {
 
   const quickActions = [
     { label: "New customer", href: "/dashboard/customers", icon: Users },
+    { label: "New quote", href: "/dashboard/quotes", icon: FileText },
     { label: "New invoice", href: "/dashboard/invoices", icon: ReceiptText },
     { label: "Record payment", href: "/dashboard/payments", icon: CreditCard },
-    { label: "Upload PDF", href: "/dashboard/documents", icon: FileText },
   ];
 
   const todayLabel = new Intl.DateTimeFormat(undefined, { weekday: "long", month: "long", day: "numeric" }).format(new Date());
@@ -1016,4 +1016,3 @@ function RecordList({
     </div>
   );
 }
-
