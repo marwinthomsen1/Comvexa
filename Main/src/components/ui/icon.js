@@ -1,5 +1,30 @@
 export function Icon({ name, ...props }) {
   const paths = {
+    layers: (
+      <>
+        <path d="m12 2 10 5-10 5L2 7l10-5Z" />
+        <path d="m2 12 10 5 10-5M2 17l10 5 10-5" />
+      </>
+    ),
+    camera: (
+      <>
+        <rect x="3" y="3" width="18" height="18" rx="5" />
+        <circle cx="12" cy="12" r="4" />
+        <path d="M17 7h.01" />
+      </>
+    ),
+    image: (
+      <>
+        <rect x="3" y="3" width="18" height="18" rx="3" />
+        <circle cx="8" cy="8" r="1" />
+        <path d="m3 17 6-6 4 4 3-3 5 5" />
+      </>
+    ),
+    refresh: (
+      <>
+        <path d="M20 8a8 8 0 0 0-14-3L3 8m0-5v5h5M4 16a8 8 0 0 0 14 3l3-3m0 5v-5h-5" />
+      </>
+    ),
     spark: (
       <path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5L12 3Z" />
     ),

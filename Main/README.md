@@ -24,7 +24,7 @@ npm run test:http
 
 ## Working now
 
-- Creative landing page, original SVG campaign concepts, connected-price illustration.
+- Reference-led colorful landing page, local headphone product artwork, connected-price illustration across four formats.
 - Responsive workspace, project/campaign creation, linking and listings, search/sort, detail views.
 - Local profile settings, template concept filtering, persistent light/dark themes.
 - Login/registration form previews with local validation and explicit unavailable states.
@@ -42,7 +42,9 @@ The editor, image upload, applying templates, actual connected content across sa
 ## Project map
 
 - `src/app/`: landing, account previews, dashboard routes, fail-closed API routes.
-- `src/components/marketing/`: header, campaign artwork and connected-price demo.
+- `src/components/marketing/`: header, responsive campaign ads, animated ribbons/reveals and connected-price demo.
+- `src/app/creative.css`: light/dark creative identity and restrained workspace styling.
+- `src/lib/motion/`: reduced-motion-aware reveal and offscreen-pause lifecycle.
 - `src/components/{layout,ui}/`: brand, icons, theme control.
 - `src/features/auth/`: account preview forms.
 - `src/features/workspace/`: provider, shell, creation dialog, lists/details/settings/templates.
@@ -80,3 +82,7 @@ ESLint uses recommended JavaScript and official Next.js rules. The existing mini
 ## Next approval gate
 
 A separate Supabase development project and cloud integration verification are needed for actual accounts. See the architecture guide. Phase 3 requires explicit approval and begins with an editor-library proof of concept. Do not connect the old database or modify comvexa.net.
+
+## Phase 2 visual upgrade
+
+The approved reference images guided a colorful purple/pink/orange/cyan visual identity. CSS transform/opacity motion, local optimized product artwork, and a synchronized ₱950 → ₱850 illustration are implemented without adding runtime dependencies. Local projects, campaigns, profiles and authentication boundaries are unchanged. See [design upgrade report](docs/design-upgrade-report.md) for verification and the generated asset prompt. Phase 3 remains unstarted.

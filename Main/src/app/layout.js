@@ -1,5 +1,6 @@
 import { site } from "@/config/site";
 import "./globals.css";
+import "./creative.css";
 
 export const metadata = {
   title: "Comvexa — Create once. Use everywhere.",
