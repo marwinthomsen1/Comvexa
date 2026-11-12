@@ -226,6 +226,31 @@ export default function DesignCanvas({
                 listening={false}
               />
             ))}
+          {!preview &&
+            doc.elements
+              .filter((e) => e.binding)
+              .map((e) => (
+                <Group
+                  key={`binding-${e.id}`}
+                  x={e.x}
+                  y={e.y - 18 / zoom}
+                  listening={false}
+                >
+                  <Rect
+                    width={70 / zoom}
+                    height={16 / zoom}
+                    fill={e.localOverride ? "#9b5d13" : "#126361"}
+                    cornerRadius={3 / zoom}
+                  />
+                  <Text
+                    text={e.localOverride ? "◇ Override" : "↗ Linked"}
+                    fill="#ffffff"
+                    fontSize={10 / zoom}
+                    x={4 / zoom}
+                    y={3 / zoom}
+                  />
+                </Group>
+              ))}
           <Transformer
             ref={transformer}
             visible={!preview && !editing}

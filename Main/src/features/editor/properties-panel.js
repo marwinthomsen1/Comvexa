@@ -20,6 +20,7 @@ function Field({ label, value, onChange, min, max, step = 1 }) {
 }
 export function PropertiesPanel({
   element,
+  connectionPanel,
   doc,
   change,
   duplicate,
@@ -64,6 +65,7 @@ export function PropertiesPanel({
               Delete
             </button>
           </div>
+          {connectionPanel}
           <fieldset disabled={element.locked}>
             <legend>
               {element.locked

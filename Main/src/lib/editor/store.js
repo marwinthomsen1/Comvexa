@@ -1,30 +1,10 @@
 import { validateDocument } from "./document.js";
 import { validateCampaign } from "../templates/generate.js";
-const DB = "comvexa-designs-v1";
-function open() {
-  return new Promise((resolve, reject) => {
-    const r = indexedDB.open(DB, 2);
-    r.onupgradeneeded = () => {
-      if (!r.result.objectStoreNames.contains("designs"))
-        r.result.createObjectStore("designs", { keyPath: "id" });
-      if (!r.result.objectStoreNames.contains("packages"))
-        r.result.createObjectStore("packages", { keyPath: "id" });
-    };
-    r.onsuccess = () => {
-      r.result.onversionchange = () => r.result.close();
-      resolve(r.result);
-    };
-    r.onerror = () =>
-      reject(
-        new Error(
-          "Browser design storage is unavailable. Export a project file to keep your work.",
-        ),
-      );
-    r.onblocked = () =>
-      reject(new Error("Close other editor tabs to open storage."));
-  });
-}
+import { openDesignDB as open } from "./database.js";
+import { connectedStore } from "../connected/store.js";
+import {normalizeCampaign} from "../connected/model.js";
 export const designStore = {
+  ...connectedStore,
   async load(id) {
     const db = await open();
     try {
@@ -169,7 +149,7 @@ export const designStore = {
               revision: 1,
               updatedAt: now,
             });
-          packages.add({ ...campaign, createdAt: now });
+          packages.add(normalizeCampaign({ ...campaign, createdAt: now },designs.map(d=>d.document)));
         } catch {
           abort(
             "Package save failed. Storage may be full. No designs were saved.",
@@ -207,48 +187,6 @@ export const designStore = {
     }
   },
   async save(id, document, expectedRevision) {
-    document = validateDocument(document);
-    const db = await open();
-    try {
-      return await new Promise((resolve, reject) => {
-        const t = db.transaction("designs", "readwrite"),
-          store = t.objectStore("designs"),
-          r = store.get(id);
-        let revision, error;
-        r.onsuccess = () => {
-          if ((r.result?.revision || 0) !== expectedRevision) {
-            error = new Error(
-              "This design changed in another tab. Export your project file, then reload to avoid overwriting it.",
-            );
-            t.abort();
-            return;
-          }
-          revision = expectedRevision + 1;
-          try {
-            store.put({
-              id,
-              document,
-              revision,
-              updatedAt: new Date().toISOString(),
-            });
-          } catch {
-            error = new Error(
-              "Local save failed. Storage may be full or disabled. Download a project file.",
-            );
-            t.abort();
-          }
-        };
-        t.oncomplete = () => resolve(revision);
-        t.onabort = t.onerror = () =>
-          reject(
-            error ||
-              new Error(
-                "Local save failed. Storage may be full or disabled. Download a project file.",
-              ),
-          );
-      });
-    } finally {
-      db.close();
-    }
+    return connectedStore.saveConnected(id, document, expectedRevision);
   },
 };

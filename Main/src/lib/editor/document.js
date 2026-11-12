@@ -109,6 +109,11 @@ export function validateDocument(value) {
       typeof e.localOverride === "boolean",
       "Explicit override flag is required.",
     );
+    if (e.binding?.transform !== undefined)
+      requireValue(
+        ["plain", "uppercase"].includes(e.binding.transform),
+        "Invalid connected text formatting.",
+      );
     const out = {
       id: e.id,
       type: e.type,
@@ -120,7 +125,11 @@ export function validateDocument(value) {
       opacity: e.opacity,
       locked: e.locked,
       binding: e.binding
-        ? { fieldId: e.binding.fieldId, campaignId: e.binding.campaignId }
+        ? {
+            fieldId: e.binding.fieldId,
+            campaignId: e.binding.campaignId,
+            ...(e.binding.transform ? { transform: e.binding.transform } : {}),
+          }
         : null,
       localOverride: e.localOverride,
     };

@@ -1,6 +1,6 @@
 # Comvexa — Create once. Use everywhere.
 
-Creative design platform by Marwin Thomsen. Worldwide audience, initially focusing on the Philippines. Phase 4 adds editable templates and automatic design packages to the browser-local editor and approved website. Cloud services remain unavailable.
+Creative design platform by Marwin Thomsen. Worldwide audience, initially focusing on the Philippines. Phase 5 adds connected campaign fields and shared updates to editable templates and automatic design packages to the browser-local editor and approved website. Cloud services remain unavailable.
 
 ## Run
 
@@ -94,8 +94,12 @@ The approved reference images guided a colorful purple/pink/orange/cyan visual i
 
 ## Phase 3 review
 
-See [editor architecture](docs/editor-architecture.md) and [Phase 3 report](docs/phase-3-report.md). Saved documents contain embedded image data; downloads are the backup mechanism. Phase 4 is implemented; Phase 5 has not started.
+See [editor architecture](docs/editor-architecture.md) and [Phase 3 report](docs/phase-3-report.md). Saved documents contain embedded image data; downloads are the backup mechanism. Phase 5 Connected Designs is implemented locally; see [Phase 5 report](docs/phase-5-report.md).
 
 ## Phase 4 templates and packages
 
 Open `/dashboard/templates` to browse 32 editable compositions across eight categories and four ratios. `/dashboard/packages` maps your information and up to four uploaded photos into coordinated editable artwork, saved with a campaign in IndexedDB. All saving remains local. See [Phase 4 report](docs/phase-4-report.md) for storage migration, test results, limitations and review instructions.
+
+## Phase 5 connected designs
+
+Open `/dashboard/campaigns`, choose a generated campaign, and select **Manage connected information**. Edit shared fields, preview linked designs, then save the campaign atomically. In an individual editor, select text or an image to connect, override, restore, or detach it. Campaigns and images stay in this browser; portable editor project downloads include their campaign snapshot. See [Phase 5 report](docs/phase-5-report.md).

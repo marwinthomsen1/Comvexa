@@ -17,7 +17,6 @@ import {
   undo,
   redo,
   PRESETS,
-  MAX_BYTES,
 } from "@/lib/editor/document";
 import { designStore } from "@/lib/editor/store";
 import { readImage, verifyAssets } from "@/lib/editor/images";
@@ -25,6 +24,14 @@ import { download, renderExport } from "@/lib/editor/export";
 import { readWorkspace } from "@/lib/workspace/local-store";
 import { PROJECT_SIZES } from "@/lib/workspace/validation";
 import "./editor.css";
+import "@/features/connected/connected.css";
+import { ConnectionPanel } from "@/features/connected/connection-panel";
+import { subscribeChanges } from "@/lib/connected/store";
+import {
+  resolveDocument,
+  parsePortable,
+  MAX_PORTABLE_BYTES,
+} from "@/lib/connected/model";
 import { documentWarnings, browserMeasure } from "@/lib/templates/fitting";
 export default function Editor() {
   const { id } = useParams(),
@@ -43,6 +50,9 @@ export default function Editor() {
     [format, setFormat] = useState("png"),
     [quality, setQuality] = useState(0.92),
     [dimensions, setDimensions] = useState({ width: 1080, height: 1080 });
+  const [campaigns, setCampaigns] = useState([]),
+    [available, setAvailable] = useState([]);
+  const inFlight = useRef(0);
   const exportAnchor = useRef(null);
   const viewport = useRef(null),
     revision = useRef(0),
@@ -73,7 +83,7 @@ export default function Editor() {
     }
     async function load() {
       try {
-        const record = await designStore.load(id);
+        const record = await designStore.loadConnected(id);
         let document;
         if (record) {
           document = record.document;
@@ -95,6 +105,9 @@ export default function Editor() {
           );
         }
         if (!active) return;
+        setCampaigns(record?.campaigns || []);
+        if (record?.connectionWarnings?.length)
+          setError(record.connectionWarnings.join(" "));
         revision.current = record?.revision || 0;
         saved.current = record ? JSON.stringify(document) : "";
         conflict.current = false;
@@ -127,6 +140,7 @@ export default function Editor() {
     (snapshot) => {
       if (!snapshot) return Promise.resolve(false);
       setStatus("Saving…");
+      inFlight.current++;
       const task = queue.current
         .then(async () => {
           if (conflict.current)
@@ -151,6 +165,9 @@ export default function Editor() {
             setError(e.message);
           }
           return false;
+        })
+        .finally(() => {
+          inFlight.current--;
         });
       queue.current = task;
       return task;
@@ -173,9 +190,55 @@ export default function Editor() {
     window.addEventListener("beforeunload", leave);
     return () => window.removeEventListener("beforeunload", leave);
   }, []);
+  useEffect(() => {
+    designStore
+      .listPackages()
+      .then(setAvailable)
+      .catch((e) => setError(e.message));
+  }, []);
+  async function refreshConnected(force = false) {
+    if (inFlight.current && !force) return;
+    try {
+      const record = await designStore.loadConnected(id);
+      if (!record) return;
+      if (record.revision === revision.current && !force) return;
+      if (
+        !force &&
+        latest.current &&
+        JSON.stringify(latest.current) !== saved.current
+      ) {
+        conflict.current = true;
+        setError(
+          "This design changed through its campaign or another tab. Your unsaved work is kept. Download a recovery project before reloading.",
+        );
+        return;
+      }
+      revision.current = record.revision;
+      saved.current = JSON.stringify(record.document);
+      conflict.current = false;
+      setCampaigns(record.campaigns);
+      setState((old) => ({ ...old, present: record.document }));
+      setStatus("Updated from shared campaign");
+      setError(record.connectionWarnings.join(" "));
+    } catch (e) {
+      setError(e.message);
+    }
+  }
+  useEffect(() => subscribeChanges(() => refreshConnected()), [id]);
+  async function chooseCampaign(campaignId) {
+    if (!campaignId) return;
+    try {
+      const next = await designStore.campaignSnapshot(campaignId);
+      setCampaigns([next.campaign]);
+    } catch (e) {
+      setError(e.message);
+    }
+  }
   function apply(next) {
     try {
-      const checked = validateDocument(next);
+      const checked = resolveDocument(validateDocument(next), campaigns, {
+        strict: false,
+      }).document;
       setState((old) => commit(old, checked));
       setError("");
     } catch (e) {
@@ -220,7 +283,14 @@ export default function Editor() {
   }
   function actionHistory(action) {
     setEditId(null);
-    setState((s) => action(s));
+    setState((s) => {
+      const next = action(s);
+      return {
+        ...next,
+        present: resolveDocument(next.present, campaigns, { strict: false })
+          .document,
+      };
+    });
   }
   useEffect(() => {
     function key(e) {
@@ -347,35 +417,87 @@ export default function Editor() {
   }
   async function importProject(file) {
     try {
-      if (!file || file.size > MAX_BYTES)
-        throw new Error("Project files must be at most 20 MB.");
-      const value = validateDocument(JSON.parse(await file.text()));
-      await verifyAssets(value);
+      if (!file || file.size > MAX_PORTABLE_BYTES)
+        throw new Error("Project files must be at most 64 MB.");
+      let input = JSON.parse(await file.text());
+      const parsed = parsePortable(input);
+      await verifyAssets(parsed.document);
+      for (const c of parsed.campaigns) {
+        for (const a of Object.values(c.assets))
+          await verifyAssets({ assets: { photo: a } });
+      }
+      if (!parsed.campaigns.length) {
+        const missing = parsed.document.elements.filter(
+          (e) =>
+            e.binding && !available.some((c) => c.id === e.binding.campaignId),
+        );
+        if (missing.length) {
+          if (
+            !window.confirm(
+              "This older project references campaigns unavailable in this browser. Import the cached artwork as independent content? No shared information will be invented.",
+            )
+          )
+            return;
+          input = {
+            ...parsed.document,
+            elements: parsed.document.elements.map((e) =>
+              missing.some((m) => m.id === e.id)
+                ? { ...e, binding: null, localOverride: false }
+                : e,
+            ),
+          };
+        }
+      }
       if (
         doc.elements.length &&
         !window.confirm(
-          "Replace this canvas with the imported project? You can undo this change.",
+          "Replace this canvas with the imported project? You can undo the canvas change. Imported campaigns are kept separately.",
         )
       )
         return;
-      apply(value);
+      const result = await designStore.importConnected(
+        id,
+        input,
+        revision.current,
+      );
+      revision.current = result.revision;
+      saved.current = JSON.stringify(result.document);
+      setCampaigns(result.campaigns);
+      setState((old) => commit(old, result.document));
       setSelected(null);
-      setDimensions(value.canvas);
+      setDimensions(result.document.canvas);
+      setStatus("Imported and saved in this browser");
+      setError("");
+      designStore.listPackages().then(setAvailable);
     } catch (e) {
       setError("Import failed: " + e.message);
     }
   }
-  function projectFile() {
-    download(
-      new Blob([JSON.stringify(doc)], { type: "application/json" }),
-      `${doc.name}.comvexa.json`,
-    );
+  async function projectFile() {
+    try {
+      const value = await designStore.portable(doc);
+      download(
+        new Blob([JSON.stringify(value)], { type: "application/json" }),
+        `${doc.name}.comvexa.json`,
+      );
+    } catch (e) {
+      download(
+        new Blob([JSON.stringify(doc)], { type: "application/json" }),
+        `${doc.name}.recovery.comvexa.json`,
+      );
+      setError("Recovery artwork downloaded with cached values: " + e.message);
+    }
   }
   async function exportImage() {
     setExporting(true);
     setError("");
     try {
-      const blob = await renderExport(doc, format, quality);
+      const snapshot = await designStore.exportSnapshot(
+        id,
+        doc,
+        revision.current,
+      );
+      const blob = await renderExport(snapshot.document, format, quality);
       download(blob, `${doc.name}.${format === "jpeg" ? "jpg" : "png"}`);
     } catch (e) {
       setError("Export failed: " + e.message);
@@ -548,7 +670,13 @@ export default function Editor() {
                 setMobile("properties");
               }}
             >
-              {e.locked ? "▣" : "◇"}{" "}
+              {e.locked
+                ? "▣"
+                : e.binding
+                  ? e.localOverride
+                    ? "◇ override"
+                    : "↗ linked"
+                  : "◇"}{" "}
               {e.type === "text" ? e.text.slice(0, 28) || "Empty text" : e.type}
             </button>
           ))}
@@ -587,6 +715,17 @@ export default function Editor() {
       portable={portable}
       replace={replace}
       exportAnchor={exportAnchor}
+      connectionPanel={
+        <ConnectionPanel
+          element={element}
+          doc={doc}
+          campaigns={campaigns}
+          available={available}
+          onApply={apply}
+          onError={setError}
+          onChooseCampaign={chooseCampaign}
+        />
+      }
     />
   );
 
@@ -679,6 +818,18 @@ export default function Editor() {
         <div className="editor-error" role="alert">
           {error}
           <button onClick={() => setError("")}>Dismiss</button>
+          <button
+            onClick={() => {
+              if (
+                window.confirm(
+                  "Reload saved design? Download your unsaved recovery project first if you need it.",
+                )
+              )
+                refreshConnected(true);
+            }}
+          >
+            Reload saved
+          </button>
         </div>
       )}
       <nav className="editor-tabs" aria-label="Editor tools">
