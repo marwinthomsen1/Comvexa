@@ -1,0 +1,15 @@
+.DS_Store
+**/node_modules/
+**/.next/
+**/.env*
+!**/.env.example
+**/.vercel/
+**/coverage/
+**/*.log
+**/*.pem
+**/*.key
+**/*.p12
+**/*.pfx
+**/service-account*.json
+**/playwright-report/
+**/test-results/
