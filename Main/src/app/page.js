@@ -1,38 +1,312 @@
+import Link from "next/link";
+import { Header } from "@/components/marketing/header";
 import { Brand } from "@/components/layout/brand";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { DesignPreview } from "@/components/marketing/design-preview";
+import { ConnectedDemo } from "@/components/marketing/connected-demo";
 import { Icon } from "@/components/ui/icon";
-import { featurePreviews } from "@/config/site";
-
+import { templatePreviews } from "@/config/site";
 export default function Home() {
   return (
-    <div className="site-shell">
-      <header className="site-header"><Brand /><div className="header-tools"><span className="status"><span />In the making</span><ThemeToggle /></div></header>
+    <>
+      <Header />
       <main id="main-content">
-        <section className="hero" aria-labelledby="hero-title">
-          <div className="hero-copy">
-            <p className="eyebrow"><span className="eyebrow-line" />A NEW CHAPTER IN LEARNING</p>
-            <h1 id="hero-title">Learn smarter<br />with <span>Comvexa.</span></h1>
-            <p className="hero-description">Big questions. Small breakthroughs. A little more understanding, every day.</p>
-            <p className="hero-detail">We’re building an AI-powered space to ask, explore, and practice — at your own pace.</p>
-            <a className="button button-primary" href="#explore">Explore what’s coming <span aria-hidden="true">↗</span></a>
-            <p className="launch-note">Currently in development. Learning tools are coming soon.</p>
+        <section className="hero wrap">
+          <div className="hero-top">
+            <span className="eyebrow">
+              <span className="status-dot" />A MORE CONNECTED WAY TO CREATE
+            </span>
+            <span className="edition-label">
+              THE CREATIVE PLATFORM / IN DEVELOPMENT
+            </span>
           </div>
-          <div className="learning-art" role="img" aria-label="An open book with an orbit of ideas, illustrating a new chapter in learning">
-            <span className="art-caption">ROOM FOR YOUR NEXT BIG IDEA</span>
-            <div className="orbit orbit-one" /><div className="orbit orbit-two" />
-            <span className="art-star star-one">✦</span><span className="art-star star-two">✧</span>
-            <div className="idea-chip chip-one"><Icon name="spark" />Stay curious</div>
-            <svg className="book" viewBox="0 0 360 290" fill="none" aria-hidden="true"><path d="M44 83c50-16 92-6 136 21 44-27 86-37 136-21v144c-46-13-91-4-136 22-45-26-90-35-136-22V83Z" fill="var(--book-shadow)" /><path d="M180 91C133 61 89 56 39 69v141c53-10 95 0 141 28V91Z" fill="var(--book-left)" stroke="var(--book-line)" strokeWidth="2" /><path d="M180 91c47-30 91-35 141-22v141c-53-10-95 0-141 28V91Z" fill="var(--book-right)" stroke="var(--book-line)" strokeWidth="2" /><path d="M180 92v144M65 99c27-3 55 2 85 16M65 123c27-3 55 2 85 16M65 147c27-3 55 2 67 8M210 115c28-14 54-19 85-16M210 139c28-14 54-19 85-16M210 163c28-14 54-19 68-17" stroke="var(--book-line)" strokeWidth="3" strokeLinecap="round" /><path d="m245 62 0 55 14-13 14 4V58" fill="var(--accent)" /></svg>
-            <div className="idea-chip chip-two"><span className="chip-dot" />One idea at a time</div>
-            <span className="art-bottom">YOUR CURIOSITY. A WORLD OF POSSIBILITY.</span>
+          <div className="hero-heading">
+            <h1>
+              Create once.
+              <br />
+              <span>
+                Use <em>everywhere.</em>
+              </span>
+            </h1>
+            <div className="hero-aside">
+              <p>
+                One idea. A whole world
+                <br />
+                of possibilities.
+              </p>
+              <p className="muted">
+                Turn your photos and information into coordinated designs.
+                Change the details once. Keep every design in sync.
+              </p>
+              <Link className="button" href="/dashboard">
+                Explore the local preview <Icon name="arrow" />
+              </Link>
+              <span className="fine-print">
+                No account needed for this browser-only preview.
+              </span>
+            </div>
+          </div>
+          <div className="hero-studio">
+            <div className="studio-caption">
+              <span>
+                <span className="status-dot" /> ONE CAMPAIGN. MANY
+                POSSIBILITIES.
+              </span>
+              <span>CONCEPT PREVIEW ↗</span>
+            </div>
+            <div className="hero-designs">
+              <div className="hero-poster poster-one">
+                <DesignPreview />
+                <span className="format-tag">01 / SOCIAL POST</span>
+              </div>
+              <div className="hero-poster poster-two">
+                <DesignPreview
+                  tone="peach"
+                  format="portrait"
+                  headline={"MAKE ROOM\nFOR GREEN."}
+                />
+                <span className="format-tag">02 / PROMOTIONAL FLYER</span>
+              </div>
+              <div className="hero-poster poster-three">
+                <DesignPreview
+                  tone="lilac"
+                  format="story"
+                  headline={"A LITTLE\nMORE LIFE."}
+                />
+                <span className="format-tag">03 / STORY</span>
+              </div>
+              <div className="connection-sticker">
+                <Icon name="link" />
+                <div>
+                  Same story.
+                  <br />
+                  <strong>Different canvas.</strong>
+                </div>
+                <span>✦</span>
+              </div>
+            </div>
+            <div className="studio-bottom">
+              <span>Your ideas deserve more than one format.</span>
+              <a href="#connected">
+                See the connection <span aria-hidden="true">↓</span>
+              </a>
+            </div>
           </div>
         </section>
-        <section id="explore" className="feature-section" aria-labelledby="features-title">
-          <div className="section-heading"><div><p className="eyebrow">THE TOOLKIT, REIMAGINED</p><h2 id="features-title">A few ways you’ll learn.</h2></div><span className="preview-label">A preview of what’s ahead</span></div>
-          <div className="feature-grid">{featurePreviews.map((feature) => <article className="card feature-card" key={feature.name}><div className="feature-top"><span className={`feature-icon accent-${feature.accent}`}><Icon name={feature.icon} /></span><span className="feature-number">{feature.number}</span></div><h3>{feature.name}</h3><p>{feature.description}</p><span className="coming-soon">Coming soon</span></article>)}</div>
+        <section id="how-it-works" className="section wrap">
+          <div className="section-heading">
+            <div>
+              <span className="eyebrow">LESS REPEATING. MORE CREATING.</span>
+              <h2>
+                From a little information
+                <br />
+                to a bigger picture.
+              </h2>
+            </div>
+            <p className="section-intro">
+              The workflow we’re building brings the details, the designs, and
+              the updates together.
+            </p>
+          </div>
+          <div className="steps">
+            {[
+              [
+                "01",
+                "Bring your idea",
+                "A product to sell. An event to share. Start with your photos and the details that matter.",
+              ],
+              [
+                "02",
+                "Make it a package",
+                "Choose a visual direction and create coordinated posts, stories, and promotional designs.",
+              ],
+              [
+                "03",
+                "Keep it connected",
+                "A new price? A different date? Update shared details without starting every design again.",
+              ],
+            ].map(([n, t, d]) => (
+              <article key={n}>
+                <span className="step-number">
+                  {n}
+                  <span>↗</span>
+                </span>
+                <h3>{t}</h3>
+                <p>{d}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+        <section id="packages" className="package-section">
+          <div className="wrap package-layout">
+            <div>
+              <span className="eyebrow">DESIGN PACKAGES · COMING SOON</span>
+              <h2>
+                One idea.
+                <br />
+                All the right
+                <br />
+                <em>places.</em>
+              </h2>
+              <p>
+                Build a coordinated set for your next product, promotion, or
+                gathering. A consistent look, wherever your story goes.
+              </p>
+              <div className="package-formats">
+                <span>Social posts</span>
+                <span>Stories</span>
+                <span>Flyers</span>
+                <span>Posters</span>
+                <span>Event announcements</span>
+              </div>
+              <p className="fine-print">
+                Illustrative formats. Generation and exports are not available
+                yet.
+              </p>
+            </div>
+            <div className="package-art">
+              <div className="package-label">
+                THE GREENHOUSE / CAMPAIGN NO. 01
+              </div>
+              <DesignPreview
+                tone="lilac"
+                format="portrait"
+                headline={"GROW YOUR\nOWN WAY."}
+              />
+              <DesignPreview
+                tone="sage"
+                headline={"FRESH STARTS.\nGREEN HEARTS."}
+              />
+              <span className="package-note">
+                A family of designs.
+                <br />A feeling that’s all yours.
+              </span>
+            </div>
+          </div>
+        </section>
+        <section id="connected" className="section wrap">
+          <div className="section-heading">
+            <div>
+              <span className="eyebrow">THE COMVEXA CONNECTION</span>
+              <h2>
+                Update the details.
+                <br />
+                <em>Keep the design.</em>
+              </h2>
+            </div>
+            <p className="section-intro">
+              Shared content. Individual style. Connected designs are planned to
+              keep names, prices, and dates in step, while every layout stays
+              your own.
+            </p>
+          </div>
+          <ConnectedDemo />
+          <div className="connection-notes">
+            <span>
+              <Icon name="check" />
+              One source for shared information
+            </span>
+            <span>
+              <Icon name="check" />A distinct layout for every format
+            </span>
+            <span>
+              <Icon name="check" />
+              Individual overrides planned
+            </span>
+          </div>
+        </section>
+        <section id="templates" className="section templates-section wrap">
+          <div className="section-heading">
+            <div>
+              <span className="eyebrow">A LITTLE HEAD START</span>
+              <h2>
+                Good ideas deserve
+                <br />a good starting point.
+              </h2>
+            </div>
+            <div>
+              <p className="section-intro">
+                Considered templates for everyday creators.
+                <br />A small preview of what’s taking shape.
+              </p>
+              <Link className="text-link" href="/dashboard/templates">
+                Explore template concepts <span>↗</span>
+              </Link>
+            </div>
+          </div>
+          <div className="template-grid">
+            {templatePreviews.map((item) => (
+              <article className="template-card" key={item.id}>
+                <DesignPreview {...item} />
+                <div>
+                  <h3>{item.name}</h3>
+                  <span>{item.category} / Concept</span>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+        <section id="free-tools" className="free-section wrap">
+          <div className="free-symbol" aria-hidden="true">
+            ✳
+          </div>
+          <div>
+            <span className="eyebrow">ROOM FOR EVERY CREATOR</span>
+            <h2>
+              Big ideas shouldn’t
+              <br />
+              need a big budget.
+            </h2>
+            <p>
+              Our plan: free basic design tools, a selection of free templates,
+              and standard exports without watermarks. Made for the everyday
+              things you want to put into the world.
+            </p>
+            <span className="pill">PLANNED FOR LAUNCH · NOT AVAILABLE YET</span>
+          </div>
+          <div className="free-list">
+            <span>
+              Text, photos & shapes <Icon name="plus" />
+            </span>
+            <span>
+              Templates to make your own <Icon name="plus" />
+            </span>
+            <span>
+              Watermark-free standard exports <Icon name="plus" />
+            </span>
+            <p>Export formats and limits will be confirmed after testing.</p>
+          </div>
+        </section>
+        <section className="cta-section wrap">
+          <span className="eyebrow">SOMETHING GOOD IS TAKING SHAPE</span>
+          <h2>
+            Your next idea.
+            <br />
+            <em>More possibilities.</em>
+          </h2>
+          <p>
+            Take a look around the foundation of your future creative space.
+          </p>
+          <Link className="button" href="/dashboard">
+            Explore the workspace preview <Icon name="arrow" />
+          </Link>
+          <span className="fine-print">
+            Local project planning works now. Editor and cloud accounts are
+            coming next.
+          </span>
         </section>
       </main>
-      <footer className="site-footer"><span>© {new Date().getUTCFullYear()} Comvexa</span><span>Built with curiosity. Made for everyone.</span><span>From the Philippines, for the world.</span></footer>
-    </div>
+      <footer className="site-footer wrap">
+        <Brand />
+        <p>
+          From the Philippines.
+          <br />
+          For whatever you’re creating.
+        </p>
+        <div>
+          <span>© {new Date().getUTCFullYear()} Comvexa</span>
+          <span>CREATIVE PLATFORM IN DEVELOPMENT</span>
+        </div>
+      </footer>
+    </>
   );
 }

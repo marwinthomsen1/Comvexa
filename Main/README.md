@@ -1,57 +1,82 @@
-# Comvexa · Phase 1
+# Comvexa — Create once. Use everywhere.
 
-A new AI learning platform by Marwin Thomsen. English-first, initially serving the Philippines; future subscription currency: PHP.
+Creative design platform by Marwin Thomsen. Worldwide audience, initially focusing on the Philippines. Phase 2 is a **local website and workspace foundation**, not a production editor or cloud service.
 
-## Run locally
+## Run
 
-Use Node.js 24 LTS (`nvm use` if nvm is installed) and npm.
+Node 24 LTS and npm are required.
 
 ```sh
 npm ci
 npm run dev
 ```
 
-Open http://127.0.0.1:3000. No environment variables are required for Phase 1.
+Open http://127.0.0.1:3000. No credentials are needed. Dev and production servers bind to loopback only.
 
 ```sh
 npm run lint
+npm test
 npm run build
 npm start
+# In a separate terminal while the local server is running:
+npm run test:http
 ```
 
-The dev and production servers bind only to loopback. No deployment is configured. The page deliberately requests no indexing until launch readiness is reviewed.
+## Working now
 
-## Implemented
+- Creative landing page, original SVG campaign concepts, connected-price illustration.
+- Responsive workspace, project/campaign creation, linking and listings, search/sort, detail views.
+- Local profile settings, template concept filtering, persistent light/dark themes.
+- Login/registration form previews with local validation and explicit unavailable states.
+- Validated browser-local persistence with load/save error states. Up to 100 projects and 100 campaigns.
+- Prepared PostgreSQL migration with ownership policies, tested in isolated PGlite.
 
-Next.js App Router, React, JavaScript, Tailwind CSS v4, ESLint, npm lockfile, `@/*` imports, semantic light/dark tokens, theme persistence with system preference as initial default, reusable brand/icon/theme components, button/card/input styles, and an honest nonfunctional feature preview. All assets are local; no remote fonts, analytics, auth, AI or payment calls.
+## Important boundaries
 
-## Structure
+The local workspace is public and **not authenticated**. Its data belongs to this browser profile and origin, not an account. Anyone using the same browser profile can see it. It is neither encrypted storage nor a durable backup. Clearing browser data loses drafts. Do not enter sensitive information. Simultaneous cross-tab writes are not transactional; cloud persistence must implement revision-aware saves. No local draft is automatically uploaded later.
 
-- `src/app/`: root layout, placeholder page, global design tokens and primitives.
-- `src/components/layout/`: brand component.
-- `src/components/ui/`: icons and theme control.
-- `src/config/site.js`: public brand and feature preview content.
-- `public/icon.svg`: local brand icon.
-- `docs/architecture.md`: future architecture, security and phase boundaries.
-- `.env.example`: empty variable names only; no values are required.
-- `.nvmrc`, `jsconfig.json`, `next.config.mjs`, `postcss.config.mjs`, `eslint.config.mjs`: runtime and tooling configuration.
+Cloud registration, login, sessions, recovery emails and persistence are **not implemented or enabled**. `/api/auth` POST and `/api/projects` GET/POST fail closed with HTTP 503 and never accept a fake preview identity. The form previews do not transmit, log or store passwords. Do not enter real passwords. Adding environment variables alone will not activate a service.
 
-Git is initialized in the workspace root so Main and the future Admin share one repository. Admin remains empty; Git does not track empty directories. No commit or remote is created. Never commit `.env` files, `.next`, node_modules, credentials, or generated artifacts.
+The editor, image upload, applying templates, actual connected content across saved designs, and export downloads are future work. Preview artwork and the price illustration are not generated designs. No payment, ads, analytics, remote fonts or image services are connected. The site remains noindex.
 
-## Design
+## Project map
 
-Midnight navy #101827, teal #12B8A6, off-white #F6F8FC, lavender #A78BFA. Semantic CSS variables drive both themes and Tailwind tokens. Darker teal is used for light-background text. System fonts avoid build-time network dependencies. Reduced-motion preferences disable transitions and smooth scrolling. Feature previews are articles, not pretend actions. The only actions are theme switching and navigation to the preview section.
+- `src/app/`: landing, account previews, dashboard routes, fail-closed API routes.
+- `src/components/marketing/`: header, campaign artwork and connected-price demo.
+- `src/components/{layout,ui}/`: brand, icons, theme control.
+- `src/features/auth/`: account preview forms.
+- `src/features/workspace/`: provider, shell, creation dialog, lists/details/settings/templates.
+- `src/lib/workspace/`: validated local persistence and input rules.
+- `src/lib/auth/`: validation and disabled-cloud contract.
+- `src/lib/design-document/`: renderer-independent versioned document contract for Phase 3.
+- `src/config/site.js`: public product and template-concept data.
+- `supabase/migrations/`: unapplied migration for a NEW development project only.
+- `supabase/tests/`: Auth fixture used only in local PostgreSQL tests.
+- `tests/`: Node tests including actual SQL RLS enforcement; HTTP smoke script.
+- `docs/creative-architecture.md`: active design and next integration steps.
+- `docs/phase-2-report.md`: implementation and verification report.
+- `docs/history/`, `docs/architecture.md`, `docs/phase-1-report.md`: retained historical learning documentation.
 
-## Not implemented
+Admin remains empty and unimplemented. Git does not track empty directories.
 
-Accounts, learning logic, file uploads, databases, API routes, AI, payments, Admin, a complete marketing website, or a dashboard. Do not add production credentials to test this foundation. The old application and comvexa.net remain outside this project's scope.
+## Recovery and Git
 
-Phase 2 requires explicit approval. See `docs/architecture.md` for the roadmap and future service contracts.
+Initial baseline: `7519a3d`. Recovery tag: `recovery/pre-creative-phase-2`. Active development branch: `feat/creative-phase-2`. The baseline was created before application changes using the local automation author `Codex <codex@localhost>` because no Git author identity was configured. No remote, push, deployment or production change was made.
 
-## Tooling notes
+To inspect the old source without resetting current work:
 
-ESLint 10 uses its recommended JavaScript rules plus the official Next.js recommended/Core Web Vitals rules. JSX component names are excluded from the core unused-variable rule because the core parser does not treat JSX tags as variable references. React Hooks and broader JSX accessibility lint rules are not installed in this minimal phase; browser/accessibility review is still required as components grow.
+```sh
+git show recovery/pre-creative-phase-2:Main/src/app/page.js
+```
 
-`minimatch` is overridden to patched 11.0.5 for the ESLint dependency chain, addressing GHSA-g3hv-75wg-m249. This crosses the upstream major range; installation, lint and build passed with this resolution. Revisit/remove the override when ESLint's upstream dependencies incorporate the patch. Do not use force or legacy-peer-deps to bypass installation conflicts.
+Do not use a hard reset to review the baseline. Environment files, build output, dependencies and private-key files are ignored. `.env.example` intentionally contains empty names only.
 
-See `docs/phase-1-report.md` for verification results and known limits.
+## Dependencies
+
+Existing stack retained: Next.js 16.4.6, React 19.3.1, Tailwind CSS 4.3.5, ESLint 10.14.0. Added **development-only** `@electric-sql/pglite` 0.5.16 for PostgreSQL RLS tests; it is not imported by application code. Prettier was run as a one-off formatting tool, not added as a dependency.
+
+ESLint uses recommended JavaScript and official Next.js rules. The existing minimatch 11.0.5 override remains; revisit when upstream dependencies include the security fix. JSX component imports are excluded from core unused-variable detection. Full React Hooks/accessibility lint coverage and browser automation are not yet installed.
+
+## Next approval gate
+
+A separate Supabase development project and cloud integration verification are needed for actual accounts. See the architecture guide. Phase 3 requires explicit approval and begins with an editor-library proof of concept. Do not connect the old database or modify comvexa.net.

@@ -1,3 +1,5 @@
+> Historical learning-platform plan. Superseded by [creative architecture](creative-architecture.md). Retained for recovery; do not implement this roadmap.
+
 # Architecture and future integration plan
 
 ## Phase boundaries
