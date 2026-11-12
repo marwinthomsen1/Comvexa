@@ -1,0 +1,104 @@
+import {
+  LayoutGrid,
+  Type,
+  Shapes,
+  Image,
+  Upload,
+  Palette,
+  Layers,
+  Maximize2,
+  Undo2,
+  Redo2,
+  Save,
+  Eye,
+  Download,
+  ZoomIn,
+  ZoomOut,
+  Scan,
+  Copy,
+  Trash2,
+  Lock,
+  LockOpen,
+  ArrowUp,
+  ArrowDown,
+  Pencil,
+  Link2,
+  Unlink,
+  X,
+  Plus,
+  ChevronDown,
+  Search,
+  ArrowLeft,
+  Circle,
+  Square,
+  Crop,
+  Settings2,
+  Check,
+  FileJson,
+  RotateCw,
+  Folder,
+  User,
+  Sparkles,
+} from "lucide-react";
+const icons = {
+  grid: LayoutGrid,
+  type: Type,
+  shapes: Shapes,
+  image: Image,
+  upload: Upload,
+  palette: Palette,
+  layers: Layers,
+  resize: Maximize2,
+  undo: Undo2,
+  redo: Redo2,
+  save: Save,
+  eye: Eye,
+  download: Download,
+  zoomIn: ZoomIn,
+  zoomOut: ZoomOut,
+  fit: Scan,
+  copy: Copy,
+  trash: Trash2,
+  lock: Lock,
+  unlock: LockOpen,
+  up: ArrowUp,
+  down: ArrowDown,
+  edit: Pencil,
+  link: Link2,
+  unlink: Unlink,
+  close: X,
+  plus: Plus,
+  chevron: ChevronDown,
+  search: Search,
+  back: ArrowLeft,
+  circle: Circle,
+  square: Square,
+  crop: Crop,
+  settings: Settings2,
+  check: Check,
+  file: FileJson,
+  rotate: RotateCw,
+  folder: Folder,
+  user: User,
+  spark: Sparkles,
+};
+export function StudioIcon({ name, size = 19, ...props }) {
+  const Component = icons[name] || Settings2;
+  return (
+    <Component
+      size={size}
+      strokeWidth={1.75}
+      aria-hidden="true"
+      focusable="false"
+      {...props}
+    />
+  );
+}
+export function ToolButton({ icon, children, ...props }) {
+  return (
+    <button {...props}>
+      <StudioIcon name={icon} />
+      {children}
+    </button>
+  );
+}

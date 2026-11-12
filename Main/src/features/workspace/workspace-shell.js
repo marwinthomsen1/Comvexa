@@ -3,7 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Brand } from "@/components/layout/brand";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { Icon } from "@/components/ui/icon";
+import { StudioIcon as Icon } from "@/components/ui/studio-icon";
 import { WorkspaceProvider } from "./workspace-provider";
 const links = [
   ["/dashboard", "Overview", "grid"],

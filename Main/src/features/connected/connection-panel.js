@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { StudioIcon } from "@/components/ui/studio-icon";
 import { connectElement, connectionAction } from "@/lib/connected/model";
 export function ConnectionPanel({
   element,
@@ -10,6 +11,7 @@ export function ConnectionPanel({
   onApply,
   onError,
   onChooseCampaign,
+  onOpenCampaign,
 }) {
   const [choice, setChoice] = useState("");
   if (!element || !["text", "image"].includes(element.type)) return null;
@@ -32,10 +34,11 @@ export function ConnectionPanel({
   return (
     <section className="connection-panel">
       <h3>
+        <StudioIcon name={element.binding ? "link" : "unlink"} size={15} />
         {element.binding
           ? element.localOverride
-            ? "◇ Overridden content"
-            : "↗ Connected content"
+            ? "Custom value"
+            : "Connected content"
           : "Independent content"}
       </h3>
       {element.binding ? (
@@ -66,8 +69,13 @@ export function ConnectionPanel({
             <Link
               className="text-link"
               href={`/dashboard/connected/${campaign.id}`}
+              onClick={
+                onOpenCampaign
+                  ? (event) => onOpenCampaign(event, campaign.id)
+                  : undefined
+              }
             >
-              Open shared information ↗
+              Edit shared campaign information
             </Link>
           )}
         </>
@@ -77,54 +85,66 @@ export function ConnectionPanel({
           font and styling stay yours.
         </p>
       )}
-      <label className="editor-field">
-        Campaign
-        <select
-          value={campaigns[0]?.id || ""}
-          disabled={element.locked}
-          onChange={(e) => onChooseCampaign(e.target.value)}
-        >
-          <option value="">Choose campaign…</option>
-          {available.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name}
+      <details className="connection-options">
+        <summary>
+          {element.binding
+            ? "Change connection"
+            : "Connect to shared information"}
+        </summary>
+        <label className="editor-field">
+          Campaign
+          <select
+            value={campaigns[0]?.id || ""}
+            disabled={element.locked}
+            onChange={(e) => onChooseCampaign(e.target.value)}
+          >
+            <option value="">Choose campaign…</option>
+            {available.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="editor-field">
+          Connect to Campaign Field
+          <select
+            value={choice}
+            disabled={element.locked}
+            onChange={(e) => setChoice(e.target.value)}
+          >
+            <option value="">
+              Choose a {element.type === "text" ? "text" : "photo"} field…
             </option>
-          ))}
-        </select>
-      </label>
-      <label className="editor-field">
-        Connect to Campaign Field
-        <select
-          value={choice}
-          disabled={element.locked}
-          onChange={(e) => setChoice(e.target.value)}
+            {targets.map((t) => (
+              <option key={t.key} value={t.key}>
+                {t.field.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <button
+          disabled={!choice || element.locked}
+          onClick={() => {
+            try {
+              const target = targets.find((t) => t.key === choice);
+              if (!target) throw new Error("Choose an available field.");
+              onApply(
+                connectElement(
+                  doc,
+                  element.id,
+                  target.campaign,
+                  target.field.id,
+                ),
+              );
+            } catch (e) {
+              onError(e.message);
+            }
+          }}
         >
-          <option value="">
-            Choose a {element.type === "text" ? "text" : "photo"} field…
-          </option>
-          {targets.map((t) => (
-            <option key={t.key} value={t.key}>
-              {t.field.label}
-            </option>
-          ))}
-        </select>
-      </label>
-      <button
-        disabled={!choice || element.locked}
-        onClick={() => {
-          try {
-            const target = targets.find((t) => t.key === choice);
-            if (!target) throw new Error("Choose an available field.");
-            onApply(
-              connectElement(doc, element.id, target.campaign, target.field.id),
-            );
-          } catch (e) {
-            onError(e.message);
-          }
-        }}
-      >
-        Connect element
-      </button>
+          Connect element
+        </button>
+      </details>
     </section>
   );
 }

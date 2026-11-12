@@ -3,7 +3,16 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import DesignCanvas from "./design-canvas";
-import { PropertiesPanel } from "./properties-panel";
+import { StudioIcon, ToolButton } from "@/components/ui/studio-icon";
+import { STUDIO_TOOLS, selectionLabel, connectionLabel } from "./studio-tools";
+import { leaveStudio } from "./studio-session";
+import { sampleAsset } from "@/lib/templates/assets";
+import Image from "next/image";
+import {
+  PropertiesPanel,
+  ExportPanel,
+  CanvasSettings,
+} from "./properties-panel";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Brand } from "@/components/layout/brand";
 import {
@@ -53,7 +62,11 @@ export default function Editor() {
   const [campaigns, setCampaigns] = useState([]),
     [available, setAvailable] = useState([]);
   const inFlight = useRef(0);
-  const exportAnchor = useRef(null);
+  const [panel, setPanel] = useState("selection");
+  const [layerSearch, setLayerSearch] = useState("");
+  const [photoBusy, setPhotoBusy] = useState(false);
+  const toolsSheet = useRef(null),
+    propertiesSheet = useRef(null);
   const viewport = useRef(null),
     revision = useRef(0),
     saved = useRef(""),
@@ -66,6 +79,49 @@ export default function Editor() {
     conflict = useRef(false);
   const [nameDraft, setNameDraft] = useState("");
   const doc = state?.present;
+  useEffect(() => {
+    if (!mobile || !window.matchMedia("(max-width: 900px)").matches) return;
+    const previous = document.activeElement;
+    const sheet =
+      mobile === "tools" ? toolsSheet.current : propertiesSheet.current;
+    sheet?.querySelector("button")?.focus();
+    function trap(e) {
+      if (e.key === "Escape") {
+        setMobile("");
+        return;
+      }
+      if (e.key !== "Tab" || !sheet) return;
+      const items = [
+        ...sheet.querySelectorAll(
+          "button:not(:disabled),input:not(:disabled),select:not(:disabled),textarea:not(:disabled),a[href],summary",
+        ),
+      ].filter((n) => n.getClientRects().length);
+      const first = items[0],
+        last = items.at(-1);
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last?.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first?.focus();
+      }
+    }
+    document.addEventListener("keydown", trap);
+    return () => {
+      document.removeEventListener("keydown", trap);
+      previous?.focus();
+    };
+  }, [mobile]);
+  function openTool(name) {
+    setTab(name);
+    setMobile("tools");
+    setPreview(false);
+  }
+  function openPanel(name = "selection") {
+    setPanel(name);
+    setMobile("properties");
+    setPreview(false);
+  }
   const overflowWarnings = useMemo(
     () => (doc ? documentWarnings(doc, browserMeasure) : []),
     [doc],
@@ -259,6 +315,7 @@ export default function Editor() {
       const e = makeElement(type, crypto.randomUUID());
       apply(addElement(doc, e));
       setSelected(e.id);
+      setPanel("selection");
       setMobile("properties");
     } catch (e) {
       setError(e.message);
@@ -410,6 +467,7 @@ export default function Editor() {
       }
       apply(next);
       if (e) setSelected(e.id);
+      setPanel("selection");
       setMobile("properties");
     } catch (e) {
       setError(e.message);
@@ -507,11 +565,7 @@ export default function Editor() {
   }
   async function goBack(e) {
     e.preventDefault();
-    if (JSON.stringify(doc) !== saved.current) {
-      const ok = await save(doc);
-      if (!ok) return;
-    }
-    router.push("/editor");
+    await navigateSafely("/editor");
   }
   function starter(kind) {
     if (
@@ -572,19 +626,68 @@ export default function Editor() {
           : element.width / element.height);
     change(element.id, patch);
   }
+  function navigateSafely(destination) {
+    return leaveStudio({
+      document: latest.current,
+      savedDocument: saved.current,
+      save,
+      navigate: () => router.push(destination),
+    });
+  }
   async function browseTemplates() {
-    const ok = await save(doc);
-    if (ok) router.push("/dashboard/templates");
+    await navigateSafely("/dashboard/templates");
+  }
+
+  async function insertPhoto(kind) {
+    setPhotoBusy(true);
+    try {
+      const asset = await sampleAsset(kind),
+        assetId = crypto.randomUUID();
+      const current = latest.current;
+      const width = Math.min(600, current.canvas.width * 0.8);
+      const item = {
+        ...makeElement("image", crypto.randomUUID()),
+        width,
+        height: (width * asset.height) / asset.width,
+        assetId,
+        crop: { x: 0, y: 0, width: 1, height: 1 },
+      };
+      apply(
+        addElement(
+          { ...current, assets: { ...current.assets, [assetId]: asset } },
+          item,
+        ),
+      );
+      setSelected(item.id);
+      openPanel();
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setPhotoBusy(false);
+    }
   }
   const sidebar = (
     <>
+      <div className="panel-eyebrow">YOUR CREATIVE TOOLKIT</div>
       <h2>{tab}</h2>
       {tab === "Text" && (
         <>
           <p>
             Add a headline, then double-click it to type directly on the canvas.
           </p>
-          <button onClick={() => add("text")}>+ Add text</button>
+          <ToolButton
+            icon="type"
+            className="text-add"
+            onClick={() => add("text")}
+          >
+            Add a text box
+          </ToolButton>
+          <div className="text-preview">
+            Your next
+            <br />
+            <strong>great idea.</strong>
+          </div>
+          <p>Choose its font, size and color in the selection panel.</p>
         </>
       )}
       {tab === "Templates" && (
@@ -599,23 +702,69 @@ export default function Editor() {
           </button>
         </>
       )}
-      {tab === "Images" && (
+      {tab === "Uploads" && (
         <>
           <p>
             PNG, JPG or WebP. Up to 8 MB and 4096 × 4096 px. Optimized locally
             to a maximum 2048 px edge; never uploaded.
           </p>
           <button onClick={() => upload.current.click()}>
-            + Upload an image
+            Upload an image
           </button>
           <p>Use your own images or images you have permission to use.</p>
         </>
       )}
-      {tab === "Shapes" && (
+      {tab === "Elements" && (
         <>
-          <button onClick={() => add("rect")}>▢ Rectangle</button>
-          <button onClick={() => add("ellipse")}>◯ Ellipse</button>
+          <ToolButton
+            icon="square"
+            className="shape-tile"
+            onClick={() => add("rect")}
+          >
+            Rectangle
+          </ToolButton>
+          <ToolButton
+            icon="circle"
+            className="shape-tile"
+            onClick={() => add("ellipse")}
+          >
+            Ellipse
+          </ToolButton>
+          <p>More graphics and decorative elements are planned for Stage C.</p>
         </>
+      )}
+      {tab === "Photos" && (
+        <>
+          <p>
+            Original Comvexa artwork. Choose a photo to add it to your canvas.
+          </p>
+          <div className="studio-photos">
+            {["fashion", "food", "travel", "beauty", "motors"].map((kind) => (
+              <button
+                key={kind}
+                disabled={photoBusy}
+                onClick={() => insertPhoto(kind)}
+                aria-label={`Add ${kind === "motors" ? "motorcycle" : kind} photo`}
+              >
+                <Image
+                  src={`/images/previews/${kind === "motors" ? "motorcycle" : kind}.webp`}
+                  width={160}
+                  height={160}
+                  alt=""
+                />
+                <span>{kind === "motors" ? "Motorcycle" : kind}</span>
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+      {tab === "Resize" && (
+        <CanvasSettings
+          doc={doc}
+          apply={apply}
+          dimensions={dimensions}
+          setDimensions={setDimensions}
+        />
       )}
       {tab === "Backgrounds" && (
         <>
@@ -658,28 +807,64 @@ export default function Editor() {
       )}
       {tab === "Layers" && (
         <>
-          <p>Top layer first. Select any layer, including locked elements.</p>
+          <p>
+            Top layer first. Select a layer to edit it, or use its lock control.
+          </p>
+          <label className="editor-field">
+            Find a layer
+            <input
+              type="search"
+              placeholder="Search text or type…"
+              value={layerSearch}
+              onChange={(e) => setLayerSearch(e.target.value)}
+            />
+          </label>
           {!doc.elements.length && <p>No elements yet.</p>}
-          {[...doc.elements].reverse().map((e) => (
-            <button
-              aria-pressed={selected === e.id}
-              className="layer-item"
-              key={e.id}
-              onClick={() => {
-                setSelected(e.id);
-                setMobile("properties");
-              }}
-            >
-              {e.locked
-                ? "▣"
-                : e.binding
-                  ? e.localOverride
-                    ? "◇ override"
-                    : "↗ linked"
-                  : "◇"}{" "}
-              {e.type === "text" ? e.text.slice(0, 28) || "Empty text" : e.type}
-            </button>
-          ))}
+          {[...doc.elements]
+            .reverse()
+            .filter((e) =>
+              (e.type + " " + (e.text || ""))
+                .toLowerCase()
+                .includes(layerSearch.toLowerCase()),
+            )
+            .map((e) => (
+              <div
+                className={`studio-layer ${selected === e.id ? "is-selected" : ""}`}
+                key={e.id}
+              >
+                <button
+                  aria-pressed={selected === e.id}
+                  className="layer-item"
+                  onClick={() => {
+                    setSelected(e.id);
+                    openPanel();
+                  }}
+                >
+                  <StudioIcon
+                    name={
+                      e.type === "text"
+                        ? "type"
+                        : e.type === "image"
+                          ? "image"
+                          : "shapes"
+                    }
+                  />
+                  <span>
+                    {e.type === "text"
+                      ? e.text.slice(0, 28) || "Empty text"
+                      : selectionLabel(e)}
+                    <small>{connectionLabel(e)}</small>
+                  </span>
+                </button>
+                <button
+                  title={e.locked ? "Unlock layer" : "Lock layer"}
+                  aria-label={`${e.locked ? "Unlock" : "Lock"} ${e.type === "text" ? e.text.slice(0, 28) || "empty text" : e.type} layer`}
+                  onClick={() => change(e.id, { locked: !e.locked })}
+                >
+                  <StudioIcon name={e.locked ? "lock" : "unlock"} />
+                </button>
+              </div>
+            ))}
         </>
       )}
       <hr />
@@ -689,45 +874,61 @@ export default function Editor() {
       </p>
     </>
   );
-  const properties = (
-    <PropertiesPanel
-      element={element}
-      doc={doc}
-      change={change}
-      duplicate={duplicate}
-      remove={remove}
-      prop={prop}
-      aspect={aspect}
-      setAspect={setAspect}
-      setEditId={setEditId}
-      setMobile={setMobile}
-      apply={apply}
-      setSelected={setSelected}
-      dimensions={dimensions}
-      setDimensions={setDimensions}
-      format={format}
-      setFormat={setFormat}
-      quality={quality}
-      setQuality={setQuality}
-      exporting={exporting}
-      exportImage={exportImage}
-      projectFile={projectFile}
-      portable={portable}
-      replace={replace}
-      exportAnchor={exportAnchor}
-      connectionPanel={
-        <ConnectionPanel
-          element={element}
-          doc={doc}
-          campaigns={campaigns}
-          available={available}
-          onApply={apply}
-          onError={setError}
-          onChooseCampaign={chooseCampaign}
-        />
-      }
-    />
-  );
+  const properties =
+    panel === "export" ? (
+      <ExportPanel
+        doc={doc}
+        format={format}
+        setFormat={setFormat}
+        quality={quality}
+        setQuality={setQuality}
+        exporting={exporting}
+        exportImage={exportImage}
+        projectFile={projectFile}
+        portable={portable}
+      />
+    ) : (
+      <PropertiesPanel
+        element={element}
+        doc={doc}
+        change={change}
+        duplicate={duplicate}
+        remove={remove}
+        prop={prop}
+        aspect={aspect}
+        setAspect={setAspect}
+        setEditId={setEditId}
+        setMobile={setMobile}
+        apply={apply}
+        setSelected={setSelected}
+        dimensions={dimensions}
+        setDimensions={setDimensions}
+        format={format}
+        setFormat={setFormat}
+        quality={quality}
+        setQuality={setQuality}
+        exporting={exporting}
+        exportImage={exportImage}
+        projectFile={projectFile}
+        portable={portable}
+        replace={replace}
+        connectionPanel={
+          <ConnectionPanel
+            element={element}
+            doc={doc}
+            campaigns={campaigns}
+            available={available}
+            onApply={apply}
+            onError={setError}
+            onChooseCampaign={chooseCampaign}
+            onOpenCampaign={(event, campaignId) => {
+              event.preventDefault();
+              navigateSafely(`/dashboard/connected/${campaignId}`);
+            }}
+          />
+        }
+      />
+    );
 
   return (
     <main
@@ -762,21 +963,29 @@ export default function Editor() {
             disabled={!state.past.length || !!editId}
             onClick={() => actionHistory(undo)}
             aria-label="Undo"
+            title="Undo · ⌘/Ctrl Z"
           >
-            ↶
+            <StudioIcon name="undo" />
           </button>
           <button
             disabled={!state.future.length || !!editId}
             onClick={() => actionHistory(redo)}
             aria-label="Redo"
+            title="Redo · ⌘/Ctrl Shift Z"
           >
-            ↷
+            <StudioIcon name="redo" />
           </button>
         </div>
         <span role="status" className="save-status">
           {status}
         </span>
-        <button onClick={() => save(doc)}>Save</button>
+        <ToolButton
+          icon="save"
+          className="studio-save"
+          onClick={() => save(doc)}
+        >
+          Save
+        </ToolButton>
         <span className="editor-size">
           {doc.canvas.width} × {doc.canvas.height}
         </span>
@@ -786,20 +995,23 @@ export default function Editor() {
             setMobile("");
           }}
         >
-          {preview ? "Back to editing" : "Preview"}
+          <StudioIcon name="eye" />
+          {preview ? "Edit" : "Preview"}
         </button>
-        <button
-          className="editor-primary"
-          onClick={() => {
-            setMobile("properties");
-            setPreview(false);
-            requestAnimationFrame(() =>
-              exportAnchor.current?.scrollIntoView({ block: "start" }),
-            );
-          }}
+        <ToolButton
+          icon="resize"
+          className="top-resize"
+          onClick={() => openTool("Resize")}
         >
-          Export
-        </button>
+          Resize
+        </ToolButton>
+        <ToolButton
+          icon="download"
+          className="editor-primary studio-download"
+          onClick={() => openPanel("export")}
+        >
+          Download
+        </ToolButton>
         <ThemeToggle />
       </header>
       {overflowWarnings.length > 0 && (
@@ -833,42 +1045,132 @@ export default function Editor() {
         </div>
       )}
       <nav className="editor-tabs" aria-label="Editor tools">
-        {["Templates", "Text", "Images", "Shapes", "Backgrounds", "Layers"].map(
-          (name) => (
-            <button
-              key={name}
-              aria-pressed={tab === name}
-              onClick={() => {
-                setTab(name);
-                setMobile("tools");
-                setPreview(false);
-              }}
-            >
-              {name}
-            </button>
-          ),
-        )}
+        {STUDIO_TOOLS.map((tool) => (
+          <button
+            key={tool.id}
+            title={tool.hint}
+            aria-label={tool.id}
+            aria-pressed={tab === tool.id && !preview}
+            onClick={() => openTool(tool.id)}
+          >
+            <StudioIcon name={tool.icon} />
+            <span>{tool.id}</span>
+          </button>
+        ))}
         <button
           className="mobile-properties"
-          onClick={() => setMobile("properties")}
+          aria-label="Selection properties"
+          onClick={() => openPanel()}
         >
-          Properties / Export
+          <StudioIcon name="settings" />
+          <span>Edit</span>
         </button>
       </nav>
+      {mobile && (
+        <button
+          className="sheet-backdrop"
+          aria-label="Close editing panel"
+          onClick={() => setMobile("")}
+        />
+      )}
       {!preview && (
         <aside
           className={`editor-tools ${mobile === "tools" ? "sheet-open" : ""}`}
-          aria-label="Add elements"
+          ref={toolsSheet}
+          role={mobile === "tools" ? "dialog" : undefined}
+          aria-label={`${tab} tools`}
         >
           {mobile && (
             <button className="sheet-close" onClick={() => setMobile("")}>
-              Close tools ×
+              <StudioIcon name="close" /> Close tools
             </button>
           )}
           {sidebar}
         </aside>
       )}
       <section className="editor-center" aria-label="Design workspace">
+        {!preview && (
+          <div
+            className="studio-context"
+            role="toolbar"
+            aria-label="Selection actions"
+          >
+            <div>
+              <StudioIcon
+                name={
+                  element?.type === "text"
+                    ? "type"
+                    : element?.type === "image"
+                      ? "image"
+                      : "settings"
+                }
+              />
+              <strong>{selectionLabel(element)}</strong>
+              {element && (
+                <span
+                  className={`selection-state ${element.binding ? "is-connected" : ""}`}
+                >
+                  <StudioIcon
+                    name={element.binding ? "link" : "shapes"}
+                    size={13}
+                  />
+                  {connectionLabel(element)}
+                </span>
+              )}
+            </div>
+            <div>
+              {element ? (
+                <>
+                  <ToolButton icon="edit" onClick={() => openPanel()}>
+                    Edit
+                  </ToolButton>
+                  {element.type === "text" && (
+                    <ToolButton
+                      icon="type"
+                      disabled={element.locked}
+                      onClick={() => {
+                        setEditId(element.id);
+                        setMobile("");
+                      }}
+                    >
+                      Type
+                    </ToolButton>
+                  )}
+                  <ToolButton
+                    icon="copy"
+                    title="Duplicate · ⌘/Ctrl D"
+                    aria-label="Duplicate selected element"
+                    onClick={duplicate}
+                  />
+                  <ToolButton
+                    icon={element.locked ? "unlock" : "lock"}
+                    title={element.locked ? "Unlock" : "Lock"}
+                    aria-label={
+                      element.locked
+                        ? "Unlock selected element"
+                        : "Lock selected element"
+                    }
+                    onClick={() =>
+                      change(element.id, { locked: !element.locked })
+                    }
+                  />
+                  <ToolButton
+                    icon="trash"
+                    aria-label="Delete selected element"
+                    title="Delete selected element"
+                    disabled={element.locked}
+                    onClick={remove}
+                  />
+                </>
+              ) : (
+                <span className="context-hint">
+                  Choose a tool or select something to begin
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+
         <div className="editor-viewport" ref={viewport}>
           <div className="canvas-centering">
             <DesignCanvas
@@ -876,6 +1178,7 @@ export default function Editor() {
               selected={selected}
               select={(value) => {
                 setSelected(value);
+                setPanel("selection");
               }}
               patch={change}
               zoom={zoom}
@@ -891,27 +1194,35 @@ export default function Editor() {
             onClick={() => setZoom((z) => Math.max(0.05, z - 0.1))}
             aria-label="Zoom out"
           >
-            −
+            <StudioIcon name="zoomOut" />
           </button>
           <output>{Math.round(zoom * 100)}%</output>
           <button
             onClick={() => setZoom((z) => Math.min(2, z + 0.1))}
             aria-label="Zoom in"
           >
-            +
+            <StudioIcon name="zoomIn" />
           </button>
-          <button onClick={fit}>Fit canvas</button>
+          <ToolButton icon="fit" onClick={fit}>
+            Fit
+          </ToolButton>
           <button onClick={() => setZoom(1)}>100%</button>
-          <span>{doc.elements.length}/100 elements</span>
+          <span className="page-indicator">
+            Canvas 1 · {doc.elements.length}/100 elements
+          </span>
         </div>
       </section>
       {!preview && (
         <aside
           className={`editor-properties ${mobile === "properties" ? "sheet-open" : ""}`}
-          aria-label="Selection properties"
+          ref={propertiesSheet}
+          role={mobile === "properties" ? "dialog" : undefined}
+          aria-label={
+            panel === "export" ? "Download design" : "Selection properties"
+          }
         >
           <button className="sheet-close" onClick={() => setMobile("")}>
-            Close properties ×
+            <StudioIcon name="close" /> Close panel
           </button>
           {properties}
         </aside>
@@ -927,6 +1238,7 @@ export default function Editor() {
         }}
       />
       <input
+        id="studio-replace-image"
         ref={replace}
         hidden
         type="file"

@@ -107,3 +107,7 @@ Open `/dashboard/templates` to browse 32 editable compositions across eight cate
 ## Phase 5 connected designs
 
 Open `/dashboard/campaigns`, choose a generated campaign, and select **Manage connected information**. Edit shared fields, preview linked designs, then save the campaign atomically. In an individual editor, select text or an image to connect, override, restore, or detach it. Campaigns and images stay in this browser; portable editor project downloads include their campaign snapshot. See [Phase 5 report](docs/phase-5-report.md).
+
+## Editor upgrade — Stage A
+
+The [Stage A report and staged plan](docs/editor-upgrade-stage-a.md) covers the redesigned editor navigation, contextual panels, Lucide icons, mobile drawers and verification. Stages B–E await approval; existing v1 documents remain compatible.
