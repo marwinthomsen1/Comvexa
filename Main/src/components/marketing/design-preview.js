@@ -1,5 +1,7 @@
 import Image from "next/image";
+import { CreativePreview } from "./creative-preview";
 export function DesignPreview({
+  concept,
   tone = "electric",
   headline = "Wireless\nHeadphones",
   label = "COMVEXA STUDIO",
@@ -10,6 +12,15 @@ export function DesignPreview({
   revision = 0,
   priority = false,
 }) {
+  if (concept)
+    return (
+      <CreativePreview
+        concept={concept}
+        format={format}
+        priority={priority}
+        className={className}
+      />
+    );
   return (
     <div
       className={`design-preview ad-preview tone-${tone} format-${format} ${className}`}

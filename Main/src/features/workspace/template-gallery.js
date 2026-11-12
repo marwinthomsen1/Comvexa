@@ -21,15 +21,17 @@ export function TemplateGallery() {
         role="group"
         aria-label="Filter template concepts"
       >
-        {["All", "Product", "Event"].map((value) => (
-          <button
-            key={value}
-            aria-pressed={category === value}
-            onClick={() => setCategory(value)}
-          >
-            {value}
-          </button>
-        ))}
+        {["All", ...new Set(templatePreviews.map((item) => item.category))].map(
+          (value) => (
+            <button
+              key={value}
+              aria-pressed={category === value}
+              onClick={() => setCategory(value)}
+            >
+              {value}
+            </button>
+          ),
+        )}
       </div>
       <div className="template-grid">
         {templatePreviews

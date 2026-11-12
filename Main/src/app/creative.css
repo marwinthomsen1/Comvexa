@@ -2256,5 +2256,351 @@ form select:focus-visible {
   animation-play-state: paused;
 }
 
-::selection { background: #7435e7; color: #ffffff; }
-@media (prefers-reduced-motion: reduce) { .brand:hover svg { transform: none; } }
+::selection {
+  background: #7435e7;
+  color: #ffffff;
+}
+@media (prefers-reduced-motion: reduce) {
+  .brand:hover svg {
+    transform: none;
+  }
+}
+
+/* Category artwork has its own composition and fixed art palette in both themes. */
+.creative-preview {
+  position: relative;
+  container-type: inline-size;
+  width: 100%;
+  aspect-ratio: 1;
+  padding: 0;
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid #ffffff90;
+  border-radius: 15px;
+  box-shadow:
+    0 9px 25px #37135b24,
+    0 0 0 2px #ffffff45;
+  background: #fa735b;
+  color: #fff;
+}
+.creative-preview.creative-format-portrait {
+  aspect-ratio: 4 / 5;
+}
+.creative-preview.creative-format-story {
+  aspect-ratio: 9 / 16;
+}
+.creative-preview .creative-art {
+  object-fit: cover;
+  z-index: -3;
+}
+.creative-art-shade {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+}
+.creative-preview .creative-label,
+.creative-preview .creative-detail,
+.creative-preview .creative-footer-copy {
+  position: absolute;
+  display: block;
+  color: inherit;
+  font-weight: 700;
+  line-height: 1.35;
+}
+.creative-preview .creative-label {
+  top: 7%;
+  left: 8%;
+  right: 8%;
+  font-size: 3.1cqw;
+  letter-spacing: 0.16em;
+}
+.creative-preview .creative-detail {
+  top: 17%;
+  left: 8%;
+  right: 8%;
+  font-size: 2.5cqw;
+  letter-spacing: 0.1em;
+}
+.creative-preview h3.creative-title {
+  position: absolute;
+  left: 8%;
+  right: 5%;
+  top: 24%;
+  margin: 0;
+  font-size: 14cqw;
+  line-height: 0.94;
+  letter-spacing: -0.055em;
+  font-weight: 900;
+  color: inherit;
+}
+.creative-preview .creative-title span {
+  display: block;
+}
+.creative-preview .creative-footer-copy {
+  bottom: 7%;
+  left: 8%;
+  right: 8%;
+  font-size: 3cqw;
+  letter-spacing: 0.05em;
+}
+.concept-fashion .creative-art-shade {
+  background:
+    linear-gradient(90deg, #340b267d, transparent 90%),
+    linear-gradient(0deg, #310b2155, transparent 40%);
+}
+.creative-preview.concept-fashion h3.creative-title {
+  top: 35%;
+  font-size: 15cqw;
+  text-shadow: 0 1px 10px #48182b33;
+}
+.creative-preview.concept-travel {
+  background: #007b85;
+}
+.concept-travel .creative-art-shade {
+  background: linear-gradient(180deg, #003d53b0, transparent 60%, #00352e88);
+}
+.creative-preview.concept-travel h3.creative-title {
+  top: 23%;
+  font-family: Georgia, serif;
+  font-weight: 400;
+  font-size: 15cqw;
+  letter-spacing: -0.065em;
+}
+.creative-preview.concept-travel .creative-detail {
+  top: auto;
+  bottom: 16%;
+}
+.creative-preview.concept-travel .creative-footer-copy {
+  font-size: 2.6cqw;
+}
+.creative-preview.concept-food {
+  background: #e94015;
+  color: #fff3bd;
+}
+.concept-food .creative-art-shade {
+  background: linear-gradient(180deg, #7c180c88, transparent 55%, #63170688);
+}
+.creative-preview.concept-food h3.creative-title {
+  top: 20%;
+  font-style: italic;
+  font-size: 17cqw;
+  line-height: 0.87;
+  text-shadow: 2px 3px #9c251d;
+}
+.creative-preview.concept-food .creative-detail {
+  top: auto;
+  bottom: 18%;
+}
+.creative-preview.concept-food .creative-footer-copy {
+  background: #fff3bd;
+  color: #9c251d;
+  border-radius: 30px;
+  padding: 3% 5%;
+  right: auto;
+  bottom: 5%;
+}
+.creative-preview.concept-beauty {
+  background: #e8e7d7;
+  color: #243b2e;
+}
+.concept-beauty .creative-art-shade {
+  background: linear-gradient(180deg, #f1ecd9e0, transparent 55%, #f1ecd9b3);
+}
+.creative-preview.concept-beauty h3.creative-title {
+  top: 23%;
+  font-family: Georgia, serif;
+  font-weight: 400;
+  font-size: 15cqw;
+  letter-spacing: -0.07em;
+}
+.creative-preview.concept-beauty .creative-detail {
+  display: none;
+}
+.creative-preview.concept-beauty .creative-footer-copy {
+  font-size: 2.8cqw;
+  letter-spacing: 0;
+}
+.creative-preview.concept-motorcycle {
+  background: #171b18;
+  color: #ddff6a;
+}
+.concept-motorcycle .creative-art-shade {
+  background: linear-gradient(180deg, #0a1107e0, transparent 68%, #0a1107b0);
+}
+.creative-preview.concept-motorcycle h3.creative-title {
+  top: 23%;
+  font-style: italic;
+  font-size: 15cqw;
+  line-height: 0.86;
+}
+.creative-preview.concept-motorcycle .creative-detail {
+  top: auto;
+  bottom: 16%;
+  font-size: 2.2cqw;
+}
+.creative-preview.concept-birthday {
+  background: #fff2ce;
+  color: #a32365;
+}
+.creative-preview.concept-birthday .creative-label {
+  text-align: center;
+  color: #633b9e;
+}
+.creative-preview.concept-birthday .creative-detail {
+  top: 22%;
+  text-align: center;
+  color: #633b9e;
+}
+.creative-preview.concept-birthday h3.creative-title {
+  top: 35%;
+  left: 5%;
+  right: 5%;
+  text-align: center;
+  font-family: Georgia, serif;
+  font-weight: 400;
+  font-size: 13cqw;
+  line-height: 1;
+  letter-spacing: -0.06em;
+}
+.creative-preview.concept-birthday .creative-footer-copy {
+  text-align: center;
+  color: #633b9e;
+  font-size: 2.7cqw;
+}
+.creative-ornament {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+.concept-birthday .creative-ornament {
+  background:
+    radial-gradient(circle at 10% 12%, #faadcb 0 7%, transparent 7.5%),
+    radial-gradient(circle at 90% 10%, #c4b0fa 0 10%, transparent 10.5%),
+    radial-gradient(circle at 5% 81%, #ffd25a 0 12%, transparent 12.5%),
+    radial-gradient(circle at 95% 79%, #b4e2d3 0 12%, transparent 12.5%);
+}
+.concept-birthday .creative-ornament span {
+  position: absolute;
+  width: 4%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #f095a0;
+  left: 15%;
+  top: 30%;
+  box-shadow:
+    60cqw 15cqw #b9a3e8,
+    10cqw 70cqw #eeac46,
+    48cqw 82cqw #9dcab7;
+}
+.creative-preview.concept-event {
+  color: #f2ff71;
+  background: #262096;
+}
+.concept-event .creative-ornament {
+  background: repeating-radial-gradient(
+    ellipse at 95% 15%,
+    transparent 0 7%,
+    #ff7bc8 7.5% 11%,
+    transparent 11.5% 17%
+  );
+  transform: rotate(-15deg) scale(1.3);
+  opacity: 0.8;
+}
+.creative-preview.concept-event h3.creative-title {
+  top: 28%;
+  font-size: 22cqw;
+  line-height: 0.82;
+  transform: rotate(-5deg);
+  text-shadow: 3px 3px #262096;
+}
+.creative-preview.concept-event .creative-label {
+  background: #262096;
+  width: fit-content;
+  padding: 1%;
+}
+.creative-preview.concept-event .creative-footer-copy {
+  background: #f2ff71;
+  color: #262096;
+  padding: 3%;
+  text-align: center;
+}
+.creative-preview.concept-social {
+  background: #d7ff54;
+  color: #2232ae;
+}
+.concept-social .creative-ornament {
+  background:
+    radial-gradient(ellipse at 95% 90%, #ff80c4 0 28%, transparent 28.5%),
+    radial-gradient(ellipse at 0 5%, #fff7b1 0 25%, transparent 25.5%);
+}
+.creative-preview.concept-social h3.creative-title {
+  top: 35%;
+  font-size: 16cqw;
+  line-height: 1;
+  letter-spacing: -0.08em;
+}
+.concept-social .creative-ornament span:first-child {
+  position: absolute;
+  right: 12%;
+  top: 18%;
+  width: 20%;
+  aspect-ratio: 1;
+  background: #2232ae;
+  clip-path: polygon(
+    50% 0,
+    60% 35%,
+    100% 25%,
+    72% 53%,
+    100% 80%,
+    61% 70%,
+    50% 100%,
+    40% 68%,
+    5% 85%,
+    28% 52%,
+    0 25%,
+    38% 35%
+  );
+  transform: rotate(15deg);
+}
+.package-stack .creative-preview {
+  position: absolute;
+  width: 42%;
+  border-radius: 15px;
+}
+.package-stack .creative-preview:nth-child(1) {
+  left: 0;
+  top: 0;
+  width: 33%;
+  transform: rotate(-10deg);
+}
+.package-stack .creative-preview:nth-child(2) {
+  left: 24%;
+  top: 60px;
+  z-index: 2;
+  transform: rotate(4deg);
+}
+.package-stack .creative-preview:nth-child(3) {
+  right: 0;
+  top: 30px;
+  transform: rotate(12deg);
+}
+.creative-template-grid,
+.workspace-main .template-grid {
+  align-items: start;
+}
+.template-card .creative-preview {
+  border-radius: 16px;
+}
+@media (min-width: 1000px) {
+  .creative-template-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+@media (max-width: 600px) {
+  .showcase-disclaimer {
+    left: 8%;
+    font-size: 6px;
+  }
+}
+.workspace-main .filter-tabs { flex-wrap: wrap; }

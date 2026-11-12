@@ -139,56 +139,19 @@ export function ConnectedDemo() {
             ╲│╱
           </span>
           <div className="showcase-card showcase-main">
-            <DesignPreview
-              price={displayPrice}
-              revision={revision}
-              format="portrait"
-              tone="electric"
-              priority
-            />
-            <span className="connected-check">
-              <Icon name="check" />
-            </span>
+            <DesignPreview concept="fashion" format="portrait" priority />
           </div>
           <div className="showcase-card showcase-facebook">
-            <span
-              className="platform-badge facebook-badge"
-              aria-label="Facebook advertisement"
-            >
-              f
-            </span>
-            <DesignPreview
-              price={displayPrice}
-              revision={revision}
-              badge="NEW ARRIVAL"
-            />
+            <DesignPreview concept="travel" />
           </div>
           <div className="showcase-card showcase-story">
-            <span
-              className="platform-badge instagram-badge"
-              aria-label="Instagram story"
-            >
-              <Icon name="camera" />
-            </span>
-            <DesignPreview
-              price={displayPrice}
-              revision={revision}
-              format="story"
-              tone="blue"
-              badge="FIND YOUR SOUND"
-            />
+            <DesignPreview concept="birthday" format="story" />
           </div>
           <div className="showcase-card showcase-flyer">
-            <DesignPreview
-              price={displayPrice}
-              revision={revision}
-              format="portrait"
-              tone="sunset"
-              badge="BIG SALE"
-            />
+            <DesignPreview concept="food" format="portrait" />
           </div>
           <span className="showcase-disclaimer">
-            ILLUSTRATIVE CAMPAIGN · NOT AN EDITOR
+            CREATIVE POSSIBILITIES · EXAMPLE DESIGNS
           </span>
         </div>
       </section>

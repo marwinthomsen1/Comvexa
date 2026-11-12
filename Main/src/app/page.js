@@ -107,13 +107,9 @@ export default function Home() {
               </p>
             </div>
             <div className="package-stack">
-              <DesignPreview
-                tone="pink"
-                format="story"
-                badge="FIND YOUR SOUND"
-              />
-              <DesignPreview tone="electric" format="square" />
-              <DesignPreview tone="sunset" format="portrait" badge="BIG SALE" />
+              <DesignPreview concept="beauty" format="story" />
+              <DesignPreview concept="event" format="square" />
+              <DesignPreview concept="motorcycle" format="portrait" />
             </div>
           </div>
         </section>
