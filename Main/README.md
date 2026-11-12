@@ -1,6 +1,6 @@
 # Comvexa — Create once. Use everywhere.
 
-Creative design platform by Marwin Thomsen. Worldwide audience, initially focusing on the Philippines. Phase 3 adds a browser-local core design editor to the approved website and workspace foundation. Cloud services remain unavailable.
+Creative design platform by Marwin Thomsen. Worldwide audience, initially focusing on the Philippines. Phase 4 adds editable templates and automatic design packages to the browser-local editor and approved website. Cloud services remain unavailable.
 
 ## Run
 
@@ -39,7 +39,7 @@ The local workspace is public and **not authenticated**. Its data belongs to thi
 
 Cloud registration, login, sessions, recovery emails and persistence are **not implemented or enabled**. `/api/auth` POST and `/api/projects` GET/POST fail closed with HTTP 503 and never accept a fake preview identity. The form previews do not transmit, log or store passwords. Do not enter real passwords. Adding environment variables alone will not activate a service.
 
-Applying the full template gallery and actual connected content across saved designs are future work. The core editor and local image uploads/exports are available; two simple editable starters are included. Preview artwork and the price illustration are not generated designs. No payment, ads, analytics, remote fonts or image services are connected. The site remains noindex.
+The editable template library and four-format package generator are available. Actual connected-content propagation across saved designs remains future work. Preview artwork and the price illustration are not generated designs. No payment, ads, analytics, remote fonts or image services are connected. The site remains noindex.
 
 ## Project map
 
@@ -94,4 +94,8 @@ The approved reference images guided a colorful purple/pink/orange/cyan visual i
 
 ## Phase 3 review
 
-See [editor architecture](docs/editor-architecture.md) and [Phase 3 report](docs/phase-3-report.md). Saved documents contain embedded image data; downloads are the backup mechanism. Phase 4 has not started.
+See [editor architecture](docs/editor-architecture.md) and [Phase 3 report](docs/phase-3-report.md). Saved documents contain embedded image data; downloads are the backup mechanism. Phase 4 is implemented; Phase 5 has not started.
+
+## Phase 4 templates and packages
+
+Open `/dashboard/templates` to browse 32 editable compositions across eight categories and four ratios. `/dashboard/packages` maps your information and up to four uploaded photos into coordinated editable artwork, saved with a campaign in IndexedDB. All saving remains local. See [Phase 4 report](docs/phase-4-report.md) for storage migration, test results, limitations and review instructions.

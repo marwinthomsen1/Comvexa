@@ -25,6 +25,14 @@ export default function DesignLibrary() {
       <Link className="button" href="/editor/new">
         Create a design +
       </Link>
+      <div className="package-dashboard-actions">
+        <Link className="text-link" href="/dashboard/templates">
+          Browse templates →
+        </Link>
+        <Link className="text-link" href="/dashboard/packages">
+          Create design package →
+        </Link>
+      </div>
       {error && <p role="alert">{error}</p>}
       {items?.length === 0 && (
         <p>Your first design starts with a blank canvas.</p>
@@ -36,7 +44,11 @@ export default function DesignLibrary() {
             key={item.id}
             className="detail-panel"
           >
-            <span className="eyebrow">LOCAL DESIGN</span>
+            <span className="eyebrow">
+              {item.provenance
+                ? "GENERATED · " + item.provenance.ratio.toUpperCase()
+                : "LOCAL DESIGN"}
+            </span>
             <h2>{item.name}</h2>
             <p>
               {item.canvas.width} × {item.canvas.height} px

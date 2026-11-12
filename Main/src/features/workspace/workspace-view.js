@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { GeneratedCampaigns } from "@/features/templates/generated-campaigns";
 import Link from "next/link";
 import { useWorkspace } from "./workspace-provider";
 import { CreateDialog } from "./create-dialog";
@@ -65,6 +66,18 @@ export function WorkspaceView({ mode = "overview" }) {
     : [];
   return (
     <>
+      <div className="package-dashboard-actions">
+        <Link className="button" href="/dashboard/templates">
+          Browse Templates
+        </Link>
+        <Link className="button button-outline" href="/dashboard/packages">
+          Create Design Package
+        </Link>
+        <Link className="text-link" href="/editor">
+          My Designs →
+        </Link>
+      </div>
+      {mode === "campaigns" && <GeneratedCampaigns />}
       <div className="workspace-heading">
         <div>
           <span className="eyebrow">

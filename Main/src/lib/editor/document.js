@@ -72,7 +72,10 @@ export function validateDocument(value) {
   const ids = new Set();
   const elements = value.elements.map((e) => {
     requireValue(
-      e && /^[a-zA-Z0-9-]{1,80}$/.test(e.id) && !ids.has(e.id),
+      e &&
+        typeof e.id === "string" &&
+        /^[a-zA-Z0-9-]{1,80}$/.test(e.id) &&
+        !ids.has(e.id),
       "Element identifiers must be unique.",
     );
     ids.add(e.id);
@@ -186,6 +189,22 @@ export function validateDocument(value) {
       24 * 1024 * 1024,
     "Combined images exceed the 24 megapixel budget.",
   );
+  let provenance;
+  if (value.provenance !== undefined) {
+    const p = value.provenance;
+    requireValue(
+      p &&
+        ["templateId", "campaignId", "ratio"].every(
+          (k) => typeof p[k] === "string" && /^[a-zA-Z0-9-]{1,80}$/.test(p[k]),
+        ),
+      "Invalid template provenance.",
+    );
+    provenance = {
+      templateId: p.templateId,
+      campaignId: p.campaignId,
+      ratio: p.ratio,
+    };
+  }
   const result = {
     schemaVersion: 1,
     name: value.name.trim(),
@@ -201,6 +220,7 @@ export function validateDocument(value) {
       ),
     ),
     bindings: [],
+    ...(provenance ? { provenance } : {}),
   };
   requireValue(
     new TextEncoder().encode(JSON.stringify(result)).byteLength <= MAX_BYTES,
@@ -245,7 +265,18 @@ export function makeElement(type, id) {
 export function patchElement(doc, id, patch) {
   return validateDocument({
     ...doc,
-    elements: doc.elements.map((e) => (e.id === id ? { ...e, ...patch } : e)),
+    elements: doc.elements.map((e) =>
+      e.id === id
+        ? {
+            ...e,
+            ...patch,
+            ...(e.binding &&
+            (Object.hasOwn(patch, "text") || Object.hasOwn(patch, "assetId"))
+              ? { localOverride: true }
+              : {}),
+          }
+        : e,
+    ),
   });
 }
 export function addElement(doc, element) {

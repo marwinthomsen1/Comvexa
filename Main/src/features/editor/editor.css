@@ -550,3 +550,19 @@
     text-overflow: ellipsis;
   }
 }
+.editor-overflow-warning {
+  position: fixed;
+  bottom: 65px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  max-width: min(600px, 90vw);
+  padding: 12px 18px;
+  background: var(--surface);
+  color: var(--foreground);
+  border: 1px solid #d47e49;
+  border-radius: 10px;
+  font-size: 11px;
+  pointer-events: none;
+  box-shadow: 0 5px 20px #0002;
+}

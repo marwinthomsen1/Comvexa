@@ -14,6 +14,7 @@ for (const path of [
   "/dashboard/campaigns",
   "/dashboard/settings",
   "/dashboard/templates",
+  "/dashboard/packages",
   "/editor",
   "/editor/new",
   "/editor/qa-route",

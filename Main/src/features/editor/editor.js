@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import DesignCanvas from "./design-canvas";
@@ -25,6 +25,7 @@ import { download, renderExport } from "@/lib/editor/export";
 import { readWorkspace } from "@/lib/workspace/local-store";
 import { PROJECT_SIZES } from "@/lib/workspace/validation";
 import "./editor.css";
+import { documentWarnings, browserMeasure } from "@/lib/templates/fitting";
 export default function Editor() {
   const { id } = useParams(),
     router = useRouter();
@@ -55,6 +56,10 @@ export default function Editor() {
     conflict = useRef(false);
   const [nameDraft, setNameDraft] = useState("");
   const doc = state?.present;
+  const overflowWarnings = useMemo(
+    () => (doc ? documentWarnings(doc, browserMeasure) : []),
+    [doc],
+  );
   useEffect(() => {
     if (doc) setNameDraft(doc.name);
   }, [doc?.name]);
@@ -445,6 +450,10 @@ export default function Editor() {
           : element.width / element.height);
     change(element.id, patch);
   }
+  async function browseTemplates() {
+    const ok = await save(doc);
+    if (ok) router.push("/dashboard/templates");
+  }
   const sidebar = (
     <>
       <h2>{tab}</h2>
@@ -458,13 +467,14 @@ export default function Editor() {
       )}
       {tab === "Templates" && (
         <>
-          <p>
-            Editable starter layouts. Full template browsing arrives in Phase 4.
-          </p>
+          <p>Editable starter layouts, or browse the full template library.</p>
           <button onClick={() => starter("invitation")}>
             A little celebration
           </button>
           <button onClick={() => starter("event")}>Make some noise</button>
+          <button onClick={browseTemplates}>
+            Save & browse all templates →
+          </button>
         </>
       )}
       {tab === "Images" && (
@@ -653,6 +663,12 @@ export default function Editor() {
         </button>
         <ThemeToggle />
       </header>
+      {overflowWarnings.length > 0 && (
+        <div className="editor-overflow-warning" role="status">
+          {overflowWarnings.length} text frame(s) may overflow. Enlarge the text
+          frame or reduce font size before export.
+        </div>
+      )}
       <div className="editor-notice">
         BROWSER-LOCAL STUDIO{" "}
         <span>
@@ -753,7 +769,7 @@ export default function Editor() {
         ref={upload}
         hidden
         type="file"
-        accept="image/png,image/jpeg,image/webp"
+        accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp"
         onChange={(e) => {
           imageFile(e.target.files[0]);
           e.target.value = "";
@@ -763,7 +779,7 @@ export default function Editor() {
         ref={replace}
         hidden
         type="file"
-        accept="image/png,image/jpeg,image/webp"
+        accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp"
         onChange={(e) => {
           imageFile(e.target.files[0], true);
           e.target.value = "";

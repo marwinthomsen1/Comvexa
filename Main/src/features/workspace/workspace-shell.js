@@ -8,9 +8,10 @@ import { WorkspaceProvider } from "./workspace-provider";
 const links = [
   ["/dashboard", "Overview", "grid"],
   ["/dashboard/projects", "Projects", "folder"],
-  ["/editor", "Design studio", "image"],
-  ["/dashboard/campaigns", "Campaigns", "link"],
-  ["/dashboard/templates", "Templates", "spark"],
+  ["/editor", "My Designs", "image"],
+  ["/dashboard/packages", "Create Design Package", "layers"],
+  ["/dashboard/campaigns", "My Campaigns", "link"],
+  ["/dashboard/templates", "Browse Templates", "spark"],
   ["/dashboard/settings", "Profile & settings", "user"],
 ];
 export function WorkspaceShell({ children }) {
