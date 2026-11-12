@@ -73,11 +73,28 @@ export function inspectImage(bytes, mime) {
 export function loadImage(src) {
   return new Promise((resolve, reject) => {
     const image = new Image();
-    image.onload = () => resolve(image);
+    image.onload = async () => {
+      try {
+        if (image.decode) await image.decode();
+        resolve(image);
+      } catch {
+        reject(new Error("Image is corrupted or could not be decoded."));
+      }
+    };
     image.onerror = () =>
       reject(new Error("Image is corrupted or could not be decoded."));
     image.src = src;
   });
+}
+// Normalize decoded pixels before transforms, avoiding browser first-use image
+// resampling differences between an image element and its cached texture.
+export async function loadRenderImage(src) {
+  const image = await loadImage(src);
+  const canvas = document.createElement("canvas");
+  canvas.width = image.naturalWidth;
+  canvas.height = image.naturalHeight;
+  canvas.getContext("2d").drawImage(image, 0, 0);
+  return canvas;
 }
 export async function readImage(file) {
   if (!file || file.size > MAX_IMAGE_BYTES)

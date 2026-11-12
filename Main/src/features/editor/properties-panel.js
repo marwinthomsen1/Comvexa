@@ -100,6 +100,7 @@ export function ExportPanel({
   exportImage,
   projectFile,
   portable,
+  upgradeBackup,
 }) {
   return (
     <>
@@ -152,6 +153,15 @@ export function ExportPanel({
         <ToolButton icon="file" className="panel-wide" onClick={projectFile}>
           Download editable project
         </ToolButton>
+        {upgradeBackup && (
+          <ToolButton
+            icon="file"
+            className="panel-wide"
+            onClick={upgradeBackup}
+          >
+            Download pre-upgrade backup
+          </ToolButton>
+        )}
         <ToolButton
           icon="upload"
           className="panel-wide"
@@ -180,6 +190,7 @@ export function PropertiesPanel({
   dimensions,
   setDimensions,
   replace,
+  onPaste,
 }) {
   if (!element)
     return (
@@ -193,6 +204,9 @@ export function PropertiesPanel({
             editing tools.
           </p>
         </div>
+        <ToolButton icon="paste" className="panel-wide" onClick={onPaste}>
+          Paste copied selection
+        </ToolButton>
         <CanvasSettings
           doc={doc}
           apply={apply}

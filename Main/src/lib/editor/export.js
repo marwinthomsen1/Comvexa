@@ -1,6 +1,6 @@
 import Konva from "konva";
 import { exportSpec } from "./document.js";
-import { loadImage } from "./images.js";
+import { loadRenderImage } from "./images.js";
 export function nodeAttributes(e) {
   return {
     x: e.x,
@@ -15,8 +15,6 @@ export async function renderExport(doc, format, quality) {
   const spec = exportSpec(doc, format, quality);
   await document.fonts.ready;
   const images = {};
-  for (const [id, a] of Object.entries(doc.assets))
-    images[id] = await loadImage(a.src);
   const container = document.createElement("div");
   const stage = new Konva.Stage({
     container,
@@ -26,6 +24,8 @@ export async function renderExport(doc, format, quality) {
   const layer = new Konva.Layer();
   stage.add(layer);
   try {
+    for (const [id, a] of Object.entries(doc.assets))
+      images[id] = await loadRenderImage(a.src);
     layer.add(
       new Konva.Rect({
         width: spec.width,
@@ -34,6 +34,7 @@ export async function renderExport(doc, format, quality) {
       }),
     );
     for (const e of doc.elements) {
+      if (e.hidden) continue;
       const attrs = nodeAttributes(e);
       let node;
       if (e.type === "text")
@@ -93,6 +94,10 @@ export async function renderExport(doc, format, quality) {
     );
   } finally {
     stage.destroy();
+    for (const canvas of Object.values(images)) {
+      canvas.width = 0;
+      canvas.height = 0;
+    }
   }
 }
 export function download(blob, name) {

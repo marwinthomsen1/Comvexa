@@ -2,6 +2,28 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import { SelectionControls } from "./selection-controls";
+import {
+  expandSelection,
+  editableIds,
+  selectElement,
+  patchSelection,
+  groupSelection,
+  ungroupSelection,
+  deleteSelection,
+  moveSelection,
+  transformSelection,
+  alignSelection,
+  distributeSelection,
+  reorderSelection,
+  shortcutAction,
+} from "@/lib/editor/selection";
+import {
+  clipboardPayload,
+  pasteSelection,
+  writeClipboard,
+  readClipboard,
+} from "@/lib/editor/clipboard";
 import DesignCanvas from "./design-canvas";
 import { StudioIcon, ToolButton } from "@/components/ui/studio-icon";
 import { STUDIO_TOOLS, selectionLabel, connectionLabel } from "./studio-tools";
@@ -46,7 +68,7 @@ export default function Editor() {
   const { id } = useParams(),
     router = useRouter();
   const [state, setState] = useState(null),
-    [selected, setSelected] = useState(null),
+    [selectedIds, setSelectedIds] = useState([]),
     [tab, setTab] = useState("Text"),
     [mobile, setMobile] = useState(""),
     [error, setError] = useState(""),
@@ -63,6 +85,7 @@ export default function Editor() {
     [available, setAvailable] = useState([]);
   const inFlight = useRef(0);
   const [panel, setPanel] = useState("selection");
+  const [hasUpgradeBackup, setHasUpgradeBackup] = useState(false);
   const [layerSearch, setLayerSearch] = useState("");
   const [photoBusy, setPhotoBusy] = useState(false);
   const toolsSheet = useRef(null),
@@ -79,6 +102,146 @@ export default function Editor() {
     conflict = useRef(false);
   const [nameDraft, setNameDraft] = useState("");
   const doc = state?.present;
+  const selected = selectedIds.length === 1 ? selectedIds[0] : null;
+  const liveSelection = selectedIds.filter((id) =>
+    doc?.elements.some((e) => e.id === id),
+  );
+  const [multiSelect, setMultiSelect] = useState(false),
+    [snapping, setSnapping] = useState(true),
+    [clipboardBusy, setClipboardBusy] = useState(false);
+  function setSelected(id) {
+    setSelectedIds(id ? [id] : []);
+  }
+  function selectObject(id, additive = false) {
+    setSelectedIds((current) =>
+      selectElement(latest.current, current, id, additive),
+    );
+    setPanel("selection");
+  }
+  function batchChange(changes) {
+    try {
+      const ids = new Set(editableIds(latest.current, selectedIds));
+      apply(
+        validateDocument({
+          ...latest.current,
+          elements: latest.current.elements.map((e) => {
+            const change = changes.find((p) => p.id === e.id);
+            return change && ids.has(e.id) ? { ...e, ...change.patch } : e;
+          }),
+        }),
+      );
+    } catch (e) {
+      setError(e.message);
+    }
+  }
+  async function selectionAction(action, value) {
+    try {
+      const current = latest.current,
+        ids = selectedIds;
+      if (action === "clear") {
+        setSelectedIds([]);
+        return;
+      }
+      if (action === "all") {
+        setSelectedIds(
+          expandSelection(
+            current,
+            current.elements
+              .filter((e) => !e.locked && !e.hidden)
+              .map((e) => e.id),
+          ),
+        );
+        return;
+      }
+      if (action === "copy" || action === "cut") {
+        if (clipboardBusy) return;
+        setClipboardBusy(true);
+        const targets = action === "cut" ? editableIds(current, ids) : ids;
+        await writeClipboard(clipboardPayload(current, targets));
+        if (action === "cut") {
+          if (JSON.stringify(latest.current) !== JSON.stringify(current))
+            throw new Error(
+              "Artwork changed while copying. Nothing was cut; copy again.",
+            );
+          apply(deleteSelection(current, targets));
+          setSelectedIds([]);
+        }
+        setStatus(
+          action === "cut"
+            ? "Selection cut to local clipboard"
+            : "Copied to local clipboard",
+        );
+        return;
+      }
+      if (action === "paste" || action === "duplicate") {
+        if (clipboardBusy) return;
+        setClipboardBusy(true);
+        const payload =
+          action === "duplicate"
+            ? clipboardPayload(current, ids)
+            : await readClipboard();
+        await verifyAssets(payload.document);
+        const records = await designStore.listPackages(),
+          campaignIds = records.map((c) => c.id);
+        const result = pasteSelection(
+          latest.current,
+          payload,
+          () => crypto.randomUUID(),
+          { campaignIds },
+        );
+        const sources = await Promise.all(
+          [
+            ...new Set(
+              result.document.elements.flatMap((e) =>
+                e.binding ? [e.binding.campaignId] : [],
+              ),
+            ),
+          ].map((id) => designStore.campaignSnapshot(id)),
+        );
+        const next = resolveDocument(
+          result.document,
+          sources.map((s) => s.campaign),
+        ).document;
+        setCampaigns(sources.map((s) => s.campaign));
+        apply(next);
+        setSelectedIds(result.ids);
+        setPanel("selection");
+        return;
+      }
+      let next;
+      if (action === "group")
+        next = groupSelection(current, ids, crypto.randomUUID());
+      if (action === "ungroup") next = ungroupSelection(current, ids);
+      if (action === "delete") next = deleteSelection(current, ids);
+      if (action === "move")
+        next = moveSelection(current, ids, value.dx, value.dy);
+      if (action === "transform")
+        next = transformSelection(current, ids, value);
+      if (action === "align") next = alignSelection(current, ids, value);
+      if (action === "distribute")
+        next = distributeSelection(current, ids, value);
+      if (action === "forward" || action === "backward")
+        next = reorderSelection(current, ids, action === "forward" ? 1 : -1);
+      if (["lock", "unlock", "hide", "show"].includes(action))
+        next = patchSelection(
+          current,
+          ids,
+          action === "lock" || action === "unlock"
+            ? { locked: action === "lock" }
+            : { hidden: action === "hide" },
+          { includeProtected: true },
+        );
+      if (next) {
+        apply(next);
+        if (action === "delete") setSelectedIds([]);
+      }
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setClipboardBusy(false);
+    }
+  }
+
   useEffect(() => {
     if (!mobile || !window.matchMedia("(max-width: 900px)").matches) return;
     const previous = document.activeElement;
@@ -161,6 +324,7 @@ export default function Editor() {
           );
         }
         if (!active) return;
+        setHasUpgradeBackup(!!record?.legacyV1Backup);
         setCampaigns(record?.campaigns || []);
         if (record?.connectionWarnings?.length)
           setError(record.connectionWarnings.join(" "));
@@ -205,6 +369,14 @@ export default function Editor() {
             );
           const next = await designStore.save(id, snapshot, revision.current);
           revision.current = next;
+          if (snapshot.schemaVersion === 2)
+            designStore
+              .load(id)
+              .then((record) => {
+                if (mounted.current)
+                  setHasUpgradeBackup(!!record?.legacyV1Backup);
+              })
+              .catch(() => {});
           saved.current = JSON.stringify(snapshot);
           if (mounted.current)
             setStatus(
@@ -322,21 +494,10 @@ export default function Editor() {
     }
   }
   function remove() {
-    if (!element || element.locked) return;
-    apply({ ...doc, elements: doc.elements.filter((e) => e.id !== selected) });
-    setSelected(null);
+    selectionAction("delete");
   }
   function duplicate() {
-    if (!element) return;
-    const e = {
-      ...element,
-      id: crypto.randomUUID(),
-      x: Math.min(8192, element.x + 20),
-      y: Math.min(8192, element.y + 20),
-      locked: false,
-    };
-    apply(addElement(doc, e));
-    setSelected(e.id);
+    selectionAction("duplicate");
   }
   function actionHistory(action) {
     setEditId(null);
@@ -356,53 +517,33 @@ export default function Editor() {
         e.target.isContentEditable
       )
         return;
-      const mod = e.metaKey || e.ctrlKey;
-      if (mod && e.key.toLowerCase() === "s") {
-        e.preventDefault();
-        save(latest.current);
-        return;
-      }
-      if (!latest.current || preview) return;
-      if (mod && e.key.toLowerCase() === "z") {
-        e.preventDefault();
-        actionHistory(e.shiftKey ? redo : undo);
-      } else if (mod && e.key.toLowerCase() === "y") {
-        e.preventDefault();
-        actionHistory(redo);
-      } else if (mod && e.key.toLowerCase() === "d") {
-        e.preventDefault();
-        duplicate();
-      } else if (e.key === "Delete" || e.key === "Backspace") {
-        e.preventDefault();
-        remove();
-      } else if (e.key === "Escape") {
-        setSelected(null);
+      const action = shortcutAction(e);
+      if (!action || !latest.current) return;
+      if (preview && action !== "save") return;
+      e.preventDefault();
+      if (action === "save") save(latest.current);
+      else if (action === "undo" || action === "redo")
+        actionHistory(action === "undo" ? undo : redo);
+      else if (action === "clear") {
+        setSelectedIds([]);
         setMobile("");
         setEditId(null);
-      } else if (
-        element &&
-        !element.locked &&
-        ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key)
-      ) {
-        e.preventDefault();
-        const distance = e.shiftKey ? 10 : 1;
-        change(element.id, {
-          x:
-            element.x +
-            (e.key === "ArrowRight"
-              ? distance
-              : e.key === "ArrowLeft"
-                ? -distance
-                : 0),
-          y:
-            element.y +
-            (e.key === "ArrowDown"
-              ? distance
-              : e.key === "ArrowUp"
-                ? -distance
-                : 0),
+      } else if (typeof action === "object")
+        selectionAction("move", {
+          dx:
+            action.move === "arrowright"
+              ? action.distance
+              : action.move === "arrowleft"
+                ? -action.distance
+                : 0,
+          dy:
+            action.move === "arrowdown"
+              ? action.distance
+              : action.move === "arrowup"
+                ? -action.distance
+                : 0,
         });
-      }
+      else selectionAction(action);
     }
     window.addEventListener("keydown", key);
     return () => window.removeEventListener("keydown", key);
@@ -529,6 +670,23 @@ export default function Editor() {
       designStore.listPackages().then(setAvailable);
     } catch (e) {
       setError("Import failed: " + e.message);
+    }
+  }
+  async function upgradeBackup() {
+    try {
+      const record = await designStore.load(id);
+      if (!record?.legacyV1Backup)
+        throw new Error(
+          "No earlier v1 backup exists for this design. A backup is kept when an existing saved v1 design first uses groups or visibility.",
+        );
+      download(
+        new Blob([JSON.stringify(record.legacyV1Backup)], {
+          type: "application/json",
+        }),
+        `${doc.name}.before-stage-b.comvexa.json`,
+      );
+    } catch (e) {
+      setError(e.message);
     }
   }
   async function projectFile() {
@@ -829,14 +987,34 @@ export default function Editor() {
             )
             .map((e) => (
               <div
-                className={`studio-layer ${selected === e.id ? "is-selected" : ""}`}
+                className={`studio-layer ${liveSelection.includes(e.id) ? "is-selected" : ""}`}
                 key={e.id}
               >
+                {e.groupId && (
+                  <span className="layer-group-tag">
+                    <StudioIcon name="group" size={12} /> Group{" "}
+                    {[
+                      ...new Set(
+                        doc.elements.flatMap((n) =>
+                          n.groupId ? [n.groupId] : [],
+                        ),
+                      ),
+                    ].indexOf(e.groupId) + 1}{" "}
+                    ·{" "}
+                    {doc.elements.filter((n) => n.groupId === e.groupId).length}
+                  </span>
+                )}
+                <input
+                  type="checkbox"
+                  aria-label={`Select ${e.type === "text" ? e.text.slice(0, 28) || "empty text" : e.type} layer`}
+                  checked={liveSelection.includes(e.id)}
+                  onChange={() => selectObject(e.id, true)}
+                />
                 <button
-                  aria-pressed={selected === e.id}
+                  aria-pressed={liveSelection.includes(e.id)}
                   className="layer-item"
-                  onClick={() => {
-                    setSelected(e.id);
+                  onClick={(event) => {
+                    selectObject(e.id, event.shiftKey || multiSelect);
                     openPanel();
                   }}
                 >
@@ -853,15 +1031,43 @@ export default function Editor() {
                     {e.type === "text"
                       ? e.text.slice(0, 28) || "Empty text"
                       : selectionLabel(e)}
-                    <small>{connectionLabel(e)}</small>
+                    <small>
+                      {e.hidden ? "Hidden · " : ""}
+                      {connectionLabel(e)}
+                    </small>
                   </span>
                 </button>
                 <button
                   title={e.locked ? "Unlock layer" : "Lock layer"}
                   aria-label={`${e.locked ? "Unlock" : "Lock"} ${e.type === "text" ? e.text.slice(0, 28) || "empty text" : e.type} layer`}
-                  onClick={() => change(e.id, { locked: !e.locked })}
+                  onClick={() =>
+                    apply(
+                      patchSelection(
+                        doc,
+                        [e.id],
+                        { locked: !e.locked },
+                        { includeProtected: true },
+                      ),
+                    )
+                  }
                 >
                   <StudioIcon name={e.locked ? "lock" : "unlock"} />
+                </button>
+                <button
+                  title={e.hidden ? "Show layer" : "Hide layer"}
+                  aria-label={`${e.hidden ? "Show" : "Hide"} ${e.type === "text" ? e.text.slice(0, 28) || "empty text" : e.type} layer`}
+                  onClick={() =>
+                    apply(
+                      patchSelection(
+                        doc,
+                        [e.id],
+                        { hidden: !e.hidden },
+                        { includeProtected: true },
+                      ),
+                    )
+                  }
+                >
+                  <StudioIcon name={e.hidden ? "hide" : "eye"} />
                 </button>
               </div>
             ))}
@@ -869,13 +1075,34 @@ export default function Editor() {
       )}
       <hr />
       <p className="editor-small">
-        Shortcuts: ⌘/Ctrl Z undo · Shift Z redo · D duplicate · S save · arrows
-        move · Shift arrows 10 px.
+        Shortcuts: ⌘/Ctrl A select all · C/X/V copy/cut/paste · G group · Shift
+        G ungroup · D duplicate · Z undo · Shift Z redo · S save. Arrows move;
+        Shift arrows move 10 px. Shift-click adds to selection. Clipboard stays
+        in this browser.
       </p>
     </>
   );
+  const selectionProps = {
+    count: liveSelection.length,
+    unitCount: new Set(
+      doc?.elements
+        .filter((e) => editableIds(doc, liveSelection).includes(e.id))
+        .map((e) => e.groupId || e.id),
+    ).size,
+    editableCount: doc ? editableIds(doc, liveSelection).length : 0,
+    hasGroup: doc?.elements.some(
+      (e) => liveSelection.includes(e.id) && e.groupId,
+    ),
+    multiSelect,
+    setMultiSelect,
+    snapping,
+    setSnapping,
+    act: selectionAction,
+  };
   const properties =
-    panel === "export" ? (
+    panel === "selection" && liveSelection.length > 1 ? (
+      <SelectionControls {...selectionProps} />
+    ) : panel === "export" ? (
       <ExportPanel
         doc={doc}
         format={format}
@@ -886,10 +1113,12 @@ export default function Editor() {
         exportImage={exportImage}
         projectFile={projectFile}
         portable={portable}
+        upgradeBackup={hasUpgradeBackup ? upgradeBackup : null}
       />
     ) : (
       <PropertiesPanel
         element={element}
+        onPaste={() => selectionAction("paste")}
         doc={doc}
         change={change}
         duplicate={duplicate}
@@ -1105,7 +1334,11 @@ export default function Editor() {
                       : "settings"
                 }
               />
-              <strong>{selectionLabel(element)}</strong>
+              <strong>
+                {liveSelection.length > 1
+                  ? `${liveSelection.length} selected`
+                  : selectionLabel(element)}
+              </strong>
               {element && (
                 <span
                   className={`selection-state ${element.binding ? "is-connected" : ""}`}
@@ -1164,22 +1397,28 @@ export default function Editor() {
                 </>
               ) : (
                 <span className="context-hint">
-                  Choose a tool or select something to begin
+                  {liveSelection.length > 1 ? (
+                    <button onClick={() => openPanel()}>Edit selection</button>
+                  ) : (
+                    "Choose a tool or select something to begin"
+                  )}
                 </span>
               )}
             </div>
           </div>
         )}
 
+        {!preview && <SelectionControls {...selectionProps} compact />}
         <div className="editor-viewport" ref={viewport}>
           <div className="canvas-centering">
             <DesignCanvas
               doc={doc}
-              selected={selected}
-              select={(value) => {
-                setSelected(value);
-                setPanel("selection");
-              }}
+              selectedIds={liveSelection}
+              select={selectObject}
+              selectIds={setSelectedIds}
+              multiSelect={multiSelect}
+              snapping={snapping}
+              patchMany={batchChange}
               patch={change}
               zoom={zoom}
               preview={preview}
@@ -1225,6 +1464,12 @@ export default function Editor() {
             <StudioIcon name="close" /> Close panel
           </button>
           {properties}
+          {panel !== "export" && liveSelection.length === 1 && (
+            <details className="studio-details">
+              <summary>Selection & clipboard tools</summary>
+              <SelectionControls {...selectionProps} />
+            </details>
+          )}
         </aside>
       )}
       <input

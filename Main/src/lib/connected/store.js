@@ -169,10 +169,22 @@ export const connectedStore = {
         ).size > 1
       )
         throw new Error("A design can connect to one campaign.");
-      for(const campaign of campaigns)if(!raw.find(c=>c.id===campaign.id)?.connectedVersion)t.objectStore('packages').put(campaign);
+      for (const campaign of campaigns)
+        if (!raw.find((c) => c.id === campaign.id)?.connectedVersion)
+          t.objectStore("packages").put(campaign);
       const resolved = resolveDocument(document, campaigns).document;
       const revision = expectedRevision + 1;
+      const upgradeBackup =
+        current?.legacyV1Backup ||
+        (current?.document.schemaVersion === 1 && resolved.schemaVersion === 2
+          ? portableEnvelope(
+              current.document,
+              campaignsFor(current.document, records, raw),
+            )
+          : null);
       t.objectStore("designs").put({
+        ...current,
+        ...(upgradeBackup ? { legacyV1Backup: upgradeBackup } : {}),
         id,
         document: resolved,
         revision,
@@ -312,6 +324,9 @@ export const connectedStore = {
       for (const c of campaigns) t.objectStore("packages").add(c);
       const revision = expectedRevision + 1;
       t.objectStore("designs").put({
+        ...(current?.legacyV1Backup
+          ? { legacyV1Backup: current.legacyV1Backup }
+          : {}),
         id,
         document: doc,
         revision,

@@ -24,7 +24,7 @@ export function newDesign(
 }
 export function validateDocument(value) {
   requireValue(
-    value && value.schemaVersion === 1,
+    value && [1, 2].includes(value.schemaVersion),
     "Unsupported design version.",
   );
   const { canvas } = value;
@@ -133,6 +133,22 @@ export function validateDocument(value) {
         : null,
       localOverride: e.localOverride,
     };
+    if (e.groupId !== undefined) {
+      requireValue(
+        value.schemaVersion === 2 &&
+          typeof e.groupId === "string" &&
+          /^[a-zA-Z0-9-]{1,80}$/.test(e.groupId),
+        "Invalid group reference.",
+      );
+      out.groupId = e.groupId;
+    }
+    if (e.hidden !== undefined) {
+      requireValue(
+        value.schemaVersion === 2 && typeof e.hidden === "boolean",
+        "Invalid layer visibility.",
+      );
+      out.hidden = e.hidden;
+    }
     if (e.type === "text") {
       requireValue(
         typeof e.text === "string" &&
@@ -193,6 +209,19 @@ export function validateDocument(value) {
     }
     return out;
   });
+  const groups = new Map();
+  elements.forEach((e, index) => {
+    if (e.groupId) {
+      const indexes = groups.get(e.groupId) || [];
+      indexes.push(index);
+      groups.set(e.groupId, indexes);
+    }
+  });
+  for (const indexes of groups.values())
+    requireValue(
+      indexes.length >= 2 && indexes.at(-1) - indexes[0] + 1 === indexes.length,
+      "Groups must contain at least two adjacent layers.",
+    );
   requireValue(
     Object.values(assets).reduce((sum, a) => sum + a.width * a.height, 0) <=
       24 * 1024 * 1024,
@@ -214,8 +243,13 @@ export function validateDocument(value) {
       ratio: p.ratio,
     };
   }
+  for (const groupId of groups.keys())
+    requireValue(
+      !ids.has(groupId),
+      "Group identifiers must differ from element identifiers.",
+    );
   const result = {
-    schemaVersion: 1,
+    schemaVersion: value.schemaVersion,
     name: value.name.trim(),
     canvas: {
       width: canvas.width,
