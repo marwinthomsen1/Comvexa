@@ -1,3 +1,5 @@
+import { FONT_NAMES } from "../typography/fonts.js";
+import { validateTextStyle } from "../typography/style.js";
 import { getGraphic } from "../elements/catalog.js";
 import { createBlankDocument } from "../design-document/schema.js";
 export const PRESETS = {
@@ -8,7 +10,7 @@ export const PRESETS = {
   a4: [2480, 3508, "A4 Portrait · 300 ppi"],
   a4landscape: [3508, 2480, "A4 Landscape · 300 ppi"],
 };
-export const FONTS = ["Arial", "Georgia", "Verdana", "Courier New"];
+export const FONTS = FONT_NAMES;
 export const MAX_BYTES = 20 * 1024 * 1024;
 const color = (v) => typeof v === "string" && /^#[0-9a-f]{6}$/i.test(v);
 const number = (v, min, max) =>
@@ -208,6 +210,10 @@ export function validateDocument(value) {
         cornerRadius: e.cornerRadius,
       });
     }
+    if (e.textStyle !== undefined) {
+      requireValue(value.schemaVersion === 2 && e.type === "text", "Advanced typography requires a v2 text element.");
+      out.textStyle = validateTextStyle(e.textStyle);
+    }
     if (e.graphicKind !== undefined) {
       requireValue(value.schemaVersion === 2 && e.type === "rect" && typeof e.graphicKind === "string" && !!getGraphic(e.graphicKind)?.path, "Unsupported graphic preset.");
       out.graphicKind = e.graphicKind;
@@ -313,6 +319,7 @@ export function makeElement(type, id) {
 export function patchElement(doc, id, patch) {
   return validateDocument({
     ...doc,
+    ...(patch.textStyle ? {schemaVersion:2} : {}),
     elements: doc.elements.map((e) =>
       e.id === id
         ? {

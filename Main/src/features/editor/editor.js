@@ -24,6 +24,7 @@ import {
   writeClipboard,
   readClipboard,
 } from "@/lib/editor/clipboard";
+import { ensureDocumentFonts } from "@/lib/typography/fonts";
 import ElementLibrary from "./element-library";
 import { insertLibraryElement } from "@/lib/elements/insert";
 import DesignCanvas from "./design-canvas";
@@ -194,6 +195,7 @@ export default function Editor() {
             ? clipboardPayload(current, ids)
             : await readClipboard();
         await verifyAssets(payload.document);
+        await ensureDocumentFonts(payload.document);
         const records = await designStore.listPackages(),
           campaignIds = records.map((c) => c.id);
         const result = pasteSelection(
@@ -320,6 +322,7 @@ export default function Editor() {
         if (record) {
           document = record.document;
           await verifyAssets(document);
+          await ensureDocumentFonts(document);
         } else {
           let project;
           try {
@@ -456,6 +459,7 @@ export default function Editor() {
         );
         return;
       }
+      await ensureDocumentFonts(record.document);
       revision.current = record.revision;
       saved.current = JSON.stringify(record.document);
       conflict.current = false;
@@ -638,6 +642,7 @@ export default function Editor() {
       let input = JSON.parse(await file.text());
       const parsed = parsePortable(input);
       await verifyAssets(parsed.document);
+      await ensureDocumentFonts(parsed.document);
       for (const c of parsed.campaigns) {
         for (const a of Object.values(c.assets))
           await verifyAssets({ assets: { photo: a } });

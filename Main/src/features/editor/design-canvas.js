@@ -12,6 +12,7 @@ import {
   Group,
   Line,
 } from "react-konva";
+import { textStyleAttributes } from "@/lib/typography/style";
 import { graphicPathAttributes } from "@/lib/elements/render";
 import { flushSync } from "react-dom";
 import {
@@ -115,7 +116,7 @@ function Element({
         text={e.text}
         fontFamily={e.fontFamily}
         fontSize={e.fontSize}
-        fontStyle={e.fontWeight}
+        {...textStyleAttributes(e)}
         lineHeight={e.lineHeight}
         align={e.align}
         fill={e.fill}
@@ -181,7 +182,8 @@ export default function DesignCanvas({
     guideY = useRef(null),
     marqueeNode = useRef(null),
     hud = useRef(null),
-    paper = useRef(null);
+    paper = useRef(null),
+    textInput = useRef(null);
   const session = useRef(null),
     intent = useRef(null),
     frame = useRef(null),
@@ -587,11 +589,12 @@ export default function DesignCanvas({
     setText(e.text);
     setEditId(id);
   }
-  useEffect(() => {
-    if (editId) {
-      const e = doc.elements.find((e) => e.id === editId);
-      if (e) setText(e.text);
-    }
+  useLayoutEffect(() => {
+    if (!editId) return;
+    const e = doc.elements.find((e) => e.id === editId);
+    if (e) setText(e.text);
+    const pending = requestAnimationFrame(() => textInput.current?.select());
+    return () => cancelAnimationFrame(pending);
   }, [editId]);
   function styleAnchor(anchor) {
     const rotating = anchor.hasName("rotater"),
@@ -732,6 +735,7 @@ export default function DesignCanvas({
       {editing && (
         <textarea
           autoFocus
+          ref={textInput}
           className="canvas-text-input"
           aria-label="Edit text on canvas"
           value={text}
@@ -757,6 +761,9 @@ export default function DesignCanvas({
             fontFamily: editing.fontFamily,
             fontSize: editing.fontSize * zoom,
             fontWeight: editing.fontWeight,
+            fontStyle: editing.textStyle?.italic ? "italic" : "normal",
+            textDecoration: editing.textStyle?.underline ? "underline" : "none",
+            letterSpacing: (editing.textStyle?.letterSpacing || 0) * zoom,
             lineHeight: editing.lineHeight,
             textAlign: editing.align,
             color: editing.fill,

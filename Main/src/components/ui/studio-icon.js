@@ -1,4 +1,5 @@
 import {
+  Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight,
   MousePointer2,
   SquareDashed,
   XCircle,
@@ -58,6 +59,7 @@ import {
   Sparkles,
 } from "lucide-react";
 const icons = {
+  bold: Bold, italic: Italic, underline: Underline, "align-left": AlignLeft, "align-center": AlignCenter, "align-right": AlignRight,
   select: MousePointer2,
   all: SquareDashed,
   clear: XCircle,

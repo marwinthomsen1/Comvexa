@@ -1,3 +1,4 @@
+import { scaleTextStyle } from "../typography/style.js";
 // Transient interaction helpers. Never serialized into application documents.
 export const ROTATION_STOPS = Array.from({ length: 24 }, (_, i) => i * 15);
 export const ROTATION_TOLERANCE = 3;
@@ -92,7 +93,10 @@ export function finalTransformPatches(items, samples) {
       height: round(e.height * n.scaleY),
       rotation: round(normalizeAngle(n.rotation)),
     };
-    if (e.type === "text") patch.fontSize = round(e.fontSize * n.scaleX);
+    if (e.type === "text") {
+      patch.fontSize = round(e.fontSize * n.scaleX);
+      Object.assign(patch, scaleTextStyle(e.textStyle, n.scaleX));
+    }
     if (items.length > 1 && (e.type === "rect" || e.type === "ellipse")) {
       patch.strokeWidth = round(e.strokeWidth * n.scaleX);
       patch.cornerRadius = round(e.cornerRadius * n.scaleX);

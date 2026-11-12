@@ -1061,3 +1061,20 @@
 @media(max-width: 760px) { .element-library-grid { grid-template-columns: repeat(4,minmax(0,1fr)); } .element-library-grid button { min-height: 92px; } }
 @media(prefers-reduced-motion: reduce) { .element-library-grid button { transition:none; } }
 .element-library-filters select { min-height: 40px; }
+
+.typography-controls .studio-details summary { display:flex; align-items:center; gap:7px; }
+.font-preview-list { display:grid; gap:5px; max-height:250px; overflow:auto; padding:3px; }
+.font-preview-list button { display:flex; align-items:center; justify-content:space-between; text-align:left; min-height:46px; padding:8px; gap:6px; }
+.font-preview-list button > span { font-size:18px; overflow:hidden; text-overflow:ellipsis; }
+.font-preview-list small { font:9px Arial,sans-serif; color:var(--muted); }
+.font-preview-list button[aria-pressed="true"],.type-toggle-row button[aria-pressed="true"] { border-color:var(--accent); background:var(--surface-alt); }
+.recent-fonts { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:10px; }
+.recent-fonts > small { width:100%; color:var(--muted); }
+.recent-fonts button { min-height:36px; padding:5px; font-size:10px; }
+.type-toggle-row { display:flex; gap:8px; margin:12px 0; }
+.type-toggle-row button { width:44px; height:44px; justify-content:center; font-size:18px; }
+.text-preset-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.text-preset-grid button { display:flex; flex-direction:column; justify-content:center; min-height:88px; padding:8px; background:#f7f4eb; color:#241443; gap:6px; }
+.text-preset-grid button > span { font-size:27px; line-height:1.3; }
+.text-preset-grid small { font:10px Arial,sans-serif; }
+.typography-error { color:var(--foreground); border:1px solid #d65555; padding:8px; }

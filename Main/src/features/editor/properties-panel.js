@@ -1,5 +1,6 @@
 "use client";
-import { PRESETS, FONTS, reorder } from "@/lib/editor/document";
+import TypographyControls from "./typography-controls";
+import { PRESETS, reorder } from "@/lib/editor/document";
 import { ToolButton } from "@/components/ui/studio-icon";
 import { selectionLabel } from "./studio-tools";
 function Field({ label, value, onChange, min, max, step = 1 }) {
@@ -261,47 +262,7 @@ export function PropertiesPanel({
             >
               Edit on canvas
             </ToolButton>
-            <label className="editor-field">
-              Font
-              <select
-                value={element.fontFamily}
-                onChange={(e) => prop("fontFamily", e.target.value)}
-              >
-                {FONTS.map((f) => (
-                  <option key={f}>{f}</option>
-                ))}
-              </select>
-            </label>
-            <div className="editor-fields">
-              <Field
-                label="Font size"
-                value={element.fontSize}
-                min={6}
-                max={600}
-                onChange={(v) => prop("fontSize", v)}
-              />
-              <label className="editor-field">
-                Weight
-                <select
-                  value={element.fontWeight}
-                  onChange={(e) => prop("fontWeight", e.target.value)}
-                >
-                  <option value="normal">Regular</option>
-                  <option value="bold">Bold</option>
-                </select>
-              </label>
-            </div>
-            <label className="editor-field">
-              Alignment
-              <select
-                value={element.align}
-                onChange={(e) => prop("align", e.target.value)}
-              >
-                {["left", "center", "right"].map((v) => (
-                  <option key={v}>{v}</option>
-                ))}
-              </select>
-            </label>
+            <TypographyControls key={element.id} element={element} onPatch={patch=>change(element.id,patch)} Field={Field}/>
           </>
         )}
         {element.type !== "image" && (

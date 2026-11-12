@@ -119,3 +119,7 @@ The [Stage A report and staged plan](docs/editor-upgrade-stage-a.md) covers the 
 ## Expanded Elements library
 
 The editor's **Elements** tool now includes 79 original editable shapes and graphics, with search, seven categories, a color picker and responsive tile grids. All vectors support the existing transforms, layers, grouping, clipboard, local saving and PNG/JPG exports. See the [expanded elements report](docs/expanded-elements-report.md) for compatibility, testing and preview instructions.
+
+## Editor upgrade — Stage C
+
+[Stage C report](docs/editor-upgrade-stage-c.md): 54 fonts, searchable previews/categories/recent fonts, italic/underline/spacing, native editable shadows/outlines/glow/offset/neon/gradients and ten text presets. Fonts are self-hosted and loaded on demand; selected fonts are awaited before project rendering/export. Curved text is deferred. Stage D has not started.

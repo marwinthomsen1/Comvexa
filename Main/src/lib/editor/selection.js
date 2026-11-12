@@ -1,3 +1,4 @@
+import { scaleTextStyle } from "../typography/style.js";
 import { validateDocument } from "./document.js";
 // Flat membership keeps artwork/world transforms independent of renderer state.
 export function expandSelection(doc, ids) {
@@ -199,7 +200,7 @@ export function transformSelection(
         width: e.width * scale,
         height: e.height * scale,
         rotation: (((e.rotation + rotation) % 360) + 360) % 360,
-        ...(e.type === "text" ? { fontSize: e.fontSize * scale } : {}),
+        ...(e.type === "text" ? { fontSize: e.fontSize * scale, ...scaleTextStyle(e.textStyle, scale) } : {}),
         ...(e.type === "rect" || e.type === "ellipse"
           ? {
               strokeWidth: e.strokeWidth * scale,

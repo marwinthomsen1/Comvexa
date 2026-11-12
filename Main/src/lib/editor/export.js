@@ -1,3 +1,5 @@
+import { ensureDocumentFonts } from "../typography/fonts.js";
+import { textStyleAttributes } from "../typography/style.js";
 import { graphicPathAttributes } from "../elements/render.js";
 import Konva from "konva";
 import { exportSpec } from "./document.js";
@@ -14,6 +16,7 @@ export function nodeAttributes(e) {
 }
 export async function renderExport(doc, format, quality) {
   const spec = exportSpec(doc, format, quality);
+  await ensureDocumentFonts(doc);
   await document.fonts.ready;
   const images = {};
   const container = document.createElement("div");
@@ -44,7 +47,7 @@ export async function renderExport(doc, format, quality) {
           text: e.text,
           fontFamily: e.fontFamily,
           fontSize: e.fontSize,
-          fontStyle: e.fontWeight,
+          ...textStyleAttributes(e),
           fill: e.fill,
           align: e.align,
           lineHeight: e.lineHeight,

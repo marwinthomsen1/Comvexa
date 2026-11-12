@@ -91,8 +91,8 @@ export function documentWarnings(doc, measure = approximateMeasure) {
           e.width,
           e.fontSize,
           e.fontFamily,
-          e.fontWeight,
-          measure,
+          `${e.textStyle?.italic ? "italic " : ""}${e.fontWeight}`,
+          (text,size,font,weight)=>measure(text,size,font,weight)+(e.textStyle?.letterSpacing||0)*[...text].length,
         ).length *
           e.fontSize *
           e.lineHeight >

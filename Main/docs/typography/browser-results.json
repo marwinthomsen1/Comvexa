@@ -1,0 +1,14 @@
+{
+  "date":"2026-11-12",
+  "browser":"Safari desktop",
+  "fontFamiliesLoaded":50,
+  "fontFacesLoaded":84,
+  "presetsSavedReopened":10,
+  "pngExports":10,
+  "jpgExports":10,
+  "exportDimensions":[800,450],
+  "canvasPngComparison":{"presets":10,"differentPixelFractionEach":[0,0,0,0,0,0,0,0,0,0],"channelSumTolerance":6,"note":"Actual DesignCanvas stage cropped to document bounds at pixel ratio 1, compared with decoded PNG output."},
+  "manualWorkflows":["Font search for Caveat and applying handwritten font","Italic and underline toggles","Gradient effect with editable colors","Effect undo and redo","Direct text select-and-replace after focus timing fix","Saved text visible in the reopened phone-width editor","Light and dark mobile formatting sheets"],
+  "mobileViewport":{"viewport":388,"documentWidth":388,"fontSelector":true,"textControls":true},
+  "limitations":["Desktop Safari viewport emulation, no physical phone test","Pixel comparison on representative ten presets, not every font/property combination","No measured low-end-device FPS or input latency"]
+}
