@@ -199,7 +199,8 @@ export default function Home() {
             Start Creating Free <Icon name="arrow" />
           </Link>
           <span className="fine-print">
-            Free browser-local project planning. The full editor is coming next.
+            Free browser-local editing and project planning. Cloud saving is
+            coming later.
           </span>
         </section>
       </main>

@@ -98,8 +98,7 @@ export function ConnectedDemo() {
             </a>
           </div>
           <p className="preview-caption">
-            Explore the free local workspace. Full editor & cloud accounts
-            coming soon.
+            Explore the free local design studio. Cloud accounts coming soon.
           </p>
           <div className="hero-benefits">
             <div>

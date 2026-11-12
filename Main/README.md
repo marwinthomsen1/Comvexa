@@ -1,6 +1,6 @@
 # Comvexa — Create once. Use everywhere.
 
-Creative design platform by Marwin Thomsen. Worldwide audience, initially focusing on the Philippines. Phase 2 is a **local website and workspace foundation**, not a production editor or cloud service.
+Creative design platform by Marwin Thomsen. Worldwide audience, initially focusing on the Philippines. Phase 3 adds a browser-local core design editor to the approved website and workspace foundation. Cloud services remain unavailable.
 
 ## Run
 
@@ -24,7 +24,9 @@ npm run test:http
 
 ## Working now
 
-- Reference-led colorful landing page, local headphone product artwork, connected-price illustration across four formats.
+- Colorful landing page with eight creative categories and a four-format connected-price illustration.
+- React Konva design studio at `/editor`: text, shapes, local images, crop/transform/layers, undo/redo, presets, preview and PNG/JPG exports.
+- IndexedDB autosave with revision conflict checks and portable JSON project import/export.
 - Responsive workspace, project/campaign creation, linking and listings, search/sort, detail views.
 - Local profile settings, template concept filtering, persistent light/dark themes.
 - Login/registration form previews with local validation and explicit unavailable states.
@@ -33,11 +35,11 @@ npm run test:http
 
 ## Important boundaries
 
-The local workspace is public and **not authenticated**. Its data belongs to this browser profile and origin, not an account. Anyone using the same browser profile can see it. It is neither encrypted storage nor a durable backup. Clearing browser data loses drafts. Do not enter sensitive information. Simultaneous cross-tab writes are not transactional; cloud persistence must implement revision-aware saves. No local draft is automatically uploaded later.
+The local workspace is public and **not authenticated**. Its data belongs to this browser profile and origin, not an account. Anyone using the same browser profile can see it. It is neither encrypted storage nor a durable backup. Clearing browser data loses drafts. Do not enter sensitive information. Workspace planning drafts still use localStorage. Design documents use separate IndexedDB transactions with revision conflict checks. Cloud persistence must preserve those checks. No local draft is automatically uploaded later.
 
 Cloud registration, login, sessions, recovery emails and persistence are **not implemented or enabled**. `/api/auth` POST and `/api/projects` GET/POST fail closed with HTTP 503 and never accept a fake preview identity. The form previews do not transmit, log or store passwords. Do not enter real passwords. Adding environment variables alone will not activate a service.
 
-The editor, image upload, applying templates, actual connected content across saved designs, and export downloads are future work. Preview artwork and the price illustration are not generated designs. No payment, ads, analytics, remote fonts or image services are connected. The site remains noindex.
+Applying the full template gallery and actual connected content across saved designs are future work. The core editor and local image uploads/exports are available; two simple editable starters are included. Preview artwork and the price illustration are not generated designs. No payment, ads, analytics, remote fonts or image services are connected. The site remains noindex.
 
 ## Project map
 
@@ -50,7 +52,10 @@ The editor, image upload, applying templates, actual connected content across sa
 - `src/features/workspace/`: provider, shell, creation dialog, lists/details/settings/templates.
 - `src/lib/workspace/`: validated local persistence and input rules.
 - `src/lib/auth/`: validation and disabled-cloud contract.
-- `src/lib/design-document/`: renderer-independent versioned document contract for Phase 3.
+- `src/lib/design-document/`: original versioned document foundation.
+- `src/lib/editor/`: validated application schema, commands/history, image safety, IndexedDB adapter and export renderer.
+- `src/features/editor/`: lazy client editor, canvas, properties and responsive styling.
+- `src/app/editor/`: design library and editor routes.
 - `src/config/site.js`: public product and template-concept data.
 - `supabase/migrations/`: unapplied migration for a NEW development project only.
 - `supabase/tests/`: Auth fixture used only in local PostgreSQL tests.
@@ -86,3 +91,7 @@ A separate Supabase development project and cloud integration verification are n
 ## Phase 2 visual upgrade
 
 The approved reference images guided a colorful purple/pink/orange/cyan visual identity. CSS transform/opacity motion, local optimized product artwork, and a synchronized ₱950 → ₱850 illustration are implemented without adding runtime dependencies. Local projects, campaigns, profiles and authentication boundaries are unchanged. See [design upgrade report](docs/design-upgrade-report.md) for verification and the generated asset prompt. Phase 3 remains unstarted.
+
+## Phase 3 review
+
+See [editor architecture](docs/editor-architecture.md) and [Phase 3 report](docs/phase-3-report.md). Saved documents contain embedded image data; downloads are the backup mechanism. Phase 4 has not started.

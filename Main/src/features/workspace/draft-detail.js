@@ -90,14 +90,20 @@ export function DraftDetail({ kind }) {
           <h2>
             {kind === "campaign"
               ? "A home for connected designs."
-              : "Your canvas is coming."}
+              : "Your canvas is ready."}
           </h2>
           <p>
             {kind === "campaign"
               ? "Project organization works in this preview. Shared fields, connected updates, and design packages will arrive in later phases."
-              : "The editor, asset uploads, and exports are planned for Phase 3. Your project draft is ready for the next step."}
+              : "Create with text, shapes and images. Save editable designs in this browser and export PNG or JPG artwork."}
           </p>
-          <span className="pill">COMING SOON</span>
+          {kind === "project" ? (
+            <Link className="button" href={`/editor/${item.id}`}>
+              Open design editor →
+            </Link>
+          ) : (
+            <span className="pill">COMING SOON</span>
+          )}
         </section>
       </div>
       {kind === "campaign" && (

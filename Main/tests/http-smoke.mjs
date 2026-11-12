@@ -14,6 +14,9 @@ for (const path of [
   "/dashboard/campaigns",
   "/dashboard/settings",
   "/dashboard/templates",
+  "/editor",
+  "/editor/new",
+  "/editor/qa-route",
 ]) {
   const response = await fetch(new URL(path, origin));
   assert.equal(response.status, 200, path);

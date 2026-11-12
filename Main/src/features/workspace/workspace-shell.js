@@ -8,6 +8,7 @@ import { WorkspaceProvider } from "./workspace-provider";
 const links = [
   ["/dashboard", "Overview", "grid"],
   ["/dashboard/projects", "Projects", "folder"],
+  ["/editor", "Design studio", "image"],
   ["/dashboard/campaigns", "Campaigns", "link"],
   ["/dashboard/templates", "Templates", "spark"],
   ["/dashboard/settings", "Profile & settings", "user"],
@@ -43,7 +44,9 @@ export function WorkspaceShell({ children }) {
           <div className="sidebar-note">
             <Icon name="spark" />
             <strong>A space for what’s next.</strong>
-            <p>The editor is on its way. Start by organizing your ideas.</p>
+            <p>
+              Create in the design studio, or organize projects and campaigns.
+            </p>
           </div>
           <Link className="back-home" href="/">
             ← Back to Comvexa

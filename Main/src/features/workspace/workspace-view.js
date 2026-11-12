@@ -187,7 +187,7 @@ export function WorkspaceView({ mode = "overview" }) {
             <p>
               {query
                 ? "Try another name or clear your search."
-                : `Create a ${kind} to give your idea a home. The design editor is coming in Phase 3.`}
+                : `Create a ${kind} to give your idea a home. Open its design editor when you’re ready to create.`}
             </p>
             {query ? (
               <button

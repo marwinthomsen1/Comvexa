@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { useId } from "react";
-export function Brand() {
+export function Brand({ href = "/", onClick, label = "Comvexa home" } = {}) {
   const gradient = useId();
   return (
-    <Link className="brand" href="/" aria-label="Comvexa home">
+    <Link className="brand" href={href} onClick={onClick} aria-label={label}>
       <svg
         width="42"
         height="42"
