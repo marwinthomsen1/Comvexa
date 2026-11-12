@@ -84,6 +84,15 @@ export default function Editor() {
   const [campaigns, setCampaigns] = useState([]),
     [available, setAvailable] = useState([]);
   const inFlight = useRef(0);
+  const gestureActive = useRef(false),
+    autoSaveTimer = useRef(null);
+  function gestureChanged(active) {
+    gestureActive.current = active;
+    clearTimeout(autoSaveTimer.current);
+    if (active) return;
+    if (latest.current && JSON.stringify(latest.current) !== saved.current)
+      autoSaveTimer.current = setTimeout(() => save(latest.current), 800);
+  }
   const [panel, setPanel] = useState("selection");
   const [hasUpgradeBackup, setHasUpgradeBackup] = useState(false);
   const [layerSearch, setLayerSearch] = useState("");
@@ -103,8 +112,9 @@ export default function Editor() {
   const [nameDraft, setNameDraft] = useState("");
   const doc = state?.present;
   const selected = selectedIds.length === 1 ? selectedIds[0] : null;
-  const liveSelection = selectedIds.filter((id) =>
-    doc?.elements.some((e) => e.id === id),
+  const liveSelection = useMemo(
+    () => selectedIds.filter((id) => doc?.elements.some((e) => e.id === id)),
+    [selectedIds, doc?.elements],
   );
   const [multiSelect, setMultiSelect] = useState(false),
     [snapping, setSnapping] = useState(true),
@@ -121,7 +131,7 @@ export default function Editor() {
   function batchChange(changes) {
     try {
       const ids = new Set(editableIds(latest.current, selectedIds));
-      apply(
+      return apply(
         validateDocument({
           ...latest.current,
           elements: latest.current.elements.map((e) => {
@@ -132,6 +142,7 @@ export default function Editor() {
       );
     } catch (e) {
       setError(e.message);
+      return false;
     }
   }
   async function selectionAction(action, value) {
@@ -405,8 +416,10 @@ export default function Editor() {
   useEffect(() => {
     if (!doc || JSON.stringify(doc) === saved.current) return;
     setStatus("Unsaved changes");
-    const timer = setTimeout(() => save(doc), 800);
-    return () => clearTimeout(timer);
+    autoSaveTimer.current = setTimeout(() => {
+      if (!gestureActive.current) save(latest.current);
+    }, 800);
+    return () => clearTimeout(autoSaveTimer.current);
   }, [doc, save]);
   useEffect(() => {
     const leave = (e) => {
@@ -425,7 +438,7 @@ export default function Editor() {
       .catch((e) => setError(e.message));
   }, []);
   async function refreshConnected(force = false) {
-    if (inFlight.current && !force) return;
+    if (gestureActive.current || (inFlight.current && !force)) return;
     try {
       const record = await designStore.loadConnected(id);
       if (!record) return;
@@ -469,8 +482,10 @@ export default function Editor() {
       }).document;
       setState((old) => commit(old, checked));
       setError("");
+      return true;
     } catch (e) {
       setError(e.message);
+      return false;
     }
   }
   function change(id, patch) {
@@ -518,7 +533,7 @@ export default function Editor() {
       )
         return;
       const action = shortcutAction(e);
-      if (!action || !latest.current) return;
+      if (!action || !latest.current || gestureActive.current) return;
       if (preview && action !== "save") return;
       e.preventDefault();
       if (action === "save") save(latest.current);
@@ -556,8 +571,8 @@ export default function Editor() {
         0.05,
         Math.min(
           1,
-          (box.width - 80) / doc.canvas.width,
-          (box.height - 80) / doc.canvas.height,
+          (box.width - 120) / doc.canvas.width,
+          (box.height - 120) / doc.canvas.height,
         ),
       ),
     );
@@ -572,8 +587,8 @@ export default function Editor() {
           0.05,
           Math.min(
             1,
-            (b.width - 80) / doc.canvas.width,
-            (b.height - 80) / doc.canvas.height,
+            (b.width - 120) / doc.canvas.width,
+            (b.height - 120) / doc.canvas.height,
           ),
         ),
       );
@@ -1419,6 +1434,7 @@ export default function Editor() {
               multiSelect={multiSelect}
               snapping={snapping}
               patchMany={batchChange}
+              onGestureChange={gestureChanged}
               patch={change}
               zoom={zoom}
               preview={preview}

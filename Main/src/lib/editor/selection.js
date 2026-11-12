@@ -305,20 +305,21 @@ export function reorderSelection(doc, ids, direction) {
     ),
   });
 }
-export function snapSelection(doc, ids, dx, dy, zoom = 1, enabled = true) {
+export function createSnapSession(doc, ids, zoom = 1, enabled = true) {
   const targets = new Set(editableIds(doc, ids)),
-    box = bounds(doc.elements.filter((e) => targets.has(e.id))),
-    guides = [];
-  if (!enabled || !targets.size) return { dx, dy, guides };
+    box = bounds(doc.elements.filter((e) => targets.has(e.id)));
   const others = doc.elements
     .filter((e) => !targets.has(e.id) && !e.hidden)
     .map(elementBounds);
-  const result = { dx, dy, guides };
-  for (const [axis, size, delta] of [
+  const axes = [
     ["x", "width", "dx"],
     ["y", "height", "dy"],
-  ]) {
-    const stops = [
+  ].map(([axis, size, delta]) => ({
+    axis,
+    delta,
+    start: box[axis],
+    offsets: [0, box[size] / 2, box[size]],
+    stops: [
       0,
       doc.canvas[size] / 2,
       doc.canvas[size],
@@ -327,23 +328,33 @@ export function snapSelection(doc, ids, dx, dy, zoom = 1, enabled = true) {
         b[axis] + b[size] / 2,
         b[axis] + b[size],
       ]),
-    ];
-    let best = 8 / Math.max(0.05, zoom),
-      change = 0,
-      guide;
-    for (const target of stops)
-      for (const offset of [0, box[size] / 2, box[size]]) {
-        const d = target - (box[axis] + result[delta] + offset);
-        if (Math.abs(d) < best) {
-          best = Math.abs(d);
-          change = d;
-          guide = target;
+    ],
+  }));
+  return (dx, dy) => {
+    const result = { dx, dy, guides: [] };
+    if (!enabled || !targets.size) return result;
+    for (const axis of axes) {
+      let best = 8 / Math.max(0.05, zoom),
+        change = 0,
+        guide;
+      for (const target of axis.stops)
+        for (const offset of axis.offsets) {
+          const d = target - (axis.start + result[axis.delta] + offset);
+          if (Math.abs(d) < best) {
+            best = Math.abs(d);
+            change = d;
+            guide = target;
+          }
         }
-      }
-    result[delta] += change;
-    if (guide !== undefined) guides.push({ axis, position: guide });
-  }
-  return result;
+      result[axis.delta] += change;
+      if (guide !== undefined)
+        result.guides.push({ axis: axis.axis, position: guide });
+    }
+    return result;
+  };
+}
+export function snapSelection(doc, ids, dx, dy, zoom = 1, enabled = true) {
+  return createSnapSession(doc, ids, zoom, enabled)(dx, dy);
 }
 export function shortcutAction(event) {
   if (

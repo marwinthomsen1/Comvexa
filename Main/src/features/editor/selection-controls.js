@@ -68,6 +68,7 @@ export function SelectionControls({
           icon="snap"
           aria-pressed={snapping}
           onClick={() => setSnapping(!snapping)}
+          title="Snap movement and 15° rotations. Hold Shift to temporarily invert snapping."
         >
           Snap {snapping ? "on" : "off"}
         </ToolButton>
@@ -79,8 +80,8 @@ export function SelectionControls({
       <h2>{count} elements selected</h2>
       <p className="editor-small">
         {editableCount} editable. Locked or hidden groups stay protected. Resize
-        multiple objects proportionally using the corner handles, or use the
-        exact controls below.
+        proportionally with the corner handles; rotate with the circular handle.
+        Hold Shift to temporarily toggle snapping.
       </p>
       <div className="selection-action-grid">
         {[
