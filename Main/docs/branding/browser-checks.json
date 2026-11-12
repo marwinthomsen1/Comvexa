@@ -1,0 +1,40 @@
+{
+  "date": "2026-11-12",
+  "normalMotion": {
+    "browser": "Safari desktop",
+    "sampleDurationMs": 12500,
+    "animationDuration": "12s",
+    "rotationSeconds": 6,
+    "uprightPauseSeconds": 6,
+    "transformOrigin": "24.6863px 24px",
+    "wordTransform": "none",
+    "maximumTextRectChangePx": 0,
+    "maximumBrandBoxSizeChangePx": 0,
+    "maximumCenterDriftPx": 0.000008993642400572573,
+    "maximumScaleDeviation": 0.000000651282287877919,
+    "distinctSampledAngles": 267
+  },
+  "reducedMotion": {
+    "browser": "Edge device emulation, prefers-reduced-motion: reduce via native DevTools Rendering panel",
+    "sampleDurationMs": 12500,
+    "mediaQueryMatches": true,
+    "animation": "none",
+    "animationDuration": "0s",
+    "wordTransform": "none",
+    "maximumTextRectChangePx": 0,
+    "maximumBrandBoxSizeChangePx": 0,
+    "maximumCenterDriftPx": 0,
+    "maximumScaleDeviation": 0,
+    "distinctSampledAngles": 1,
+    "motionEmulationRestored": "No emulation"
+  },
+  "liveMobilePlacements": [
+    {"route":"/","viewportPx":388,"documentWidthPx":388,"word":"omvexa","textSizePx":27,"symbolSizePx":22.125},
+    {"route":"/login","viewportPx":388,"documentWidthPx":388,"word":"omvexa","textSizePx":30,"symbolSizePx":24.59375},
+    {"route":"/register","viewportPx":388,"documentWidthPx":388,"word":"omvexa","textSizePx":30,"symbolSizePx":24.59375},
+    {"route":"/dashboard","viewportPx":388,"documentWidthPx":388,"word":"omvexa","textSizePx":25,"symbolSizePx":20.5},
+    {"route":"/editor/new","viewportPx":388,"documentWidthPx":388,"hiddenWordSizePx":0,"symbolSizePx":32}
+  ],
+  "visualInspection": ["Desktop light homepage", "440px Edge device-emulated dark homepage", "Shared wordmark alignment and independent symbol rotation"],
+  "scope": "Brand-specific geometry measurements, not a whole-page CLS score or FPS benchmark. Mobile checks use browser emulation/iframes, not physical phones."
+}

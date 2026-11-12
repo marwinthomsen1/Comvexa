@@ -74,17 +74,13 @@ body,
   font-size: 30px;
   letter-spacing: -1.4px;
   font-weight: 800;
-  gap: 9px;
+  gap: 0;
   flex-shrink: 0;
 }
 .brand svg {
-  width: 42px;
-  height: 42px;
+  width: 0.82em;
+  height: 0.82em;
   overflow: visible;
-}
-.brand:hover svg {
-  transform: rotate(-8deg);
-  transition: transform 0.3s;
 }
 .button {
   background: var(--brand-gradient);
@@ -1339,10 +1335,6 @@ body,
 .workspace-sidebar .brand {
   font-size: 25px;
 }
-.workspace-sidebar .brand svg {
-  width: 34px;
-  height: 34px;
-}
 .workspace-sidebar nav a {
   border: 1px solid transparent;
 }
@@ -2090,10 +2082,6 @@ form select:focus-visible {
   .creative-header .brand {
     font-size: 27px;
   }
-  .creative-header .brand svg {
-    width: 35px;
-    height: 35px;
-  }
   .creative-header .header-actions {
     gap: 9px;
   }
@@ -2259,11 +2247,6 @@ form select:focus-visible {
 ::selection {
   background: #7435e7;
   color: #ffffff;
-}
-@media (prefers-reduced-motion: reduce) {
-  .brand:hover svg {
-    transform: none;
-  }
 }
 
 /* Category artwork has its own composition and fixed art palette in both themes. */

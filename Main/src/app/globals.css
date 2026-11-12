@@ -251,15 +251,39 @@ h3 {
 }
 .brand {
   display: inline-flex;
-  align-items: center;
-  gap: 8px;
+  align-items: baseline;
+  gap: 0;
+  line-height: 1;
   font-size: 25px;
   font-weight: 750;
   letter-spacing: -1.2px;
 }
 .brand svg {
-  width: 30px;
-  height: 30px;
+  width: 0.82em;
+  height: 0.82em;
+  flex: none;
+  overflow: visible;
+}
+.brand-word {
+  flex: none;
+}
+.brand-c {
+  /* Exact center of the unchanged radius-18 C arc: (36 - sqrt(18² - 14²), 24).
+     The SVG view box, not the open shape's asymmetric ink bounds, is the reference. */
+  transform-box: view-box;
+  transform-origin: 24.686291501px 24px;
+  /* Six seconds to turn, then six seconds upright for a readable wordmark. */
+  animation: comvexa-c-turn 12s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+@keyframes comvexa-c-turn {
+  0% { transform: rotate(0deg); }
+  50%, 100% { transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .brand-c { animation: none; transform: none; }
+}
+@media print {
+  .brand-c { animation: none; transform: none; }
 }
 .brand-dot {
   color: var(--accent-ink);

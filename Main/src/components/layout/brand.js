@@ -5,6 +5,7 @@ export function Brand({ href = "/", onClick, label = "Comvexa home" } = {}) {
   return (
     <Link className="brand" href={href} onClick={onClick} aria-label={label}>
       <svg
+        className="brand-symbol"
         width="42"
         height="42"
         viewBox="0 0 48 48"
@@ -27,21 +28,25 @@ export function Brand({ href = "/", onClick, label = "Comvexa home" } = {}) {
             <stop offset="1" stopColor="#ffe56b" />
           </linearGradient>
         </defs>
-        <path
-          d="M36 10a18 18 0 1 0 0 28"
-          stroke={`url(#${gradient})`}
-          strokeWidth="11"
-          strokeLinecap="round"
-        />
-        <path
-          d="M13 10c6-6 14-5 20-2"
-          stroke="#ffffff"
-          strokeOpacity=".45"
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
+        <g className="brand-c">
+          <path
+            d="M36 10a18 18 0 1 0 0 28"
+            stroke={`url(#${gradient})`}
+            strokeWidth="11"
+            strokeLinecap="round"
+          />
+          <path
+            d="M13 10c6-6 14-5 20-2"
+            stroke="#ffffff"
+            strokeOpacity=".45"
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
+        </g>
       </svg>
-      <span>comvexa</span>
+      <span className="brand-word" aria-hidden="true">
+        omvexa
+      </span>
     </Link>
   );
 }
