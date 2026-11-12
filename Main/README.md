@@ -2,6 +2,10 @@
 
 Creative design platform by Marwin Thomsen. Worldwide audience, initially focusing on the Philippines. Phase 5 adds connected campaign fields and shared updates to editable templates and automatic design packages to the browser-local editor and approved website. Cloud services remain unavailable.
 
+## Product direction and roadmap
+
+The [expanded roadmap](docs/product-roadmap.md) and [Canva feature matrix](docs/canva-feature-matrix.md) distinguish current capabilities from proposed milestones. Phases 1–5 remain complete; Phase 6 is reliability/security and Phase 7 is public-launch preparation. Major implementation awaits roadmap review.
+
 ## Run
 
 Node 24 LTS and npm are required.
