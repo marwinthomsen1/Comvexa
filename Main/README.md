@@ -115,3 +115,7 @@ The [Stage A report and staged plan](docs/editor-upgrade-stage-a.md) covers the 
 ## Editor upgrade — Stage B
 
 [Stage B report](docs/editor-upgrade-stage-b.md): multiple selection, flat groups, proportional transforms, local clipboard, alignment/distribution, snapping, visibility and batch layers. Group/visibility edits use schema v2 with a pre-upgrade portable backup for existing saved v1 designs. Stage C awaits approval.
+
+## Expanded Elements library
+
+The editor's **Elements** tool now includes 79 original editable shapes and graphics, with search, seven categories, a color picker and responsive tile grids. All vectors support the existing transforms, layers, grouping, clipboard, local saving and PNG/JPG exports. See the [expanded elements report](docs/expanded-elements-report.md) for compatibility, testing and preview instructions.

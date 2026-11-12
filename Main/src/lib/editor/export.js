@@ -1,3 +1,4 @@
+import { graphicPathAttributes } from "../elements/render.js";
 import Konva from "konva";
 import { exportSpec } from "./document.js";
 import { loadRenderImage } from "./images.js";
@@ -61,6 +62,9 @@ export async function renderExport(doc, format, quality) {
             height: e.crop.height * a.height,
           },
         });
+      } else if (e.graphicKind) {
+        node = new Konva.Group(attrs);
+        node.add(new Konva.Path(graphicPathAttributes(e)));
       } else if (e.type === "ellipse")
         node = new Konva.Ellipse({
           ...attrs,

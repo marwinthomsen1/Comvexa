@@ -24,6 +24,8 @@ import {
   writeClipboard,
   readClipboard,
 } from "@/lib/editor/clipboard";
+import ElementLibrary from "./element-library";
+import { insertLibraryElement } from "@/lib/elements/insert";
 import DesignCanvas from "./design-canvas";
 import { StudioIcon, ToolButton } from "@/components/ui/studio-icon";
 import { STUDIO_TOOLS, selectionLabel, connectionLabel } from "./studio-tools";
@@ -887,25 +889,15 @@ export default function Editor() {
           <p>Use your own images or images you have permission to use.</p>
         </>
       )}
-      {tab === "Elements" && (
-        <>
-          <ToolButton
-            icon="square"
-            className="shape-tile"
-            onClick={() => add("rect")}
-          >
-            Rectangle
-          </ToolButton>
-          <ToolButton
-            icon="circle"
-            className="shape-tile"
-            onClick={() => add("ellipse")}
-          >
-            Ellipse
-          </ToolButton>
-          <p>More graphics and decorative elements are planned for Stage C.</p>
-        </>
-      )}
+      {tab === "Elements" && <ElementLibrary onInsert={(kind, fill) => {
+        try {
+          const id = crypto.randomUUID();
+          apply(insertLibraryElement(latest.current, kind, id, fill));
+          setSelected(id);
+          setPanel("selection");
+          setMobile("properties");
+        } catch(e) { setError(e.message); }
+      }} />}
       {tab === "Photos" && (
         <>
           <p>
@@ -996,7 +988,7 @@ export default function Editor() {
           {[...doc.elements]
             .reverse()
             .filter((e) =>
-              (e.type + " " + (e.text || ""))
+              (selectionLabel(e) + " " + e.type + " " + (e.text || ""))
                 .toLowerCase()
                 .includes(layerSearch.toLowerCase()),
             )
@@ -1021,7 +1013,7 @@ export default function Editor() {
                 )}
                 <input
                   type="checkbox"
-                  aria-label={`Select ${e.type === "text" ? e.text.slice(0, 28) || "empty text" : e.type} layer`}
+                  aria-label={`Select ${e.type === "text" ? e.text.slice(0, 28) || "empty text" : selectionLabel(e)} layer`}
                   checked={liveSelection.includes(e.id)}
                   onChange={() => selectObject(e.id, true)}
                 />
@@ -1054,7 +1046,7 @@ export default function Editor() {
                 </button>
                 <button
                   title={e.locked ? "Unlock layer" : "Lock layer"}
-                  aria-label={`${e.locked ? "Unlock" : "Lock"} ${e.type === "text" ? e.text.slice(0, 28) || "empty text" : e.type} layer`}
+                  aria-label={`${e.locked ? "Unlock" : "Lock"} ${e.type === "text" ? e.text.slice(0, 28) || "empty text" : selectionLabel(e)} layer`}
                   onClick={() =>
                     apply(
                       patchSelection(
@@ -1070,7 +1062,7 @@ export default function Editor() {
                 </button>
                 <button
                   title={e.hidden ? "Show layer" : "Hide layer"}
-                  aria-label={`${e.hidden ? "Show" : "Hide"} ${e.type === "text" ? e.text.slice(0, 28) || "empty text" : e.type} layer`}
+                  aria-label={`${e.hidden ? "Show" : "Hide"} ${e.type === "text" ? e.text.slice(0, 28) || "empty text" : selectionLabel(e)} layer`}
                   onClick={() =>
                     apply(
                       patchSelection(

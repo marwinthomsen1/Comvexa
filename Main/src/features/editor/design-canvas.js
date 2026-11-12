@@ -2,6 +2,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   Stage,
+  Path,
   Layer,
   Rect,
   Ellipse,
@@ -11,6 +12,7 @@ import {
   Group,
   Line,
 } from "react-konva";
+import { graphicPathAttributes } from "@/lib/elements/render";
 import { flushSync } from "react-dom";
 import {
   createFrameChannel,
@@ -132,6 +134,8 @@ function Element({
         }}
       />
     );
+  if (e.graphicKind)
+    return <Group {...props}><Path {...graphicPathAttributes(e)} /></Group>;
   if (e.type === "ellipse")
     return (
       <Ellipse
@@ -471,6 +475,7 @@ export default function DesignCanvas({
     }
   }
   function configureTransform(event) {
+    const graphic = movable.length === 1 && doc.elements.find(e => e.id === movable[0])?.graphicKind;
     const tr = transformer.current;
     if (!tr) return;
     const policy = rotationPolicy(snapping, !!event?.shiftKey);
@@ -478,7 +483,7 @@ export default function DesignCanvas({
     tr.rotationSnapTolerance(policy.tolerance);
     const uniform = movable.length > 1 || singleType === "text";
     tr.keepRatio(
-      uniform || (!event?.altKey && (aspectLocked || singleType === "image")),
+      uniform || (!event?.altKey && (aspectLocked || singleType === "image" || !!graphic)),
     );
     if (session.current) session.current.snapActive = policy.stops.length > 0;
   }

@@ -1,3 +1,4 @@
+import { getGraphic } from "../elements/catalog.js";
 import { createBlankDocument } from "../design-document/schema.js";
 export const PRESETS = {
   square: [1080, 1080, "Instagram Square"],
@@ -206,6 +207,10 @@ export function validateDocument(value) {
         strokeWidth: e.strokeWidth,
         cornerRadius: e.cornerRadius,
       });
+    }
+    if (e.graphicKind !== undefined) {
+      requireValue(value.schemaVersion === 2 && e.type === "rect" && typeof e.graphicKind === "string" && !!getGraphic(e.graphicKind)?.path, "Unsupported graphic preset.");
+      out.graphicKind = e.graphicKind;
     }
     return out;
   });

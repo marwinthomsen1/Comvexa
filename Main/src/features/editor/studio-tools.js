@@ -1,8 +1,9 @@
+import { getGraphic } from "@/lib/elements/catalog";
 // UI state only: never persisted in a design document.
 export const STUDIO_TOOLS = [
   { id: "Templates", icon: "grid", hint: "Start with an editable layout" },
   { id: "Text", icon: "type", hint: "Add and edit text" },
-  { id: "Elements", icon: "shapes", hint: "Rectangles and ellipses" },
+  { id: "Elements", icon: "shapes", hint: "Shapes, symbols, badges and decorations" },
   { id: "Photos", icon: "image", hint: "Original Comvexa sample photos" },
   { id: "Uploads", icon: "upload", hint: "Add your own images" },
   { id: "Backgrounds", icon: "palette", hint: "Change the canvas color" },
@@ -11,6 +12,7 @@ export const STUDIO_TOOLS = [
 ];
 export function selectionLabel(element) {
   if (!element) return "Your canvas";
+  if (element.graphicKind) return getGraphic(element.graphicKind)?.name || "Graphic";
   return element.type === "text"
     ? "Text"
     : element.type === "image"

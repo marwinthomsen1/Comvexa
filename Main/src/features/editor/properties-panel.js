@@ -374,7 +374,7 @@ export function PropertiesPanel({
         />
         {["rect", "ellipse"].includes(element.type) && (
           <details className="studio-details" open>
-            <summary>Border & corners</summary>
+            <summary>{element.graphicKind ? "Border" : "Border & corners"}</summary>
             <label className="editor-field">
               Border color
               <input
@@ -390,7 +390,7 @@ export function PropertiesPanel({
               max={100}
               onChange={(v) => prop("strokeWidth", v)}
             />
-            {element.type === "rect" && (
+            {element.type === "rect" && !element.graphicKind && (
               <Field
                 label="Corner radius"
                 value={element.cornerRadius}
