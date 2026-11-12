@@ -1,0 +1,476 @@
+{
+  "date": "2026-11-12",
+  "uniqueCompositions": 100,
+  "categories": [
+    {
+      "id": "social",
+      "name": "Social media & content",
+      "count": 20
+    },
+    {
+      "id": "business",
+      "name": "Business & promotions",
+      "count": 15
+    },
+    {
+      "id": "food",
+      "name": "Food & restaurants",
+      "count": 10
+    },
+    {
+      "id": "fashion",
+      "name": "Fashion & beauty",
+      "count": 10
+    },
+    {
+      "id": "events",
+      "name": "Events & invitations",
+      "count": 10
+    },
+    {
+      "id": "travel",
+      "name": "Travel & tourism",
+      "count": 10
+    },
+    {
+      "id": "motors",
+      "name": "Cars & motorcycles",
+      "count": 10
+    },
+    {
+      "id": "personal",
+      "name": "Education & personal",
+      "count": 10
+    },
+    {
+      "id": "property",
+      "name": "Real estate",
+      "count": 5
+    }
+  ],
+  "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.0.1 Safari/605.1.15",
+  "rendered": 100,
+  "savedAndReopened": 100,
+  "editedUndoRedo": 100,
+  "pngExports": 100,
+  "jpgExports": 100,
+  "issues": 0,
+  "thumbnails": {
+    "totalBytes": 1518190,
+    "maxBytes": 73374,
+    "sizes": [
+      {
+        "id": "studio-daily-note",
+        "bytes": 10828
+      },
+      {
+        "id": "studio-creator-cover",
+        "bytes": 18354
+      },
+      {
+        "id": "studio-quote-poster",
+        "bytes": 13616
+      },
+      {
+        "id": "studio-three-tips",
+        "bytes": 14200
+      },
+      {
+        "id": "studio-podcast",
+        "bytes": 11430
+      },
+      {
+        "id": "studio-weekend-story",
+        "bytes": 73374
+      },
+      {
+        "id": "studio-launch-countdown",
+        "bytes": 8402
+      },
+      {
+        "id": "studio-weekly-edit",
+        "bytes": 17004
+      },
+      {
+        "id": "studio-question",
+        "bytes": 11326
+      },
+      {
+        "id": "studio-new-post",
+        "bytes": 22230
+      },
+      {
+        "id": "studio-milestone",
+        "bytes": 7098
+      },
+      {
+        "id": "studio-checklist",
+        "bytes": 9914
+      },
+      {
+        "id": "studio-before-after",
+        "bytes": 11408
+      },
+      {
+        "id": "studio-playlist",
+        "bytes": 7304
+      },
+      {
+        "id": "studio-tutorial",
+        "bytes": 14950
+      },
+      {
+        "id": "studio-live-session",
+        "bytes": 14332
+      },
+      {
+        "id": "studio-brand-values",
+        "bytes": 10798
+      },
+      {
+        "id": "studio-open-letter",
+        "bytes": 15264
+      },
+      {
+        "id": "studio-color-drop",
+        "bytes": 8752
+      },
+      {
+        "id": "studio-save-date",
+        "bytes": 7870
+      },
+      {
+        "id": "studio-studio-launch",
+        "bytes": 6502
+      },
+      {
+        "id": "studio-consulting",
+        "bytes": 12692
+      },
+      {
+        "id": "studio-sale-ticket",
+        "bytes": 9170
+      },
+      {
+        "id": "studio-workshop",
+        "bytes": 11520
+      },
+      {
+        "id": "studio-services",
+        "bytes": 10254
+      },
+      {
+        "id": "studio-product-drop",
+        "bytes": 15464
+      },
+      {
+        "id": "studio-opening",
+        "bytes": 9800
+      },
+      {
+        "id": "studio-offer",
+        "bytes": 16506
+      },
+      {
+        "id": "studio-business-card",
+        "bytes": 5230
+      },
+      {
+        "id": "studio-recruitment",
+        "bytes": 14360
+      },
+      {
+        "id": "studio-webinar",
+        "bytes": 9698
+      },
+      {
+        "id": "studio-client-story",
+        "bytes": 8988
+      },
+      {
+        "id": "studio-bundle",
+        "bytes": 9448
+      },
+      {
+        "id": "studio-studio-hours",
+        "bytes": 8190
+      },
+      {
+        "id": "studio-gift-card",
+        "bytes": 7500
+      },
+      {
+        "id": "studio-burger",
+        "bytes": 20102
+      },
+      {
+        "id": "studio-brunch",
+        "bytes": 31484
+      },
+      {
+        "id": "studio-menu",
+        "bytes": 11862
+      },
+      {
+        "id": "studio-coffee",
+        "bytes": 12146
+      },
+      {
+        "id": "studio-pizza",
+        "bytes": 15414
+      },
+      {
+        "id": "studio-dinner",
+        "bytes": 10976
+      },
+      {
+        "id": "studio-delivery",
+        "bytes": 15982
+      },
+      {
+        "id": "studio-bakery",
+        "bytes": 10074
+      },
+      {
+        "id": "studio-happy-hour",
+        "bytes": 12644
+      },
+      {
+        "id": "studio-fresh-bowl",
+        "bytes": 8322
+      },
+      {
+        "id": "studio-street-drop",
+        "bytes": 16668
+      },
+      {
+        "id": "studio-skin-ritual",
+        "bytes": 10730
+      },
+      {
+        "id": "studio-lookbook",
+        "bytes": 13928
+      },
+      {
+        "id": "studio-salon",
+        "bytes": 8812
+      },
+      {
+        "id": "studio-accessories",
+        "bytes": 5514
+      },
+      {
+        "id": "studio-beauty-drop",
+        "bytes": 13158
+      },
+      {
+        "id": "studio-fashion-sale",
+        "bytes": 14838
+      },
+      {
+        "id": "studio-self-care",
+        "bytes": 12358
+      },
+      {
+        "id": "studio-capsule",
+        "bytes": 14278
+      },
+      {
+        "id": "studio-fragrance",
+        "bytes": 6970
+      },
+      {
+        "id": "studio-garden-party",
+        "bytes": 10530
+      },
+      {
+        "id": "studio-birthday-bold",
+        "bytes": 8944
+      },
+      {
+        "id": "studio-music-night",
+        "bytes": 11278
+      },
+      {
+        "id": "studio-wedding",
+        "bytes": 9380
+      },
+      {
+        "id": "studio-art-show",
+        "bytes": 9404
+      },
+      {
+        "id": "studio-kids-party",
+        "bytes": 11078
+      },
+      {
+        "id": "studio-market",
+        "bytes": 8980
+      },
+      {
+        "id": "studio-conference",
+        "bytes": 7206
+      },
+      {
+        "id": "studio-film-night",
+        "bytes": 10290
+      },
+      {
+        "id": "studio-dinner-party",
+        "bytes": 8540
+      },
+      {
+        "id": "studio-palawan",
+        "bytes": 55636
+      },
+      {
+        "id": "studio-island-ticket",
+        "bytes": 27052
+      },
+      {
+        "id": "studio-travel-journal",
+        "bytes": 31340
+      },
+      {
+        "id": "studio-summer-trip",
+        "bytes": 66096
+      },
+      {
+        "id": "studio-travel-offer",
+        "bytes": 38228
+      },
+      {
+        "id": "studio-mountain-type",
+        "bytes": 10910
+      },
+      {
+        "id": "studio-city-break",
+        "bytes": 7942
+      },
+      {
+        "id": "studio-postcard",
+        "bytes": 20226
+      },
+      {
+        "id": "studio-tour",
+        "bytes": 47312
+      },
+      {
+        "id": "studio-passport",
+        "bytes": 7576
+      },
+      {
+        "id": "studio-open-road",
+        "bytes": 29140
+      },
+      {
+        "id": "studio-moto-spec",
+        "bytes": 25078
+      },
+      {
+        "id": "studio-test-drive",
+        "bytes": 16170
+      },
+      {
+        "id": "studio-garage",
+        "bytes": 13116
+      },
+      {
+        "id": "studio-riders",
+        "bytes": 25666
+      },
+      {
+        "id": "studio-moto-offer",
+        "bytes": 31930
+      },
+      {
+        "id": "studio-car-detail",
+        "bytes": 10126
+      },
+      {
+        "id": "studio-road-trip",
+        "bytes": 29304
+      },
+      {
+        "id": "studio-electric",
+        "bytes": 8194
+      },
+      {
+        "id": "studio-showroom",
+        "bytes": 11710
+      },
+      {
+        "id": "studio-study-plan",
+        "bytes": 12520
+      },
+      {
+        "id": "studio-class",
+        "bytes": 7270
+      },
+      {
+        "id": "studio-book-club",
+        "bytes": 9142
+      },
+      {
+        "id": "studio-cv",
+        "bytes": 14812
+      },
+      {
+        "id": "studio-thank-you",
+        "bytes": 8010
+      },
+      {
+        "id": "studio-certificate",
+        "bytes": 6938
+      },
+      {
+        "id": "studio-reading-list",
+        "bytes": 7386
+      },
+      {
+        "id": "studio-workbook",
+        "bytes": 7422
+      },
+      {
+        "id": "studio-birthday-note",
+        "bytes": 7508
+      },
+      {
+        "id": "studio-learning",
+        "bytes": 16922
+      },
+      {
+        "id": "studio-open-house",
+        "bytes": 9912
+      },
+      {
+        "id": "studio-urban-home",
+        "bytes": 7276
+      },
+      {
+        "id": "studio-property-card",
+        "bytes": 6012
+      },
+      {
+        "id": "studio-coastal-living",
+        "bytes": 47262
+      },
+      {
+        "id": "studio-estate-invite",
+        "bytes": 11380
+      }
+    ]
+  },
+  "contactSheets": [
+    "contact-01.webp",
+    "contact-02.webp",
+    "contact-03.webp",
+    "contact-04.webp",
+    "contact-05.webp",
+    "contact-06.webp",
+    "contact-07.webp",
+    "contact-08.webp",
+    "contact-09.webp",
+    "contact-10.webp"
+  ]
+}

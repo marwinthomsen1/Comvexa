@@ -43,7 +43,7 @@ The local workspace is public and **not authenticated**. Its data belongs to thi
 
 Cloud registration, login, sessions, recovery emails and persistence are **not implemented or enabled**. `/api/auth` POST and `/api/projects` GET/POST fail closed with HTTP 503 and never accept a fake preview identity. The form previews do not transmit, log or store passwords. Do not enter real passwords. Adding environment variables alone will not activate a service.
 
-The editable template library and four-format package generator are available. Actual connected-content propagation across saved designs remains future work. Preview artwork and the price illustration are not generated designs. No payment, ads, analytics, remote fonts or image services are connected. The site remains noindex.
+The editable template library and four-format package generator are available. Connected campaign fields propagate across saved linked designs locally. Preview artwork and the price illustration are not generated designs. No payment, ads, analytics, remote fonts or image services are connected. The site remains noindex.
 
 ## Project map
 
@@ -102,7 +102,7 @@ See [editor architecture](docs/editor-architecture.md) and [Phase 3 report](docs
 
 ## Phase 4 templates and packages
 
-Open `/dashboard/templates` to browse 32 editable compositions across eight categories and four ratios. `/dashboard/packages` maps your information and up to four uploaded photos into coordinated editable artwork, saved with a campaign in IndexedDB. All saving remains local. See [Phase 4 report](docs/phase-4-report.md) for storage migration, test results, limitations and review instructions.
+Open `/dashboard/templates` to browse 100 individually authored editable compositions across nine categories, 15 styles and seven formats. The original 32 recipe IDs remain compatible with earlier connected packages. See the [curated library report](docs/template-library-upgrade-report.md) and `/template-review/index.html` for all 100 actual previews. `/dashboard/packages` maps your information and up to four uploaded photos into coordinated editable artwork, saved with a campaign in IndexedDB. All saving remains local. See [Phase 4 report](docs/phase-4-report.md) for storage migration, test results, limitations and review instructions.
 
 ## Phase 5 connected designs
 
@@ -110,7 +110,7 @@ Open `/dashboard/campaigns`, choose a generated campaign, and select **Manage co
 
 ## Editor upgrade — Stage A
 
-The [Stage A report and staged plan](docs/editor-upgrade-stage-a.md) covers the redesigned editor navigation, contextual panels, Lucide icons, mobile drawers and verification. Stages B–E await approval; existing v1 documents remain compatible.
+The [Stage A report and staged plan](docs/editor-upgrade-stage-a.md) covers the redesigned editor navigation, contextual panels, Lucide icons, mobile drawers and verification. Stage B and the transform polish are complete; later stages await approval. Existing v1 documents remain compatible.
 
 ## Editor upgrade — Stage B
 

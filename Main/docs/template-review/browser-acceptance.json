@@ -1,0 +1,607 @@
+{
+  "legacy": false,
+  "rows": [
+    {
+      "id": "studio-daily-note",
+      "result": "PASS",
+      "elements": 6,
+      "editor": "/editor/d415c8a0-f92f-4842-99d3-0b36ef6205c5"
+    },
+    {
+      "id": "studio-creator-cover",
+      "result": "PASS",
+      "elements": 7,
+      "editor": "/editor/1d21a677-d548-49cd-acfc-1c7273c9cf41"
+    },
+    {
+      "id": "studio-quote-poster",
+      "result": "PASS",
+      "elements": 5,
+      "editor": "/editor/0ede0890-abc6-45a5-b5c1-308bef301bff"
+    },
+    {
+      "id": "studio-three-tips",
+      "result": "PASS",
+      "elements": 12,
+      "editor": "/editor/8f241e3f-2faa-4502-b2cf-b1ad80536f0a"
+    },
+    {
+      "id": "studio-podcast",
+      "result": "PASS",
+      "elements": 8,
+      "editor": "/editor/bad9b860-a8e9-47f6-8401-7e8cc0f6e417"
+    },
+    {
+      "id": "studio-weekend-story",
+      "result": "PASS",
+      "elements": 6,
+      "editor": "/editor/e8acf873-11d1-4bbd-bb29-3673b583bffa"
+    },
+    {
+      "id": "studio-launch-countdown",
+      "result": "PASS",
+      "elements": 7,
+      "editor": "/editor/0909d0fd-2279-4c99-90b9-15924900a811"
+    },
+    {
+      "id": "studio-weekly-edit",
+      "result": "PASS",
+      "elements": 7,
+      "editor": "/editor/ee766b5e-a314-470e-8ff9-e2f0deab0db0"
+    },
+    {
+      "id": "studio-question",
+      "result": "PASS",
+      "elements": 6,
+      "editor": "/editor/afcea612-cd0d-48b1-8322-455857300903"
+    },
+    {
+      "id": "studio-new-post",
+      "result": "PASS",
+      "elements": 5,
+      "editor": "/editor/035a3000-6c06-4b31-bb46-d0e3a700be39"
+    },
+    {
+      "id": "studio-milestone",
+      "result": "PASS",
+      "elements": 8,
+      "editor": "/editor/eb599cb7-dc59-4e35-80af-15b5d56cbfab"
+    },
+    {
+      "id": "studio-checklist",
+      "result": "PASS",
+      "elements": 11,
+      "editor": "/editor/907b8acc-42f0-4d08-9d02-d6a69ca62490"
+    },
+    {
+      "id": "studio-before-after",
+      "result": "PASS",
+      "elements": 8,
+      "editor": "/editor/dd29a138-8669-41b3-9094-5c2934af4037"
+    },
+    {
+      "id": "studio-playlist",
+      "result": "PASS",
+      "elements": 9,
+      "editor": "/editor/02c9ccb2-7eb8-4967-85b2-92115d2d99f6"
+    },
+    {
+      "id": "studio-tutorial",
+      "result": "PASS",
+      "elements": 5,
+      "editor": "/editor/92a5247c-5b89-4fa9-893b-a050a08eaf12"
+    },
+    {
+      "id": "studio-live-session",
+      "result": "PASS",
+      "elements": 8,
+      "editor": "/editor/3c81f5a6-c5c5-4d14-9ce9-ec6be62e643d"
+    },
+    {
+      "id": "studio-brand-values",
+      "result": "PASS",
+      "elements": 9,
+      "editor": "/editor/cea3a55d-44b0-4df1-83d1-5558f414f633"
+    },
+    {
+      "id": "studio-open-letter",
+      "result": "PASS",
+      "elements": 6,
+      "editor": "/editor/67ba6495-ba21-48dd-bd7c-b681eb0e7f18"
+    },
+    {
+      "id": "studio-color-drop",
+      "result": "PASS",
+      "elements": 5,
+      "editor": "/editor/a0542ab1-8ae4-422d-afc5-7eb8def3f5da"
+    },
+    {
+      "id": "studio-save-date",
+      "result": "PASS",
+      "elements": 7,
+      "editor": "/editor/de0affc9-3b0e-45f5-b172-468e7e488bee"
+    },
+    {
+      "id": "studio-studio-launch",
+      "result": "PASS",
+      "elements": 6,
+      "editor": "/editor/62156e34-b196-4113-998c-b761845f40b6"
+    },
+    {
+      "id": "studio-consulting",
+      "result": "PASS",
+      "elements": 8,
+      "editor": "/editor/6fb0378c-94f9-4b13-b79f-955228f8603b"
+    },
+    {
+      "id": "studio-sale-ticket",
+      "result": "PASS",
+      "elements": 7,
+      "editor": "/editor/9609ac60-9026-4c77-8d92-98ed07382c27"
+    },
+    {
+      "id": "studio-workshop",
+      "result": "PASS",
+      "elements": 6,
+      "editor": "/editor/43fb3cd1-f73a-45e4-b1b5-f13c94c59c10"
+    },
+    {
+      "id": "studio-services",
+      "result": "PASS",
+      "elements": 8,
+      "editor": "/editor/0565d338-2b6f-4053-9c6d-c624eb14724e"
+    },
+    {
+      "id": "studio-product-drop",
+      "result": "PASS",
+      "elements": 7,
+      "editor": "/editor/3c39b25b-cee3-4e2f-984e-fcaaeff15dd4"
+    },
+    {
+      "id": "studio-opening",
+      "result": "PASS",
+      "elements": 7,
+      "editor": "/editor/f5cd4c99-7f3f-42c5-9b49-28ab848a1454"
+    },
+    {
+      "id": "studio-offer",
+      "result": "PASS",
+      "elements": 7,
+      "editor": "/editor/2668c296-0bc8-4abd-981f-68df75945209"
+    },
+    {
+      "id": "studio-business-card",
+      "result": "PASS",
+      "elements": 5,
+      "editor": "/editor/167b2cac-6951-48ff-8c92-c78ae2e50f52"
+    },
+    {
+      "id": "studio-recruitment",
+      "result": "PASS",
+      "elements": 5,
+      "editor": "/editor/193cce4f-9496-4287-8914-193048c31dbe"
+    },
+    {
+      "id": "studio-webinar",
+      "result": "PASS",
+      "elements": 6,
+      "editor": "/editor/15bc5e0c-9324-476a-8200-f9e1691fd416"
+    },
+    {
+      "id": "studio-client-story",
+      "result": "PASS",
+      "elements": 5,
+      "editor": "/editor/c6553622-953d-43e4-a268-f6a0f7aedee9"
+    },
+    {
+      "id": "studio-bundle",
+      "result": "PASS",
+      "elements": 6,
+      "editor": "/editor/8cd95d63-2b6b-4501-985c-e367d500b339"
+    },
+    {
+      "id": "studio-studio-hours",
+      "result": "PASS",
+      "elements": 8,
+      "editor": "/editor/641154c4-a65d-4989-b5e6-45b3c4d6d49d"
+    },
+    {
+      "id": "studio-gift-card",
+      "result": "PASS",
+      "elements": 5,
+      "editor": "/editor/ce91d1b2-01ce-4d4a-93c4-e636d211621a"
+    },
+    {
+      "id": "studio-burger",
+      "result": "PASS",
+      "elements": 7,
+      "editor": "/editor/249d8944-0cdd-403f-a146-36c8fca8d646"
+    },
+    {
+      "id": "studio-brunch",
+      "result": "PASS",
+      "elements": 5,
+      "editor": "/editor/20b87aa9-b6a4-43cd-80e3-0b8a2b10b31d"
+    },
+    {
+      "id": "studio-menu",
+      "result": "PASS",
+      "elements": 8,
+      "editor": "/editor/d51d7d1b-9f70-449a-a1c6-21665e41573a"
+    },
+    {
+      "id": "studio-coffee",
+      "result": "PASS",
+      "elements": 7,
+      "editor": "/editor/96f556b8-d39c-48f2-bf54-c17da929610d"
+    },
+    {
+      "id": "studio-pizza",
+      "result": "PASS",
+      "elements": 8,
+      "editor": "/editor/888a6897-b22a-4628-a920-ec14d637b077"
+    },
+    {
+      "id": "studio-dinner",
+      "result": "PASS",
+      "elements": 5,
+      "editor": "/editor/684f8af5-08cd-4d3f-b9f2-876a5c0b8842"
+    },
+    {
+      "id": "studio-delivery",
+      "result": "PASS",
+      "elements": 6,
+      "editor": "/editor/3b847b56-ad77-45d9-bf2a-43b51099b255"
+    },
+    {
+      "id": "studio-bakery",
+      "result": "PASS",
+      "elements": 6,
+      "editor": "/editor/cf14626c-af15-4aaa-aa48-3f456777dd86"
+    },
+    {
+      "id": "studio-happy-hour",
+      "result": "PASS",
+      "elements": 5,
+      "editor": "/editor/2a04e5a7-0485-4018-bc35-36f948013045"
+    },
+    {
+      "id": "studio-fresh-bowl",
+      "result": "PASS",
+      "elements": 5,
+      "editor": "/editor/0531ba8f-cb54-46f4-acbe-b75e94d725c7"
+    },
+    {
+      "id": "studio-street-drop",
+      "result": "PASS",
+      "elements": 7,
+      "editor": "/editor/68c4e598-59b8-4d2a-b803-e04ce7d87c7b"
+    },
+    {
+      "id": "studio-skin-ritual",
+      "result": "PASS",
+      "elements": 5,
+      "editor": "/editor/36dd1ae7-4750-44bb-b449-63176a44c74a"
+    },
+    {
+      "id": "studio-lookbook",
+      "result": "PASS",
+      "elements": 6,
+      "editor": "/editor/125633c1-0dfe-469c-91d6-1fbdf1d4c79b"
+    },
+    {
+      "id": "studio-salon",
+      "result": "PASS",
+      "elements": 5,
+      "editor": "/editor/3280f35b-785d-4d4b-aaaf-c94f87488f78"
+    },
+    {
+      "id": "studio-accessories",
+      "result": "PASS",
+      "elements": 6,
+      "editor": "/editor/4615a395-fd39-46da-9c9e-8bdc7670ffa1"
+    },
+    {
+      "id": "studio-beauty-drop",
+      "result": "PASS",
+      "elements": 6,
+      "editor": "/editor/37e93d86-35bf-4ba7-a5c7-55f788e50ac1"
+    },
+    {
+      "id": "studio-fashion-sale",
+      "result": "PASS",
+      "elements": 7,
+      "editor": "/editor/59682d85-cf0a-41f6-b493-2a599bfd0bb4"
+    },
+    {
+      "id": "studio-self-care",
+      "result": "PASS",
+      "elements": 4,
+      "editor": "/editor/475283d9-9beb-4efd-859f-a701484f713d"
+    },
+    {
+      "id": "studio-capsule",
+      "result": "PASS",
+      "elements": 6,
+      "editor": "/editor/fbf868d6-dbbd-4403-81b8-98f73bbff050"
+    },
+    {
+      "id": "studio-fragrance",
+      "result": "PASS",
+      "elements": 7,
+      "editor": "/editor/45321c34-5a30-4200-9e88-ee9b570710a2"
+    },
+    {
+      "id": "studio-garden-party",
+      "result": "PASS",
+      "elements": 8,
+      "editor": "/editor/61eeb264-fe09-42d2-a5bf-96e08f8fe6c5"
+    },
+    {
+      "id": "studio-birthday-bold",
+      "result": "PASS",
+      "elements": 6,
+      "editor": "/editor/6a445430-c41c-49ea-b7b0-854138ecaf7b"
+    },
+    {
+      "id": "studio-music-night",
+      "result": "PASS",
+      "elements": 6,
+      "editor": "/editor/b45bbb27-2a2f-4d64-9156-ec9f6678612b"
+    },
+    {
+      "id": "studio-wedding",
+      "result": "PASS",
+      "elements": 6,
+      "editor": "/editor/63f0e101-f4bf-40d9-9e8f-1773b72eff72"
+    },
+    {
+      "id": "studio-art-show",
+      "result": "PASS",
+      "elements": 5,
+      "editor": "/editor/16352594-50cb-44ba-bd47-9dcd6735ae92"
+    },
+    {
+      "id": "studio-kids-party",
+      "result": "PASS",
+      "elements": 8,
+      "editor": "/editor/7b1fbda4-29d4-4535-9d7e-e8cad795fe62"
+    },
+    {
+      "id": "studio-market",
+      "result": "PASS",
+      "elements": 6,
+      "editor": "/editor/3c62a16c-9618-4209-aca5-e03bdcfa8bca"
+    },
+    {
+      "id": "studio-conference",
+      "result": "PASS",
+      "elements": 5,
+      "editor": "/editor/cd0d32bb-8445-4683-b1dc-12b1e60a2813"
+    },
+    {
+      "id": "studio-film-night",
+      "result": "PASS",
+      "elements": 7,
+      "editor": "/editor/6c288ddc-5925-44f8-946e-27db63822adf"
+    },
+    {
+      "id": "studio-dinner-party",
+      "result": "PASS",
+      "elements": 5,
+      "editor": "/editor/958880b1-af55-47e0-8538-5c75204589a0"
+    },
+    {
+      "id": "studio-palawan",
+      "result": "PASS",
+      "elements": 5,
+      "editor": "/editor/9e480cac-0c92-4213-b395-8a12687df053"
+    },
+    {
+      "id": "studio-island-ticket",
+      "result": "PASS",
+      "elements": 5,
+      "editor": "/editor/ab0c9d85-a4b1-4b8d-a6d1-e9e07c65c880"
+    },
+    {
+      "id": "studio-travel-journal",
+      "result": "PASS",
+      "elements": 6,
+      "editor": "/editor/95297801-88ff-46cc-aad3-9e5474351ece"
+    },
+    {
+      "id": "studio-summer-trip",
+      "result": "PASS",
+      "elements": 5,
+      "editor": "/editor/02c15c1c-6c41-4d7a-b754-637d12066afc"
+    },
+    {
+      "id": "studio-travel-offer",
+      "result": "PASS",
+      "elements": 5,
+      "editor": "/editor/c28527db-5726-4fe9-8942-10f633d300bf"
+    },
+    {
+      "id": "studio-mountain-type",
+      "result": "PASS",
+      "elements": 8,
+      "editor": "/editor/3435c0cb-e528-45b7-a49f-b81c29cd9756"
+    },
+    {
+      "id": "studio-city-break",
+      "result": "PASS",
+      "elements": 8,
+      "editor": "/editor/26603096-3b94-48b9-9fae-4b94eedddf7f"
+    },
+    {
+      "id": "studio-postcard",
+      "result": "PASS",
+      "elements": 5,
+      "editor": "/editor/1f7069d8-b882-49b2-a551-9ba702e3cb82"
+    },
+    {
+      "id": "studio-tour",
+      "result": "PASS",
+      "elements": 4,
+      "editor": "/editor/8122afe9-5da1-47cf-afad-41d89fd6db4f"
+    },
+    {
+      "id": "studio-passport",
+      "result": "PASS",
+      "elements": 7,
+      "editor": "/editor/fbf7d056-a20f-4490-882c-4cadac3c54f2"
+    },
+    {
+      "id": "studio-open-road",
+      "result": "PASS",
+      "elements": 6,
+      "editor": "/editor/84a193bc-4fce-4737-a92f-d043f30a6e25"
+    },
+    {
+      "id": "studio-moto-spec",
+      "result": "PASS",
+      "elements": 6,
+      "editor": "/editor/877fcfd4-47d6-4e8c-afe8-8af5485d7aec"
+    },
+    {
+      "id": "studio-test-drive",
+      "result": "PASS",
+      "elements": 4,
+      "editor": "/editor/e542079b-72ca-4f40-ba33-8180d90f316d"
+    },
+    {
+      "id": "studio-garage",
+      "result": "PASS",
+      "elements": 6,
+      "editor": "/editor/3f18cb5d-5027-4b2d-95db-e8f8be3b99dd"
+    },
+    {
+      "id": "studio-riders",
+      "result": "PASS",
+      "elements": 4,
+      "editor": "/editor/af4cbfd8-bd5c-4c7b-8e4c-d8526db0759f"
+    },
+    {
+      "id": "studio-moto-offer",
+      "result": "PASS",
+      "elements": 6,
+      "editor": "/editor/e6c64154-ec7c-43e9-a2d5-1a550b9ccf31"
+    },
+    {
+      "id": "studio-car-detail",
+      "result": "PASS",
+      "elements": 6,
+      "editor": "/editor/a87f1cbf-cb0f-4770-9661-e17ab159c167"
+    },
+    {
+      "id": "studio-road-trip",
+      "result": "PASS",
+      "elements": 4,
+      "editor": "/editor/afce6322-c1ca-4403-b11a-af01c963490a"
+    },
+    {
+      "id": "studio-electric",
+      "result": "PASS",
+      "elements": 5,
+      "editor": "/editor/625b2a87-8ae1-461a-be34-4e113baf0a97"
+    },
+    {
+      "id": "studio-showroom",
+      "result": "PASS",
+      "elements": 5,
+      "editor": "/editor/8fab8570-c59d-401a-b91d-471fe4948058"
+    },
+    {
+      "id": "studio-study-plan",
+      "result": "PASS",
+      "elements": 6,
+      "editor": "/editor/430f2457-7971-4a6f-825c-853ac9749fef"
+    },
+    {
+      "id": "studio-class",
+      "result": "PASS",
+      "elements": 4,
+      "editor": "/editor/8a52758d-bebc-4452-a832-995582b6a811"
+    },
+    {
+      "id": "studio-book-club",
+      "result": "PASS",
+      "elements": 7,
+      "editor": "/editor/1afe54c4-417d-4fdc-85dc-00d2057a2ebd"
+    },
+    {
+      "id": "studio-cv",
+      "result": "PASS",
+      "elements": 9,
+      "editor": "/editor/7fa5de81-54ca-4831-852b-686bcb786d7f"
+    },
+    {
+      "id": "studio-thank-you",
+      "result": "PASS",
+      "elements": 6,
+      "editor": "/editor/a40d995c-8dce-4b49-b930-2fe15f81954b"
+    },
+    {
+      "id": "studio-certificate",
+      "result": "PASS",
+      "elements": 8,
+      "editor": "/editor/7dd54c77-e6b9-47a4-8041-892705ef4ae1"
+    },
+    {
+      "id": "studio-reading-list",
+      "result": "PASS",
+      "elements": 6,
+      "editor": "/editor/8fdb67fb-fee5-4d15-8b20-5295442f2581"
+    },
+    {
+      "id": "studio-workbook",
+      "result": "PASS",
+      "elements": 6,
+      "editor": "/editor/181634b0-394c-4963-8965-6b743b4884a5"
+    },
+    {
+      "id": "studio-birthday-note",
+      "result": "PASS",
+      "elements": 4,
+      "editor": "/editor/0e7bf02c-223e-4634-a073-d00a93a34c09"
+    },
+    {
+      "id": "studio-learning",
+      "result": "PASS",
+      "elements": 5,
+      "editor": "/editor/dd2ae67e-d35e-40f8-8430-a2798e3e9a66"
+    },
+    {
+      "id": "studio-open-house",
+      "result": "PASS",
+      "elements": 7,
+      "editor": "/editor/2d780afa-8652-4b76-90af-b51e562c6816"
+    },
+    {
+      "id": "studio-urban-home",
+      "result": "PASS",
+      "elements": 5,
+      "editor": "/editor/e04f22c0-3457-4c87-b16d-1297e4c9ab8d"
+    },
+    {
+      "id": "studio-property-card",
+      "result": "PASS",
+      "elements": 6,
+      "editor": "/editor/5d148189-ccf8-4421-a0fe-7c8249b0f839"
+    },
+    {
+      "id": "studio-coastal-living",
+      "result": "PASS",
+      "elements": 5,
+      "editor": "/editor/11346259-e04e-4200-b175-6d783ddfb698"
+    },
+    {
+      "id": "studio-estate-invite",
+      "result": "PASS",
+      "elements": 7,
+      "editor": "/editor/456f9946-3b41-45dc-87b4-d9c8f6d8ae10"
+    }
+  ],
+  "durationMs": 31295,
+  "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.0.1 Safari/605.1.15"
+}

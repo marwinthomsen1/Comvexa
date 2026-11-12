@@ -1,0 +1,988 @@
+{
+  "categories": [
+    [
+      "social",
+      "Social media & content",
+      20
+    ],
+    [
+      "business",
+      "Business & promotions",
+      15
+    ],
+    [
+      "food",
+      "Food & restaurants",
+      10
+    ],
+    [
+      "fashion",
+      "Fashion & beauty",
+      10
+    ],
+    [
+      "events",
+      "Events & invitations",
+      10
+    ],
+    [
+      "travel",
+      "Travel & tourism",
+      10
+    ],
+    [
+      "motors",
+      "Cars & motorcycles",
+      10
+    ],
+    [
+      "personal",
+      "Education & personal",
+      10
+    ],
+    [
+      "property",
+      "Real estate",
+      5
+    ]
+  ],
+  "sizes": {
+    "square": {
+      "width": 1080,
+      "height": 1080,
+      "label": "Instagram square"
+    },
+    "portrait": {
+      "width": 1080,
+      "height": 1350,
+      "label": "Instagram portrait"
+    },
+    "story": {
+      "width": 1080,
+      "height": 1920,
+      "label": "Instagram story"
+    },
+    "landscape": {
+      "width": 1200,
+      "height": 630,
+      "label": "Facebook landscape"
+    },
+    "poster": {
+      "width": 1200,
+      "height": 1680,
+      "label": "Poster"
+    },
+    "flyer": {
+      "width": 1080,
+      "height": 1440,
+      "label": "Flyer"
+    },
+    "invitation": {
+      "width": 1000,
+      "height": 1400,
+      "label": "Invitation"
+    }
+  },
+  "templates": [
+    {
+      "id": "studio-daily-note",
+      "name": "The daily note",
+      "category": "social",
+      "ratio": "square",
+      "style": "Minimalist",
+      "description": "The daily note: an original minimalist composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-creator-cover",
+      "name": "Creator’s cover",
+      "category": "social",
+      "ratio": "portrait",
+      "style": "Editorial",
+      "description": "Creator’s cover: an original editorial composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-quote-poster",
+      "name": "Words to keep",
+      "category": "social",
+      "ratio": "poster",
+      "style": "Bold typography",
+      "description": "Words to keep: an original bold typography composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-three-tips",
+      "name": "Three things that help",
+      "category": "social",
+      "ratio": "portrait",
+      "style": "Clean professional",
+      "description": "Three things that help: an original clean professional composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-podcast",
+      "name": "The conversation",
+      "category": "social",
+      "ratio": "square",
+      "style": "Retro",
+      "description": "The conversation: an original retro composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-weekend-story",
+      "name": "Weekend state of mind",
+      "category": "social",
+      "ratio": "story",
+      "style": "Photography-focused",
+      "description": "Weekend state of mind: an original photography-focused composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-launch-countdown",
+      "name": "Something is coming",
+      "category": "social",
+      "ratio": "square",
+      "style": "Futuristic",
+      "description": "Something is coming: an original futuristic composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-weekly-edit",
+      "name": "The weekly edit",
+      "category": "social",
+      "ratio": "portrait",
+      "style": "Editorial",
+      "description": "The weekly edit: an original editorial composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-question",
+      "name": "A question for you",
+      "category": "social",
+      "ratio": "square",
+      "style": "Playful",
+      "description": "A question for you: an original playful composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-new-post",
+      "name": "Fresh on the journal",
+      "category": "social",
+      "ratio": "landscape",
+      "style": "Modern corporate",
+      "description": "Fresh on the journal: an original modern corporate composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-milestone",
+      "name": "A little celebration",
+      "category": "social",
+      "ratio": "square",
+      "style": "Geometric",
+      "description": "A little celebration: an original geometric composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-checklist",
+      "name": "Sunday reset",
+      "category": "social",
+      "ratio": "portrait",
+      "style": "Minimalist",
+      "description": "Sunday reset: an original minimalist composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-before-after",
+      "name": "A fresh perspective",
+      "category": "social",
+      "ratio": "square",
+      "style": "Clean professional",
+      "description": "A fresh perspective: an original clean professional composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-playlist",
+      "name": "On repeat",
+      "category": "social",
+      "ratio": "square",
+      "style": "Streetwear",
+      "description": "On repeat: an original streetwear composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-tutorial",
+      "name": "Your next great idea",
+      "category": "social",
+      "ratio": "portrait",
+      "style": "Bold typography",
+      "description": "Your next great idea: an original bold typography composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-live-session",
+      "name": "Meet us live",
+      "category": "social",
+      "ratio": "story",
+      "style": "Futuristic",
+      "description": "Meet us live: an original futuristic composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-brand-values",
+      "name": "What we believe",
+      "category": "social",
+      "ratio": "square",
+      "style": "Modern corporate",
+      "description": "What we believe: an original modern corporate composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-open-letter",
+      "name": "An open letter",
+      "category": "social",
+      "ratio": "portrait",
+      "style": "Elegant",
+      "description": "An open letter: an original elegant composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-color-drop",
+      "name": "Color is a mood",
+      "category": "social",
+      "ratio": "square",
+      "style": "Colorful",
+      "description": "Color is a mood: an original colorful composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-save-date",
+      "name": "Put it in your calendar",
+      "category": "social",
+      "ratio": "square",
+      "style": "Geometric",
+      "description": "Put it in your calendar: an original geometric composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-studio-launch",
+      "name": "Built for what’s next",
+      "category": "business",
+      "ratio": "landscape",
+      "style": "Modern corporate",
+      "description": "Built for what’s next: an original modern corporate composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-consulting",
+      "name": "Clarity moves you forward",
+      "category": "business",
+      "ratio": "portrait",
+      "style": "Clean professional",
+      "description": "Clarity moves you forward: an original clean professional composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-sale-ticket",
+      "name": "The weekend sale",
+      "category": "business",
+      "ratio": "square",
+      "style": "Retro",
+      "description": "The weekend sale: an original retro composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-workshop",
+      "name": "Make your next move",
+      "category": "business",
+      "ratio": "poster",
+      "style": "Editorial",
+      "description": "Make your next move: an original editorial composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-services",
+      "name": "Good design, clear purpose",
+      "category": "business",
+      "ratio": "square",
+      "style": "Minimalist",
+      "description": "Good design, clear purpose: an original minimalist composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-product-drop",
+      "name": "Fresh essentials",
+      "category": "business",
+      "ratio": "portrait",
+      "style": "Premium product",
+      "description": "Fresh essentials: an original premium product composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-opening",
+      "name": "You’re on the list",
+      "category": "business",
+      "ratio": "invitation",
+      "style": "Luxury",
+      "description": "You’re on the list: an original luxury composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-offer",
+      "name": "A better everyday",
+      "category": "business",
+      "ratio": "story",
+      "style": "Modern corporate",
+      "description": "A better everyday: an original modern corporate composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-business-card",
+      "name": "A considered introduction",
+      "category": "business",
+      "ratio": "landscape",
+      "style": "Elegant",
+      "description": "A considered introduction: an original elegant composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-recruitment",
+      "name": "Good people, great work",
+      "category": "business",
+      "ratio": "portrait",
+      "style": "Bold typography",
+      "description": "Good people, great work: an original bold typography composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-webinar",
+      "name": "The future of small business",
+      "category": "business",
+      "ratio": "landscape",
+      "style": "Futuristic",
+      "description": "The future of small business: an original futuristic composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-client-story",
+      "name": "The work speaks",
+      "category": "business",
+      "ratio": "square",
+      "style": "Editorial",
+      "description": "The work speaks: an original editorial composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-bundle",
+      "name": "The essentials bundle",
+      "category": "business",
+      "ratio": "square",
+      "style": "Geometric",
+      "description": "The essentials bundle: an original geometric composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-studio-hours",
+      "name": "Our door is open",
+      "category": "business",
+      "ratio": "square",
+      "style": "Clean professional",
+      "description": "Our door is open: an original clean professional composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-gift-card",
+      "name": "A little something good",
+      "category": "business",
+      "ratio": "landscape",
+      "style": "Luxury",
+      "description": "A little something good: an original luxury composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-burger",
+      "name": "Big bite energy",
+      "category": "food",
+      "ratio": "square",
+      "style": "Bold typography",
+      "description": "Big bite energy: an original bold typography composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-brunch",
+      "name": "Slow mornings, good company",
+      "category": "food",
+      "ratio": "portrait",
+      "style": "Editorial",
+      "description": "Slow mornings, good company: an original editorial composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-menu",
+      "name": "The lunch menu",
+      "category": "food",
+      "ratio": "flyer",
+      "style": "Clean professional",
+      "description": "The lunch menu: an original clean professional composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-coffee",
+      "name": "Good mornings start here",
+      "category": "food",
+      "ratio": "square",
+      "style": "Retro",
+      "description": "Good mornings start here: an original retro composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-pizza",
+      "name": "A slice of happiness",
+      "category": "food",
+      "ratio": "story",
+      "style": "Playful",
+      "description": "A slice of happiness: an original playful composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-dinner",
+      "name": "An evening at ours",
+      "category": "food",
+      "ratio": "invitation",
+      "style": "Luxury",
+      "description": "An evening at ours: an original luxury composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-delivery",
+      "name": "Good food, your doorstep",
+      "category": "food",
+      "ratio": "landscape",
+      "style": "Modern corporate",
+      "description": "Good food, your doorstep: an original modern corporate composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-bakery",
+      "name": "Made with a little love",
+      "category": "food",
+      "ratio": "square",
+      "style": "Elegant",
+      "description": "Made with a little love: an original elegant composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-happy-hour",
+      "name": "Meet after five",
+      "category": "food",
+      "ratio": "portrait",
+      "style": "Streetwear",
+      "description": "Meet after five: an original streetwear composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-fresh-bowl",
+      "name": "A brighter kind of lunch",
+      "category": "food",
+      "ratio": "square",
+      "style": "Geometric",
+      "description": "A brighter kind of lunch: an original geometric composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-street-drop",
+      "name": "Own your everyday",
+      "category": "fashion",
+      "ratio": "portrait",
+      "style": "Streetwear",
+      "description": "Own your everyday: an original streetwear composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-skin-ritual",
+      "name": "The quiet ritual",
+      "category": "fashion",
+      "ratio": "square",
+      "style": "Luxury",
+      "description": "The quiet ritual: an original luxury composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-lookbook",
+      "name": "Lines of summer",
+      "category": "fashion",
+      "ratio": "poster",
+      "style": "Editorial",
+      "description": "Lines of summer: an original editorial composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-salon",
+      "name": "A little time for you",
+      "category": "fashion",
+      "ratio": "invitation",
+      "style": "Elegant",
+      "description": "A little time for you: an original elegant composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-accessories",
+      "name": "The finishing touch",
+      "category": "fashion",
+      "ratio": "square",
+      "style": "Minimalist",
+      "description": "The finishing touch: an original minimalist composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-beauty-drop",
+      "name": "Meet your new glow",
+      "category": "fashion",
+      "ratio": "portrait",
+      "style": "Premium product",
+      "description": "Meet your new glow: an original premium product composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-fashion-sale",
+      "name": "Good finds, better prices",
+      "category": "fashion",
+      "ratio": "story",
+      "style": "Bold typography",
+      "description": "Good finds, better prices: an original bold typography composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-self-care",
+      "name": "Make room for yourself",
+      "category": "fashion",
+      "ratio": "square",
+      "style": "Photography-focused",
+      "description": "Make room for yourself: an original photography-focused composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-capsule",
+      "name": "Less, beautifully chosen",
+      "category": "fashion",
+      "ratio": "square",
+      "style": "Modern corporate",
+      "description": "Less, beautifully chosen: an original modern corporate composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-fragrance",
+      "name": "A moment that stays",
+      "category": "fashion",
+      "ratio": "portrait",
+      "style": "Luxury",
+      "description": "A moment that stays: an original luxury composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-garden-party",
+      "name": "An afternoon in the garden",
+      "category": "events",
+      "ratio": "invitation",
+      "style": "Elegant",
+      "description": "An afternoon in the garden: an original elegant composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-birthday-bold",
+      "name": "Thirty looks good",
+      "category": "events",
+      "ratio": "square",
+      "style": "Playful",
+      "description": "Thirty looks good: an original playful composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-music-night",
+      "name": "Sound after dark",
+      "category": "events",
+      "ratio": "poster",
+      "style": "Futuristic",
+      "description": "Sound after dark: an original futuristic composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-wedding",
+      "name": "Together is a beautiful place",
+      "category": "events",
+      "ratio": "invitation",
+      "style": "Luxury",
+      "description": "Together is a beautiful place: an original luxury composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-art-show",
+      "name": "A different way of seeing",
+      "category": "events",
+      "ratio": "portrait",
+      "style": "Editorial",
+      "description": "A different way of seeing: an original editorial composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-kids-party",
+      "name": "A one-derful day",
+      "category": "events",
+      "ratio": "invitation",
+      "style": "Playful",
+      "description": "A one-derful day: an original playful composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-market",
+      "name": "Meet your local makers",
+      "category": "events",
+      "ratio": "square",
+      "style": "Retro",
+      "description": "Meet your local makers: an original retro composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-conference",
+      "name": "Ideas that move us",
+      "category": "events",
+      "ratio": "landscape",
+      "style": "Modern corporate",
+      "description": "Ideas that move us: an original modern corporate composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-film-night",
+      "name": "One night, many stories",
+      "category": "events",
+      "ratio": "poster",
+      "style": "Minimalist",
+      "description": "One night, many stories: an original minimalist composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-dinner-party",
+      "name": "Come over for dinner",
+      "category": "events",
+      "ratio": "square",
+      "style": "Elegant",
+      "description": "Come over for dinner: an original elegant composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-palawan",
+      "name": "Take the scenic route",
+      "category": "travel",
+      "ratio": "portrait",
+      "style": "Photography-focused",
+      "description": "Take the scenic route: an original photography-focused composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-island-ticket",
+      "name": "Your island is calling",
+      "category": "travel",
+      "ratio": "landscape",
+      "style": "Retro",
+      "description": "Your island is calling: an original retro composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-travel-journal",
+      "name": "The places between",
+      "category": "travel",
+      "ratio": "square",
+      "style": "Editorial",
+      "description": "The places between: an original editorial composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-summer-trip",
+      "name": "Less city, more sea",
+      "category": "travel",
+      "ratio": "story",
+      "style": "Bold typography",
+      "description": "Less city, more sea: an original bold typography composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-travel-offer",
+      "name": "An escape, well deserved",
+      "category": "travel",
+      "ratio": "square",
+      "style": "Premium product",
+      "description": "An escape, well deserved: an original premium product composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-mountain-type",
+      "name": "Find a quieter place",
+      "category": "travel",
+      "ratio": "poster",
+      "style": "Geometric",
+      "description": "Find a quieter place: an original geometric composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-city-break",
+      "name": "A city worth wandering",
+      "category": "travel",
+      "ratio": "portrait",
+      "style": "Modern corporate",
+      "description": "A city worth wandering: an original modern corporate composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-postcard",
+      "name": "Wish you were here",
+      "category": "travel",
+      "ratio": "landscape",
+      "style": "Elegant",
+      "description": "Wish you were here: an original elegant composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-tour",
+      "name": "A day to remember",
+      "category": "travel",
+      "ratio": "flyer",
+      "style": "Photography-focused",
+      "description": "A day to remember: an original photography-focused composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-passport",
+      "name": "Go somewhere new",
+      "category": "travel",
+      "ratio": "square",
+      "style": "Minimalist",
+      "description": "Go somewhere new: an original minimalist composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-open-road",
+      "name": "Built for the open road",
+      "category": "motors",
+      "ratio": "portrait",
+      "style": "Premium product",
+      "description": "Built for the open road: an original premium product composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-moto-spec",
+      "name": "Precision meets possibility",
+      "category": "motors",
+      "ratio": "square",
+      "style": "Futuristic",
+      "description": "Precision meets possibility: an original futuristic composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-test-drive",
+      "name": "Your next chapter has wheels",
+      "category": "motors",
+      "ratio": "landscape",
+      "style": "Modern corporate",
+      "description": "Your next chapter has wheels: an original modern corporate composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-garage",
+      "name": "Good hands, open roads",
+      "category": "motors",
+      "ratio": "flyer",
+      "style": "Clean professional",
+      "description": "Good hands, open roads: an original clean professional composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-riders",
+      "name": "The Sunday ride",
+      "category": "motors",
+      "ratio": "poster",
+      "style": "Streetwear",
+      "description": "The Sunday ride: an original streetwear composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-moto-offer",
+      "name": "Ride into something better",
+      "category": "motors",
+      "ratio": "story",
+      "style": "Bold typography",
+      "description": "Ride into something better: an original bold typography composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-car-detail",
+      "name": "Details make the difference",
+      "category": "motors",
+      "ratio": "square",
+      "style": "Luxury",
+      "description": "Details make the difference: an original luxury composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-road-trip",
+      "name": "Made for the long way home",
+      "category": "motors",
+      "ratio": "portrait",
+      "style": "Photography-focused",
+      "description": "Made for the long way home: an original photography-focused composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-electric",
+      "name": "The road ahead is electric",
+      "category": "motors",
+      "ratio": "square",
+      "style": "Geometric",
+      "description": "The road ahead is electric: an original geometric composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-showroom",
+      "name": "A new perspective on driving",
+      "category": "motors",
+      "ratio": "invitation",
+      "style": "Elegant",
+      "description": "A new perspective on driving: an original elegant composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-study-plan",
+      "name": "One page at a time",
+      "category": "personal",
+      "ratio": "portrait",
+      "style": "Clean professional",
+      "description": "One page at a time: an original clean professional composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-class",
+      "name": "A good place to begin",
+      "category": "personal",
+      "ratio": "square",
+      "style": "Playful",
+      "description": "A good place to begin: an original playful composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-book-club",
+      "name": "Between the pages",
+      "category": "personal",
+      "ratio": "poster",
+      "style": "Editorial",
+      "description": "Between the pages: an original editorial composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-cv",
+      "name": "The thoughtful résumé",
+      "category": "personal",
+      "ratio": "flyer",
+      "style": "Modern corporate",
+      "description": "The thoughtful résumé: an original modern corporate composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-thank-you",
+      "name": "A note of thanks",
+      "category": "personal",
+      "ratio": "invitation",
+      "style": "Elegant",
+      "description": "A note of thanks: an original elegant composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-certificate",
+      "name": "A well-earned moment",
+      "category": "personal",
+      "ratio": "landscape",
+      "style": "Luxury",
+      "description": "A well-earned moment: an original luxury composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-reading-list",
+      "name": "A season of good books",
+      "category": "personal",
+      "ratio": "square",
+      "style": "Minimalist",
+      "description": "A season of good books: an original minimalist composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-workbook",
+      "name": "Make room to grow",
+      "category": "personal",
+      "ratio": "portrait",
+      "style": "Geometric",
+      "description": "Make room to grow: an original geometric composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-birthday-note",
+      "name": "A year of good things",
+      "category": "personal",
+      "ratio": "square",
+      "style": "Retro",
+      "description": "A year of good things: an original retro composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-learning",
+      "name": "Keep asking good questions",
+      "category": "personal",
+      "ratio": "story",
+      "style": "Bold typography",
+      "description": "Keep asking good questions: an original bold typography composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-open-house",
+      "name": "Room for a new beginning",
+      "category": "property",
+      "ratio": "portrait",
+      "style": "Elegant",
+      "description": "Room for a new beginning: an original elegant composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-urban-home",
+      "name": "The city, on your terms",
+      "category": "property",
+      "ratio": "landscape",
+      "style": "Modern corporate",
+      "description": "The city, on your terms: an original modern corporate composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-property-card",
+      "name": "Space to call your own",
+      "category": "property",
+      "ratio": "square",
+      "style": "Clean professional",
+      "description": "Space to call your own: an original clean professional composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-coastal-living",
+      "name": "A slower kind of living",
+      "category": "property",
+      "ratio": "poster",
+      "style": "Photography-focused",
+      "description": "A slower kind of living: an original photography-focused composition with editable text, colors and artwork.",
+      "version": 1
+    },
+    {
+      "id": "studio-estate-invite",
+      "name": "Discover your next address",
+      "category": "property",
+      "ratio": "invitation",
+      "style": "Luxury",
+      "description": "Discover your next address: an original luxury composition with editable text, colors and artwork.",
+      "version": 1
+    }
+  ]
+}

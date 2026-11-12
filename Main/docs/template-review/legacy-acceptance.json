@@ -1,0 +1,167 @@
+{
+  "legacy": true,
+  "rows": [
+    {
+      "id": "fashion-square",
+      "result": "PASS",
+      "elements": 8
+    },
+    {
+      "id": "food-square",
+      "result": "PASS",
+      "elements": 9
+    },
+    {
+      "id": "beauty-square",
+      "result": "PASS",
+      "elements": 9
+    },
+    {
+      "id": "electronics-square",
+      "result": "PASS",
+      "elements": 9
+    },
+    {
+      "id": "motors-square",
+      "result": "PASS",
+      "elements": 9
+    },
+    {
+      "id": "travel-square",
+      "result": "PASS",
+      "elements": 8
+    },
+    {
+      "id": "birthday-square",
+      "result": "PASS",
+      "elements": 8
+    },
+    {
+      "id": "events-square",
+      "result": "PASS",
+      "elements": 9
+    },
+    {
+      "id": "fashion-portrait",
+      "result": "PASS",
+      "elements": 8
+    },
+    {
+      "id": "food-portrait",
+      "result": "PASS",
+      "elements": 9
+    },
+    {
+      "id": "beauty-portrait",
+      "result": "PASS",
+      "elements": 9
+    },
+    {
+      "id": "electronics-portrait",
+      "result": "PASS",
+      "elements": 9
+    },
+    {
+      "id": "motors-portrait",
+      "result": "PASS",
+      "elements": 9
+    },
+    {
+      "id": "travel-portrait",
+      "result": "PASS",
+      "elements": 8
+    },
+    {
+      "id": "birthday-portrait",
+      "result": "PASS",
+      "elements": 8
+    },
+    {
+      "id": "events-portrait",
+      "result": "PASS",
+      "elements": 9
+    },
+    {
+      "id": "fashion-story",
+      "result": "PASS",
+      "elements": 8
+    },
+    {
+      "id": "food-story",
+      "result": "PASS",
+      "elements": 9
+    },
+    {
+      "id": "beauty-story",
+      "result": "PASS",
+      "elements": 9
+    },
+    {
+      "id": "electronics-story",
+      "result": "PASS",
+      "elements": 9
+    },
+    {
+      "id": "motors-story",
+      "result": "PASS",
+      "elements": 9
+    },
+    {
+      "id": "travel-story",
+      "result": "PASS",
+      "elements": 8
+    },
+    {
+      "id": "birthday-story",
+      "result": "PASS",
+      "elements": 8
+    },
+    {
+      "id": "events-story",
+      "result": "PASS",
+      "elements": 9
+    },
+    {
+      "id": "fashion-landscape",
+      "result": "PASS",
+      "elements": 8
+    },
+    {
+      "id": "food-landscape",
+      "result": "PASS",
+      "elements": 9
+    },
+    {
+      "id": "beauty-landscape",
+      "result": "PASS",
+      "elements": 9
+    },
+    {
+      "id": "electronics-landscape",
+      "result": "PASS",
+      "elements": 9
+    },
+    {
+      "id": "motors-landscape",
+      "result": "PASS",
+      "elements": 9
+    },
+    {
+      "id": "travel-landscape",
+      "result": "PASS",
+      "elements": 8
+    },
+    {
+      "id": "birthday-landscape",
+      "result": "PASS",
+      "elements": 8
+    },
+    {
+      "id": "events-landscape",
+      "result": "PASS",
+      "elements": 9
+    }
+  ],
+  "durationMs": 4455,
+  "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.0.1 Safari/605.1.15"
+}

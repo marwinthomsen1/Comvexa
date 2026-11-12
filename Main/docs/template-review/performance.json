@@ -1,0 +1,6 @@
+{
+  "environment": "Safari 27.0.1 on local Next development server, existing browser cache; not a production cold-load benchmark",
+  "desktop": {"viewport":1414,"documentWidth":1414,"initialCards":24,"loadedThumbnails":10,"thumbnailTransferredBytes":47966,"fullResolutionPhotoRequests":0,"metadataFilter5000Ms":23},
+  "phoneWidthAfterDesktop": {"viewport":388,"documentWidth":388,"initialCards":24,"cumulativeLoadedThumbnails":21,"cumulativeThumbnailTransferredBytes":118528,"fullResolutionPhotoRequests":0,"metadataFilter5000Ms":30},
+  "note": "ResourceTiming transferSize includes resource headers; cached responses may report zero. Filter microbenchmark is 5000 metadata predicates, not React render time or input latency. Mobile is a real iframe viewport in desktop Safari, not a physical touch device."
+}

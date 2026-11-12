@@ -9,3 +9,6 @@ coverage/
 .DS_Store
 .vercel/
 *.pem
+
+# Full-resolution QA exports are retained locally; optimized thumbnails and review sheets are tracked.
+/docs/template-review/exports/
