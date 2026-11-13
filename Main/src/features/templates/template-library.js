@@ -177,8 +177,8 @@ export default function TemplateLibrary() {
           <article className="curated-card" key={t.id}>
             <button
               className="curated-artwork"
-              aria-label={`Preview ${t.name}`}
-              onClick={() => setSelected(t)}
+              aria-label={`Use ${t.name}`}
+              onClick={() => start(t)}
               style={{
                 aspectRatio: `${sizes[t.ratio].width}/${sizes[t.ratio].height}`,
               }}
@@ -195,7 +195,7 @@ export default function TemplateLibrary() {
               />
               <span className="curated-card-overlay">
                 <StudioIcon name="eye" size={16} />
-                Preview design
+                Use template
               </span>
             </button>
             <div className="curated-card-copy">

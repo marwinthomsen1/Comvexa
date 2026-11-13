@@ -66,17 +66,6 @@ export function WorkspaceView({ mode = "overview" }) {
     : [];
   return (
     <>
-      <div className="package-dashboard-actions">
-        <Link className="button" href="/dashboard/templates">
-          Browse Templates
-        </Link>
-        <Link className="button button-outline" href="/dashboard/packages">
-          Create Design Package
-        </Link>
-        <Link className="text-link" href="/editor">
-          My Designs →
-        </Link>
-      </div>
       {mode === "campaigns" && <GeneratedCampaigns />}
       <div className="workspace-heading">
         <div>

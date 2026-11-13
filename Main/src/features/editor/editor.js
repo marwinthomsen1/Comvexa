@@ -753,7 +753,7 @@ export default function Editor() {
   }
   async function goBack(e) {
     e.preventDefault();
-    await navigateSafely("/editor");
+    await navigateSafely("/dashboard");
   }
   function starter(kind) {
     if (
@@ -1187,9 +1187,9 @@ export default function Editor() {
     >
       <header className="editor-top">
         <Brand
-          href="/editor"
+          href="/dashboard"
           onClick={goBack}
-          label="Save and return to designs"
+          label="Save and return to Home"
         />
         <input
           className="design-name"

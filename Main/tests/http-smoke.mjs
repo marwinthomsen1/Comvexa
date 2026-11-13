@@ -11,6 +11,7 @@ for (const path of [
   "/register",
   "/dashboard",
   "/dashboard/projects",
+  "/dashboard/designs",
   "/dashboard/campaigns",
   "/dashboard/settings",
   "/dashboard/templates",
@@ -53,3 +54,8 @@ for (const [path, method] of [
 }
 assert.equal((await fetch(new URL("/not-a-real-route", origin))).status, 404);
 console.log("PASS unknown route: 404");
+
+for (const [path,target] of [["/editor","/dashboard/designs"],["/editor/new","/dashboard/designs?create=1"]]) {
+ const response=await fetch(new URL(path,origin),{redirect:"manual"});
+ assert.equal(response.status,307);assert.equal(response.headers.get("location"),target);console.log(`PASS ${path}: redirects to ${target}`);
+}

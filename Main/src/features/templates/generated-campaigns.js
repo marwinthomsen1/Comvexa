@@ -15,10 +15,9 @@ export function GeneratedCampaigns() {
   }, []);
   return (
     <section className="generated-campaigns">
-      <h2>Your design packages</h2>
+      <h2>Matching designs</h2>
       <p>
-        Campaign information and generated artwork saved in this browser. Open a
-        campaign to update its connected designs together.
+        Create matching designs that update together.
       </p>
       {error && <p role="alert">{error}</p>}
       {!items && !error && <p role="status">Loading design packages…</p>}
@@ -32,12 +31,12 @@ export function GeneratedCampaigns() {
       )}
       {items?.map((item) => (
         <article className="generated-campaign-card" key={item.id}>
-          <span className="eyebrow">BROWSER-LOCAL CAMPAIGN</span>
+          <span className="eyebrow">CONNECTED DESIGNS</span>
           <h3>
             <Link href={`/dashboard/connected/${item.id}`}>{item.name} ↗</Link>
           </h3>
           <Link className="button" href={`/dashboard/connected/${item.id}`}>
-            Manage connected information
+            Update matching designs
           </Link>
           <p>{item.fields.description}</p>
           <p>

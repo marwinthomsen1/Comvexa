@@ -14,18 +14,19 @@ export function nodeAttributes(e) {
     opacity: e.opacity,
   };
 }
-export async function renderExport(doc, format, quality) {
+export async function renderExport(doc, format, quality, maxDimension = null) {
   const spec = exportSpec(doc, format, quality);
   await ensureDocumentFonts(doc);
   await document.fonts.ready;
   const images = {};
   const container = document.createElement("div");
+  const scale = maxDimension ? Math.min(1, maxDimension / Math.max(spec.width, spec.height)) : 1;
   const stage = new Konva.Stage({
     container,
-    width: spec.width,
-    height: spec.height,
+    width: Math.max(1, Math.round(spec.width * scale)),
+    height: Math.max(1, Math.round(spec.height * scale)),
   });
-  const layer = new Konva.Layer();
+  const layer = new Konva.Layer({scaleX:scale,scaleY:scale});
   stage.add(layer);
   try {
     for (const [id, a] of Object.entries(doc.assets))

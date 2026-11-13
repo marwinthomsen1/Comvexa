@@ -1,4 +1,5 @@
 "use client";
+import "./creative-home.css";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Brand } from "@/components/layout/brand";
@@ -6,13 +7,11 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { StudioIcon as Icon } from "@/components/ui/studio-icon";
 import { WorkspaceProvider } from "./workspace-provider";
 const links = [
-  ["/dashboard", "Overview", "grid"],
-  ["/dashboard/projects", "Projects", "folder"],
-  ["/editor", "My Designs", "image"],
-  ["/dashboard/packages", "Create Design Package", "layers"],
-  ["/dashboard/campaigns", "My Campaigns", "link"],
-  ["/dashboard/templates", "Browse Templates", "spark"],
-  ["/dashboard/settings", "Profile & settings", "user"],
+ ["/dashboard", "Home", "grid"],
+ ["/dashboard/designs", "My Designs", "image"],
+ ["/dashboard/templates", "Templates", "spark"],
+ ["/dashboard/packages", "Design Packages", "layers"],
+ ["/dashboard/campaigns", "Campaigns", "link"],
 ];
 export function WorkspaceShell({ children }) {
   const pathname = usePathname();
@@ -20,7 +19,7 @@ export function WorkspaceShell({ children }) {
     <WorkspaceProvider>
       <div className="workspace-shell">
         <aside className="workspace-sidebar">
-          <Brand />
+          <Brand href="/dashboard" />
           <div className="workspace-label">YOUR CREATIVE SPACE</div>
           <nav aria-label="Workspace navigation">
             {links.map(([href, label, icon]) => (
@@ -31,7 +30,7 @@ export function WorkspaceShell({ children }) {
                   (
                     href === "/dashboard"
                       ? pathname === href
-                      : pathname.startsWith(href)
+                      : pathname.startsWith(href) || (href === "/dashboard/campaigns" && pathname.startsWith("/dashboard/connected/"))
                   )
                     ? "page"
                     : undefined
@@ -42,13 +41,6 @@ export function WorkspaceShell({ children }) {
               </Link>
             ))}
           </nav>
-          <div className="sidebar-note">
-            <Icon name="spark" />
-            <strong>A space for what’s next.</strong>
-            <p>
-              Create in the design studio, or organize projects and campaigns.
-            </p>
-          </div>
           <Link className="back-home" href="/">
             ← Back to Comvexa
           </Link>
@@ -57,25 +49,14 @@ export function WorkspaceShell({ children }) {
           <header className="workspace-topbar">
             <span>
               <span className="status-dot" />
-              LOCAL PREVIEW
+              SAVED IN THIS BROWSER
             </span>
             <div>
               <ThemeToggle />
-              <Link className="account-link" href="/login">
-                <Icon name="user" />
-                Cloud login
-              </Link>
+              <details className="workspace-account"><summary><Icon name="user"/> Account</summary><div><Link href="/dashboard/settings">Profile & settings</Link><Link href="/dashboard/projects">Organize projects</Link><Link href="/login">Cloud login</Link></div></details>
             </div>
           </header>
           <main id="main-content" className="workspace-main">
-            <div className="preview-banner">
-              <Icon name="link" />
-              <p>
-                <strong>This is your browser-local preview.</strong> Projects,
-                campaigns, and profile changes stay on this browser. No account
-                is signed in. Don’t enter sensitive information.
-              </p>
-            </div>
             {children}
           </main>
           <footer className="workspace-footer">

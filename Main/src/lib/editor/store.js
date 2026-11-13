@@ -28,7 +28,7 @@ export const designStore = {
       db.close();
     }
   },
-  async list() {
+  async list({ includeTrash = false } = {}) {
     const db = await open();
     try {
       return await new Promise((resolve, reject) => {
@@ -55,8 +55,10 @@ export const designStore = {
               typeof record.updatedAt !== "string"
             )
               throw new Error();
-            result.push({
+            if (!record.trashedAt || includeTrash) result.push({
               id: record.id,
+              revision: record.revision,
+              trashedAt: record.trashedAt,
               name: d.name,
               canvas: { width: d.canvas.width, height: d.canvas.height },
               updatedAt: record.updatedAt,

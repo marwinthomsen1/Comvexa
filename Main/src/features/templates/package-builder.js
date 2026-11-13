@@ -324,7 +324,7 @@ export default function PackageBuilder() {
             <p>
               Every text block, photo and shape stays editable. Shared
               references are prepared now; shared campaign information can be
-              updated from My Campaigns.
+              updated from Campaigns.
             </p>
             <p className="local-note">
               Saved only in this browser. Download editable project files for
@@ -534,8 +534,7 @@ export default function PackageBuilder() {
             </button>
           </div>
           <p className="template-count">
-            Shared campaign information can be updated from My Campaigns. Direct
-            edits in one design create local overrides.
+            Update all matching designs from Campaigns, or customize a single design in the editor.
           </p>
         </>
       )}
