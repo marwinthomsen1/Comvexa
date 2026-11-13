@@ -1,4 +1,6 @@
 "use client";
+import {useRef} from "react";
+import PhotoControls from "./photo-controls";
 import TypographyControls from "./typography-controls";
 import { PRESETS, reorder } from "@/lib/editor/document";
 import { ToolButton } from "@/components/ui/studio-icon";
@@ -21,10 +23,23 @@ function Field({ label, value, onChange, min, max, step = 1 }) {
     </label>
   );
 }
-export function CanvasSettings({ doc, apply, dimensions, setDimensions }) {
+export function CanvasSettings({ doc, apply, dimensions, setDimensions, expanded = false }) {
   return (
     <>
-      <h2>Resize canvas</h2>
+      <label className="editor-field">
+        Background color
+        <input
+          type="color"
+          value={doc.canvas.background}
+          onChange={(e) =>
+            apply({
+              ...doc,
+              canvas: { ...doc.canvas, background: e.target.value },
+            })
+          }
+        />
+      </label>
+      <details className="studio-details" open={expanded}><summary>Canvas size · {doc.canvas.width} × {doc.canvas.height}</summary>
       <p className="editor-small">
         Change the page size. Existing elements keep their positions and sizes.
       </p>
@@ -75,19 +90,8 @@ export function CanvasSettings({ doc, apply, dimensions, setDimensions }) {
         64–4096 px per edge. A4 is a pixel preset, not a print-quality
         guarantee. No bleed or CMYK output.
       </p>
-      <label className="editor-field">
-        Background color
-        <input
-          type="color"
-          value={doc.canvas.background}
-          onChange={(e) =>
-            apply({
-              ...doc,
-              canvas: { ...doc.canvas, background: e.target.value },
-            })
-          }
-        />
-      </label>
+
+      </details>
     </>
   );
 }
@@ -145,7 +149,7 @@ export function ExportPanel({
           ? "Preparing artwork…"
           : `Download ${format === "png" ? "PNG" : "JPG"}`}
       </ToolButton>
-      <details className="studio-details" open>
+      <details className="studio-details">
         <summary>Editable project & backup</summary>
         <p className="editor-small">
           Keep an editable copy with its connected campaign information. Browser
@@ -179,8 +183,6 @@ export function PropertiesPanel({
   connectionPanel,
   doc,
   change,
-  duplicate,
-  remove,
   prop,
   aspect,
   setAspect,
@@ -191,20 +193,16 @@ export function PropertiesPanel({
   dimensions,
   setDimensions,
   replace,
+  onCrop,
   onPaste,
 }) {
+  const more = useRef(null);
   if (!element)
     return (
       <>
         <div className="panel-eyebrow">MAKE IT YOURS</div>
         <h2>Your canvas</h2>
-        <div className="selection-empty">
-          <span>Select an element</span>
-          <p>
-            Click an item on the canvas or choose it from Layers to see its
-            editing tools.
-          </p>
-        </div>
+        <p className="editor-small">Select something to edit, or change your canvas below.</p>
         <ToolButton icon="paste" className="panel-wide" onClick={onPaste}>
           Paste copied selection
         </ToolButton>
@@ -219,21 +217,7 @@ export function PropertiesPanel({
   return (
     <>
       <div className="panel-eyebrow">SELECTED ELEMENT</div>
-      <h2>{selectionLabel(element)} properties</h2>
-      <div className="editor-row element-actions">
-        <ToolButton
-          icon={element.locked ? "unlock" : "lock"}
-          onClick={() => change(element.id, { locked: !element.locked })}
-        >
-          {element.locked ? "Unlock" : "Lock"}
-        </ToolButton>
-        <ToolButton icon="copy" onClick={duplicate}>
-          Duplicate
-        </ToolButton>
-        <ToolButton icon="trash" onClick={remove} disabled={element.locked}>
-          Delete
-        </ToolButton>
-      </div>
+      <h2>{selectionLabel(element)}</h2>
       {connectionPanel}
       {element.locked && (
         <p className="locked-message">
@@ -244,28 +228,11 @@ export function PropertiesPanel({
         <legend className="sr-only">Element appearance</legend>
         {element.type === "text" && (
           <>
-            <label className="editor-field">
-              Text
-              <textarea
-                value={element.text}
-                maxLength={5000}
-                onChange={(e) => prop("text", e.target.value)}
-              />
-            </label>
-            <ToolButton
-              icon="edit"
-              className="panel-wide"
-              onClick={() => {
-                setEditId(element.id);
-                setMobile("");
-              }}
-            >
-              Edit on canvas
-            </ToolButton>
             <TypographyControls key={element.id} element={element} onPatch={patch=>change(element.id,patch)} Field={Field}/>
+            <details className="studio-details"><summary>Edit text content</summary><textarea aria-label="Text content" value={element.text} maxLength={5000} onChange={e=>prop("text",e.target.value)}/><ToolButton icon="type" onClick={()=>{setEditId(element.id);setMobile("");}}>Edit on canvas</ToolButton></details>
           </>
         )}
-        {element.type !== "image" && (
+        {!["image","text"].includes(element.type) && (
           <label className="editor-field">
             {element.type === "text" ? "Text color" : "Fill color"}
             <input
@@ -275,66 +242,10 @@ export function PropertiesPanel({
             />
           </label>
         )}
-        {element.type === "image" && (
-          <>
-            <ToolButton
-              icon="image"
-              className="panel-wide"
-              onClick={() => replace.current.click()}
-            >
-              Replace image
-            </ToolButton>
-            <details className="studio-details" open>
-              <summary>Crop image</summary>
-              <p className="editor-small">
-                Adjust the visible part of the source photo. The frame stays in
-                place.
-              </p>
-              <div className="editor-fields">
-                {["x", "y", "width", "height"].map((k) => (
-                  <Field
-                    key={k}
-                    label={`Crop ${k} %`}
-                    value={element.crop[k] * 100}
-                    min={k === "width" || k === "height" ? 1 : 0}
-                    max={100}
-                    onChange={(v) =>
-                      prop("crop", { ...element.crop, [k]: v / 100 })
-                    }
-                  />
-                ))}
-              </div>
-              <div className="editor-row">
-                <ToolButton
-                  icon="crop"
-                  onClick={() =>
-                    prop("crop", { x: 0, y: 0, width: 1, height: 1 })
-                  }
-                >
-                  Reset crop
-                </ToolButton>
-                <ToolButton
-                  icon="crop"
-                  onClick={() =>
-                    prop("crop", { x: 0.15, y: 0.15, width: 0.7, height: 0.7 })
-                  }
-                >
-                  Center crop
-                </ToolButton>
-              </div>
-            </details>
-          </>
-        )}
-        <Field
-          label="Opacity"
-          value={element.opacity}
-          min={0}
-          max={1}
-          step={0.05}
-          onChange={(v) => prop("opacity", v)}
-        />
+        {element.type === "image" && <PhotoControls key={element.id} element={element} onPatch={patch=>change(element.id,patch)} onCrop={onCrop} onReplace={()=>replace.current.click()} onMore={()=>{more.current.open=!more.current.open;more.current.scrollIntoView({block:"nearest"});}}/>}
+        {element.type !== "text" && <label className="photo-slider">Opacity<output>{Math.round(element.opacity*100)}%</output><input type="range" min={0} max={1} step={.01} value={element.opacity} onChange={e=>prop("opacity",Number(e.target.value))}/></label>}
         {["rect", "ellipse"].includes(element.type) && (
-          <details className="studio-details" open>
+          <details className="studio-details">
             <summary>{element.graphicKind ? "Border" : "Border & corners"}</summary>
             <label className="editor-field">
               Border color
@@ -362,8 +273,8 @@ export function PropertiesPanel({
             )}
           </details>
         )}
-        <details className="studio-details">
-          <summary>Position & advanced</summary>
+        <details ref={more} className="studio-details">
+          <summary>More · position & sizing</summary>
           <div className="editor-fields">
             {["x", "y", "width", "height", "rotation"].map((k) => (
               <Field
@@ -390,16 +301,7 @@ export function PropertiesPanel({
             />
             Lock aspect ratio
           </label>
-          {element.type === "text" && (
-            <Field
-              label="Line spacing"
-              value={element.lineHeight}
-              min={0.5}
-              max={3}
-              step={0.05}
-              onChange={(v) => prop("lineHeight", v)}
-            />
-          )}
+          {element.type === "image" && <details className="studio-details"><summary>Exact crop values</summary><div className="editor-fields">{["x","y","width","height"].map(k=><Field key={k} label={`Crop ${k} %`} value={element.crop[k]*100} min={k==="width"||k==="height"?1:0} max={100} onChange={v=>prop("crop",{...element.crop,[k]:v/100})}/>)}</div></details>}
         </details>
       </fieldset>
       <details className="studio-details">
@@ -419,7 +321,7 @@ export function PropertiesPanel({
           </ToolButton>
         </div>
       </details>
-      <button className="panel-wide" onClick={() => setSelected(null)}>
+      <button className="subtle-button" onClick={() => setSelected(null)}>
         Deselect · canvas settings
       </button>
     </>

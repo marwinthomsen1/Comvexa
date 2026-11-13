@@ -32,26 +32,18 @@ export function ConnectionPanel({
     }
   }
   return (
-    <section className="connection-panel">
-      <h3>
-        <StudioIcon name={element.binding ? "link" : "unlink"} size={15} />
-        {element.binding
-          ? element.localOverride
-            ? "Custom value"
-            : "Connected content"
-          : "Independent content"}
-      </h3>
+    <details className="connection-panel compact-connection"><summary><StudioIcon name={element.binding?"link":"unlink"} size={14}/>{element.binding ? element.localOverride ? "Custom Override" : `Connected to ${field?.label || element.binding.fieldId}` : "Independent"}<StudioIcon name="chevron" size={12}/></summary>
       {element.binding ? (
         <>
           <p>
             {campaign?.name || "Missing campaign"} ·{" "}
             {field?.label || `Missing field: ${element.binding.fieldId}`}
           </p>
-          <p>
+          <details className="connection-help"><summary>How shared content works</summary><p>
             {element.localOverride
               ? "This element uses its own value, including an intentional empty value. Shared updates will leave it alone."
               : "Shared campaign updates change this content while keeping its layout. Typing or replacing the photo creates a local override."}
-          </p>
+          </p></details>
           <div className="editor-row">
             <button
               disabled={element.locked}
@@ -80,10 +72,7 @@ export function ConnectionPanel({
           )}
         </>
       ) : (
-        <p>
-          Connect this element to reusable campaign information. Its position,
-          font and styling stay yours.
-        </p>
+        <details className="connection-help"><summary>About connected content</summary><p>Connect shared information while keeping your own font, styling and layout.</p></details>
       )}
       <details className="connection-options">
         <summary>
@@ -145,6 +134,6 @@ export function ConnectionPanel({
           Connect element
         </button>
       </details>
-    </section>
+    </details>
   );
 }

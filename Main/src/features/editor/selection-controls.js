@@ -1,5 +1,5 @@
 "use client";
-import { ToolButton } from "@/components/ui/studio-icon";
+import { ToolButton, StudioIcon } from "@/components/ui/studio-icon";
 export function SelectionControls({
   count,
   editableCount,
@@ -12,77 +12,17 @@ export function SelectionControls({
   act,
   compact = false,
 }) {
-  if (compact)
-    return (
-      <div
-        className="professional-bar"
-        role="toolbar"
-        aria-label="Professional editing tools"
-      >
-        <ToolButton
-          icon="select"
-          aria-pressed={multiSelect}
-          onClick={() => setMultiSelect(!multiSelect)}
-          title="Select multiple objects without a keyboard"
-        >
-          Multi-select
-        </ToolButton>
-        <ToolButton icon="all" onClick={() => act("all")}>
-          Select all
-        </ToolButton>
-        <ToolButton icon="clear" disabled={!count} onClick={() => act("clear")}>
-          Clear
-        </ToolButton>
-        <ToolButton
-          icon="group"
-          disabled={editableCount < 2}
-          onClick={() => act("group")}
-          title="Group · ⌘/Ctrl G"
-        >
-          Group
-        </ToolButton>
-        <ToolButton
-          icon="ungroup"
-          disabled={!hasGroup || !editableCount}
-          onClick={() => act("ungroup")}
-          title="Ungroup · ⌘/Ctrl Shift G"
-        >
-          Ungroup
-        </ToolButton>
-        <ToolButton
-          icon="copy"
-          disabled={!count}
-          onClick={() => act("copy")}
-          title="Copy · ⌘/Ctrl C"
-        >
-          Copy
-        </ToolButton>
-        <ToolButton
-          icon="paste"
-          onClick={() => act("paste")}
-          title="Paste Comvexa selection · ⌘/Ctrl V"
-        >
-          Paste
-        </ToolButton>
-        <ToolButton
-          icon="snap"
-          aria-pressed={snapping}
-          onClick={() => setSnapping(!snapping)}
-          title="Snap movement and 15° rotations. Hold Shift to temporarily invert snapping."
-        >
-          Snap {snapping ? "on" : "off"}
-        </ToolButton>
-      </div>
-    );
+  if (compact) return <div className="professional-bar" role="toolbar" aria-label="Selection and snapping">
+    <ToolButton icon="select" aria-pressed={multiSelect} onClick={()=>setMultiSelect(!multiSelect)} title="Select multiple objects without a keyboard">Multi-select</ToolButton>
+    {count>1&&<><ToolButton icon="group" disabled={editableCount<2} onClick={()=>act("group")} title="Group · ⌘/Ctrl G">Group</ToolButton><ToolButton icon="ungroup" disabled={!hasGroup||!editableCount} onClick={()=>act("ungroup")} title="Ungroup · ⌘/Ctrl Shift G">Ungroup</ToolButton></>}
+    <ToolButton icon="snap" aria-pressed={snapping} onClick={()=>setSnapping(!snapping)} title="Snap movement and 15° rotations. Shift temporarily inverts snapping.">Snap {snapping?"on":"off"}</ToolButton>
+    <details className="selection-menu"><summary title="Selection and clipboard actions"><StudioIcon name="more" size={16}/><span className="sr-only">More selection actions</span></summary><div>{[["all","Select all"],["clear","Clear selection"],["copy","Copy selection"],["cut","Cut selection"],["paste","Paste selection"],["duplicate","Duplicate selection"]].map(([action,label])=><button key={action} disabled={!["all","paste"].includes(action)&&!count} onClick={event=>{act(action);event.currentTarget.closest("details").open=false;}}>{label}</button>)}</div></details>
+  </div>;
   return (
     <>
       <div className="panel-eyebrow">WORK WITH YOUR SELECTION</div>
       <h2>{count} elements selected</h2>
-      <p className="editor-small">
-        {editableCount} editable. Locked or hidden groups stay protected. Resize
-        proportionally with the corner handles; rotate with the circular handle.
-        Hold Shift to temporarily toggle snapping.
-      </p>
+      <p className="editor-small">{editableCount} editable · Locked layers stay protected.</p>
       <div className="selection-action-grid">
         {[
           ["copy", "copy", "Copy"],
@@ -113,10 +53,7 @@ export function SelectionControls({
       </div>
       <details className="studio-details" open>
         <summary>Align & distribute</summary>
-        <p className="editor-small">
-          Align separate objects or groups to the selection bounds. A single
-          group aligns to the canvas.
-        </p>
+
         <div className="selection-action-grid">
           {[
             ["left", "alignLeft", "Left"],

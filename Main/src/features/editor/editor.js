@@ -66,7 +66,7 @@ import {
   parsePortable,
   MAX_PORTABLE_BYTES,
 } from "@/lib/connected/model";
-import { documentWarnings, browserMeasure } from "@/lib/templates/fitting";
+import { documentWarnings, browserMeasure, coverCrop } from "@/lib/templates/fitting";
 export default function Editor() {
   const { id } = useParams(),
     router = useRouter();
@@ -96,6 +96,7 @@ export default function Editor() {
     if (latest.current && JSON.stringify(latest.current) !== saved.current)
       autoSaveTimer.current = setTimeout(() => save(latest.current), 800);
   }
+  const [cropId, setCropId] = useState(null);
   const [panel, setPanel] = useState("selection");
   const [hasUpgradeBackup, setHasUpgradeBackup] = useState(false);
   const [layerSearch, setLayerSearch] = useState("");
@@ -115,6 +116,9 @@ export default function Editor() {
   const [nameDraft, setNameDraft] = useState("");
   const doc = state?.present;
   const selected = selectedIds.length === 1 ? selectedIds[0] : null;
+  useEffect(() => {
+    if (cropId && (selected !== cropId || !doc?.elements.some(e => e.id === cropId && e.type === "image" && !e.locked))) setCropId(null);
+  }, [cropId, selected, doc?.elements]);
   const liveSelection = useMemo(
     () => selectedIds.filter((id) => doc?.elements.some((e) => e.id === id)),
     [selectedIds, doc?.elements],
@@ -123,9 +127,11 @@ export default function Editor() {
     [snapping, setSnapping] = useState(true),
     [clipboardBusy, setClipboardBusy] = useState(false);
   function setSelected(id) {
+    setCropId(null);
     setSelectedIds(id ? [id] : []);
   }
   function selectObject(id, additive = false) {
+    setCropId(null);
     setSelectedIds((current) =>
       selectElement(latest.current, current, id, additive),
     );
@@ -538,6 +544,7 @@ export default function Editor() {
         e.target.isContentEditable
       )
         return;
+      if (cropId) {if(e.key==="Escape")setCropId(null);return;}
       const action = shortcutAction(e);
       if (!action || !latest.current || gestureActive.current) return;
       if (preview && action !== "save") return;
@@ -614,7 +621,7 @@ export default function Editor() {
       if (replacing && element?.type === "image") {
         next = patchElement(next, element.id, {
           assetId,
-          crop: { x: 0, y: 0, width: 1, height: 1 },
+          crop: coverCrop(asset,element.width,element.height),
         });
       } else {
         const width = Math.min(600, asset.width, doc.canvas.width * 0.8);
@@ -727,6 +734,7 @@ export default function Editor() {
     }
   }
   async function exportImage() {
+    if (cropId) {setError("Apply or cancel the crop before exporting.");return;}
     setExporting(true);
     setError("");
     try {
@@ -929,7 +937,7 @@ export default function Editor() {
         </>
       )}
       {tab === "Resize" && (
-        <CanvasSettings
+        <CanvasSettings expanded
           doc={doc}
           apply={apply}
           dimensions={dimensions}
@@ -1153,6 +1161,7 @@ export default function Editor() {
         projectFile={projectFile}
         portable={portable}
         replace={replace}
+        onCrop={()=>{setCropId(element.id);setMobile("");setEditId(null);}}
         connectionPanel={
           <ConnectionPanel
             element={element}
@@ -1351,17 +1360,7 @@ export default function Editor() {
                   ? `${liveSelection.length} selected`
                   : selectionLabel(element)}
               </strong>
-              {element && (
-                <span
-                  className={`selection-state ${element.binding ? "is-connected" : ""}`}
-                >
-                  <StudioIcon
-                    name={element.binding ? "link" : "shapes"}
-                    size={13}
-                  />
-                  {connectionLabel(element)}
-                </span>
-              )}
+
             </div>
             <div>
               {element ? (
@@ -1369,6 +1368,7 @@ export default function Editor() {
                   <ToolButton icon="edit" onClick={() => openPanel()}>
                     Edit
                   </ToolButton>
+                  {element.type === "image" && <ToolButton icon="crop" disabled={element.locked} onClick={()=>{setCropId(element.id);setMobile("");}}>Crop</ToolButton>}
                   {element.type === "text" && (
                     <ToolButton
                       icon="type"
@@ -1438,6 +1438,9 @@ export default function Editor() {
               editId={editId}
               setEditId={setEditId}
               aspectLocked={aspect}
+              cropId={cropId===selected?cropId:null}
+              onCropCancel={()=>setCropId(null)}
+              onCropApply={crop=>{change(cropId,{crop});setCropId(null);}}
             />
           </div>
         </div>
@@ -1477,12 +1480,6 @@ export default function Editor() {
             <StudioIcon name="close" /> Close panel
           </button>
           {properties}
-          {panel !== "export" && liveSelection.length === 1 && (
-            <details className="studio-details">
-              <summary>Selection & clipboard tools</summary>
-              <SelectionControls {...selectionProps} />
-            </details>
-          )}
         </aside>
       )}
       <input

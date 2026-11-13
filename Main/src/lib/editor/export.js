@@ -55,9 +55,14 @@ export async function renderExport(doc, format, quality) {
         });
       else if (e.type === "image") {
         const a = doc.assets[e.assetId];
+        let source = images[e.assetId];
+        if (e.photoStyle && Object.values(e.photoStyle).some(v=>v!==0)) {
+          source = await loadRenderImage(a.src,e.photoStyle);
+          images[`adjusted-${e.id}`] = source;
+        }
         node = new Konva.Image({
           ...attrs,
-          image: images[e.assetId],
+          image: source,
           crop: {
             x: e.crop.x * a.width,
             y: e.crop.y * a.height,

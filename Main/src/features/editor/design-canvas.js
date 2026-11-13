@@ -12,6 +12,7 @@ import {
   Group,
   Line,
 } from "react-konva";
+import PhotoCrop from "./photo-crop";
 import { textStyleAttributes } from "@/lib/typography/style";
 import { graphicPathAttributes } from "@/lib/elements/render";
 import { flushSync } from "react-dom";
@@ -66,11 +67,12 @@ function Element({
   preview,
 }) {
   const [image, setImage] = useState(null);
+  const photoKey = JSON.stringify(e.photoStyle || null);
   useEffect(() => {
     let active = true,
       rendered;
     if (asset)
-      loadRenderImage(asset.src)
+      loadRenderImage(asset.src, JSON.parse(photoKey))
         .then((i) => {
           if (active) {
             rendered = i;
@@ -88,7 +90,7 @@ function Element({
         rendered.height = 0;
       }
     };
-  }, [asset?.src]);
+  }, [asset?.src, photoKey]);
   const props = {
     id: e.id,
     x: e.x,
@@ -175,6 +177,9 @@ export default function DesignCanvas({
   setEditId,
   aspectLocked,
   onGestureChange,
+  cropId,
+  onCropApply,
+  onCropCancel,
 }) {
   const stage = useRef(null),
     transformer = useRef(null),
@@ -193,6 +198,7 @@ export default function DesignCanvas({
     skipClick = useRef(false);
   const [touch, setTouch] = useState(false),
     [text, setText] = useState("");
+  const cropping = doc.elements.find(e=>e.id===cropId && e.type==="image" && !e.locked);
   const editing = doc.elements.find((e) => e.id === editId);
   const movable = editableIds(doc, selectedIds),
     signature = movable.join("|");
@@ -378,6 +384,7 @@ export default function DesignCanvas({
     if (
       preview ||
       editing ||
+      cropping ||
       !(
         event.target === event.target.getStage() ||
         event.target.name() === "paper"
@@ -657,16 +664,16 @@ export default function DesignCanvas({
                   element={e}
                   asset={doc.assets[e.assetId]}
                   canDrag={
-                    editableIds(doc, [e.id]).includes(e.id) && !multiSelect
+                    !cropping && editableIds(doc, [e.id]).includes(e.id) && !multiSelect
                   }
-                  onPointerStart={(event) => beginPointer(event, e)}
+                  onPointerStart={(event) => !cropping && beginPointer(event, e)}
                   onCursor={cursor}
                   onSelect={(event) => {
                     if (skipClick.current) {
                       skipClick.current = false;
                       return;
                     }
-                    if (!preview)
+                    if (!preview && !cropping)
                       select(e.id, !!event.evt.shiftKey || multiSelect);
                   }}
                   onEdit={startEdit}
@@ -678,7 +685,7 @@ export default function DesignCanvas({
         <Layer>
           <Transformer
             ref={transformer}
-            visible={!preview && !editing}
+            visible={!preview && !editing && !cropping}
             flipEnabled={false}
             shiftBehavior="none"
             ignoreStroke
@@ -732,6 +739,7 @@ export default function DesignCanvas({
         </Layer>
       </Stage>
       <div ref={hud} className="transform-hud" hidden aria-hidden="true" />
+      {cropping && <PhotoCrop key={cropping.id} element={cropping} asset={doc.assets[cropping.assetId]} zoom={zoom} onApply={onCropApply} onCancel={onCropCancel}/>}
       {editing && (
         <textarea
           autoFocus

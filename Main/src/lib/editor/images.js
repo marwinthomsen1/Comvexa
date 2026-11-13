@@ -1,3 +1,4 @@
+import { adjustPhotoPixels } from "./photo-style.js";
 export const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 export function inspectImage(bytes, mime) {
   if (
@@ -88,12 +89,18 @@ export function loadImage(src) {
 }
 // Normalize decoded pixels before transforms, avoiding browser first-use image
 // resampling differences between an image element and its cached texture.
-export async function loadRenderImage(src) {
+export async function loadRenderImage(src, photoStyle) {
   const image = await loadImage(src);
   const canvas = document.createElement("canvas");
   canvas.width = image.naturalWidth;
   canvas.height = image.naturalHeight;
-  canvas.getContext("2d").drawImage(image, 0, 0);
+  const context = canvas.getContext("2d");
+  context.drawImage(image, 0, 0);
+  if (photoStyle && Object.values(photoStyle).some(v=>v!==0)) {
+    const pixels = context.getImageData(0,0,canvas.width,canvas.height);
+    adjustPhotoPixels(pixels.data, photoStyle);
+    context.putImageData(pixels,0,0);
+  }
   return canvas;
 }
 export async function readImage(file) {
