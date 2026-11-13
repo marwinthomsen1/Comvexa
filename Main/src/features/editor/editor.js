@@ -27,6 +27,7 @@ import {
 import { ensureDocumentFonts } from "@/lib/typography/fonts";
 import ElementLibrary from "./element-library";
 import TextLibrary from "./text-library";
+import TemplatePicker from "./template-picker";
 import PageStrip from "./page-strip";
 import SmartTools from "./smart-tools";
 import {pageSnapshots,switchPage,addPage,removePage,renamePage,reorderPage,allElements,mapAllElements} from "@/lib/editor/pages";
@@ -777,44 +778,6 @@ export default function Editor() {
     e.preventDefault();
     await navigateSafely("/dashboard");
   }
-  function starter(kind) {
-    if (
-      doc.elements.length &&
-      !window.confirm(
-        "Replace this canvas with a starter? Undo restores your current design.",
-      )
-    )
-      return;
-    let next = newDesign(doc.name, 1080, 1350);
-    next.canvas.background = kind === "invitation" ? "#fff1d0" : "#262096";
-    const a = {
-      ...makeElement("rect", crypto.randomUUID()),
-      x: 700,
-      y: -100,
-      width: 600,
-      height: 600,
-      fill: kind === "invitation" ? "#fab8d6" : "#ef81cf",
-      cornerRadius: 300,
-    };
-    const b = {
-      ...makeElement("text", crypto.randomUUID()),
-      x: 100,
-      y: 300,
-      width: 880,
-      height: 600,
-      text:
-        kind === "invitation"
-          ? "You’re invited.\nLet’s celebrate!"
-          : "MAKE\nSOME\nNOISE.",
-      fontFamily: kind === "invitation" ? "Georgia" : "Arial",
-      fontSize: kind === "invitation" ? 120 : 170,
-      fill: kind === "invitation" ? "#8e2d64" : "#edff7a",
-    };
-    next.elements = [a, b];
-    apply(next);
-    setDimensions(next.canvas);
-    setSelected(b.id);
-  }
   if (!doc)
     return (
       <main className="editor-loading">
@@ -897,18 +860,15 @@ export default function Editor() {
           if(apply(next.document)){setSelectedIds(next.ids);setPanel("selection");setMobile("");}
         }catch(e){setError(e.message);}
       }}/>}
-      {tab === "Templates" && (
-        <>
-          <p>Editable starter layouts, or browse the full template library.</p>
-          <button onClick={() => starter("invitation")}>
-            A little celebration
-          </button>
-          <button onClick={() => starter("event")}>Make some noise</button>
-          <button onClick={browseTemplates}>
-            Save & browse all templates →
-          </button>
-        </>
-      )}
+      {tab === "Templates" && <TemplatePicker onBrowse={browseTemplates} onUse={async(templateId,multi)=>{
+        try {
+          if(cropId){setError("Apply or cancel the crop before opening a template.");return;}
+          let document;
+          if(multi){const {generateMultiPageTemplate}=await import("@/lib/templates/multipage");document=await generateMultiPageTemplate(templateId);}
+          else{const [{generateCurated},{curatedAssets},{browserMeasure}]=await Promise.all([import("@/lib/templates/curated-generate"),import("@/lib/templates/curated-assets"),import("@/lib/templates/fitting")]);document=generateCurated(templateId,await curatedAssets(templateId),browserMeasure);}
+          const nextId=crypto.randomUUID();await designStore.save(nextId,document,0);await navigateSafely(`/editor/${nextId}`);
+        }catch(e){setError(e.message);}
+      }}/>}
       {tab === "Uploads" && (
         <>
           <p>
