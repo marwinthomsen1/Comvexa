@@ -26,6 +26,7 @@ import {
 } from "@/lib/editor/clipboard";
 import { ensureDocumentFonts } from "@/lib/typography/fonts";
 import ElementLibrary from "./element-library";
+import TextLibrary from "./text-library";
 import { insertLibraryElement } from "@/lib/elements/insert";
 import DesignCanvas from "./design-canvas";
 import { StudioIcon, ToolButton } from "@/components/ui/studio-icon";
@@ -510,17 +511,6 @@ export default function Editor() {
     }
   }
   const element = doc?.elements.find((e) => e.id === selected);
-  function add(type) {
-    try {
-      const e = makeElement(type, crypto.randomUUID());
-      apply(addElement(doc, e));
-      setSelected(e.id);
-      setPanel("selection");
-      setMobile("properties");
-    } catch (e) {
-      setError(e.message);
-    }
-  }
   function remove() {
     selectionAction("delete");
   }
@@ -868,26 +858,23 @@ export default function Editor() {
     <>
       <div className="panel-eyebrow">YOUR CREATIVE TOOLKIT</div>
       <h2>{tab}</h2>
-      {tab === "Text" && (
-        <>
-          <p>
-            Add a headline, then double-click it to type directly on the canvas.
-          </p>
-          <ToolButton
-            icon="type"
-            className="text-add"
-            onClick={() => add("text")}
-          >
-            Add a text box
-          </ToolButton>
-          <div className="text-preview">
-            Your next
-            <br />
-            <strong>great idea.</strong>
-          </div>
-          <p>Choose its font, size and color in the selection panel.</p>
-        </>
-      )}
+      {tab === "Text" && <TextLibrary onAdd={kind=>{
+        try {
+          const e=makeElement("text",crypto.randomUUID());
+          Object.assign(e,kind==="heading"?{text:"Add a heading",fontSize:76,fontWeight:"bold"}:kind==="subheading"?{text:"Add a subheading",fontSize:42,fontWeight:"normal"}:{text:"Your paragraph text",fontSize:26,fontWeight:"normal",lineHeight:1.5});
+          e.width=Math.min(600,doc.canvas.width*.85);e.height=Math.min(200,doc.canvas.height*.5);e.x=(doc.canvas.width-e.width)/2;e.y=(doc.canvas.height-e.height)/2;
+          if(apply(addElement(latest.current,e))){setSelected(e.id);setPanel("selection");setMobile("properties");}
+        }catch(e){setError(e.message);}
+      }} onInsert={async designId=>{
+        try {
+          const {insertTextDesign}=await import("@/lib/typography/designs");
+          const base=latest.current,result=insertTextDesign(base,designId,()=>crypto.randomUUID());
+          await ensureDocumentFonts(result.document);
+          // Preserve edits from another source while fonts were loading.
+          const next=latest.current===base?result:insertTextDesign(latest.current,designId,()=>crypto.randomUUID());
+          if(apply(next.document)){setSelectedIds(next.ids);setPanel("selection");setMobile("");}
+        }catch(e){setError(e.message);}
+      }}/>}
       {tab === "Templates" && (
         <>
           <p>Editable starter layouts, or browse the full template library.</p>
@@ -1103,13 +1090,13 @@ export default function Editor() {
             ))}
         </>
       )}
-      <hr />
+      <details className="studio-details"><summary>Keyboard shortcuts</summary>
       <p className="editor-small">
         Shortcuts: ⌘/Ctrl A select all · C/X/V copy/cut/paste · G group · Shift
         G ungroup · D duplicate · Z undo · Shift Z redo · S save. Arrows move;
         Shift arrows move 10 px. Shift-click adds to selection. Clipboard stays
         in this browser.
-      </p>
+      </p></details>
     </>
   );
   const selectionProps = {
