@@ -27,6 +27,10 @@ import {
 import { ensureDocumentFonts } from "@/lib/typography/fonts";
 import ElementLibrary from "./element-library";
 import TextLibrary from "./text-library";
+import PageStrip from "./page-strip";
+import SmartTools from "./smart-tools";
+import {pageSnapshots,switchPage,addPage,removePage,renamePage,reorderPage,allElements,mapAllElements} from "@/lib/editor/pages";
+import {smartResize,generateVariations,applyDesignTheme} from "@/lib/editor/smart-create";
 import { insertLibraryElement } from "@/lib/elements/insert";
 import DesignCanvas from "./design-canvas";
 import { StudioIcon, ToolButton } from "@/components/ui/studio-icon";
@@ -37,7 +41,6 @@ import Image from "next/image";
 import {
   PropertiesPanel,
   ExportPanel,
-  CanvasSettings,
 } from "./properties-panel";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Brand } from "@/components/layout/brand";
@@ -215,7 +218,7 @@ export default function Editor() {
         const sources = await Promise.all(
           [
             ...new Set(
-              result.document.elements.flatMap((e) =>
+              allElements(result.document).flatMap((e) =>
                 e.binding ? [e.binding.campaignId] : [],
               ),
             ),
@@ -348,7 +351,7 @@ export default function Editor() {
           );
         }
         if (!active) return;
-        setHasUpgradeBackup(!!record?.legacyV1Backup);
+        setHasUpgradeBackup(!!(record?.legacyV1Backup||record?.legacyPageBackup));
         setCampaigns(record?.campaigns || []);
         if (record?.connectionWarnings?.length)
           setError(record.connectionWarnings.join(" "));
@@ -393,12 +396,12 @@ export default function Editor() {
             );
           const next = await designStore.save(id, snapshot, revision.current);
           revision.current = next;
-          if (snapshot.schemaVersion === 2)
+          if (snapshot.schemaVersion >= 2)
             designStore
               .load(id)
               .then((record) => {
                 if (mounted.current)
-                  setHasUpgradeBackup(!!record?.legacyV1Backup);
+                  setHasUpgradeBackup(!!(record?.legacyV1Backup||record?.legacyPageBackup));
               })
               .catch(() => {});
           saved.current = JSON.stringify(snapshot);
@@ -655,7 +658,7 @@ export default function Editor() {
           await verifyAssets({ assets: { photo: a } });
       }
       if (!parsed.campaigns.length) {
-        const missing = parsed.document.elements.filter(
+        const missing = allElements(parsed.document).filter(
           (e) =>
             e.binding && !available.some((c) => c.id === e.binding.campaignId),
         );
@@ -666,14 +669,7 @@ export default function Editor() {
             )
           )
             return;
-          input = {
-            ...parsed.document,
-            elements: parsed.document.elements.map((e) =>
-              missing.some((m) => m.id === e.id)
-                ? { ...e, binding: null, localOverride: false }
-                : e,
-            ),
-          };
+          input = mapAllElements(parsed.document,e=>missing.some(m=>m.id===e.id)?{...e,binding:null,localOverride:false}:e);
         }
       }
       if (
@@ -704,15 +700,15 @@ export default function Editor() {
   async function upgradeBackup() {
     try {
       const record = await designStore.load(id);
-      if (!record?.legacyV1Backup)
+      if (!(record?.legacyV1Backup||record?.legacyPageBackup))
         throw new Error(
           "No earlier v1 backup exists for this design. A backup is kept when an existing saved v1 design first uses groups or visibility.",
         );
       download(
-        new Blob([JSON.stringify(record.legacyV1Backup)], {
+        new Blob([JSON.stringify(record.legacyPageBackup||record.legacyV1Backup)], {
           type: "application/json",
         }),
-        `${doc.name}.before-stage-b.comvexa.json`,
+        `${doc.name}.before-upgrade.comvexa.json`,
       );
     } catch (e) {
       setError(e.message);
@@ -733,6 +729,32 @@ export default function Editor() {
       setError("Recovery artwork downloaded with cached values: " + e.message);
     }
   }
+  async function exportAllPages(kind) {
+    if(cropId){setError("Apply or cancel the crop before exporting.");return;}
+    setExporting(true);setError("");
+    try{const snapshot=await designStore.exportSnapshot(id,doc,revision.current),{exportPages}=await import("@/lib/editor/multipage-export"),blob=await exportPages(snapshot.document,kind,format,quality,setStatus);download(blob,`${doc.name}.${kind==="pdf"?"pdf":"zip"}`);setStatus("Download ready");}catch(e){setError(e.message);}finally{setExporting(false);}
+  }
+  async function pageAction(action,pageId,value) {
+    if(cropId){setError("Apply or cancel the crop before changing pages.");return;}
+    try{const base=latest.current;let next=base;
+      if(action==="select"&&!next.pages&&pageId==="page-1")return;
+      if(action==="select")next=switchPage(next,pageId);
+      if(action==="add")next=addPage(next,crypto.randomUUID());
+      if(action==="duplicate")next=addPage(switchPage(next,pageId),crypto.randomUUID(),{duplicate:true,name:pageSnapshots(next).find(p=>p.id===pageId).name.slice(0,75)+" copy"});
+      if(action==="delete")next=removePage(next,pageId);
+      if(action==="rename")next=renamePage(next,pageId,value);
+      if(action==="reorder")next=reorderPage(next,pageId,value);
+      await ensureDocumentFonts(next);if(latest.current!==base)throw Error("The page changed while loading. Try again.");if(apply(next)){setSelectedIds([]);setEditId(null);setComparePhotoId(null);setMobile("");}
+    }catch(e){setError(e.message);}
+  }
+  async function resizeSmart(size,copy) {
+    try{const result=smartResize(latest.current,size.width,size.height);
+      if(copy){const nextId=crypto.randomUUID();await designStore.save(nextId,{...result.document,name:(result.document.name+" resized").slice(0,80)},0);await navigateSafely(`/editor/${nextId}`);}else{apply(result.document);setDimensions(size);}
+      if(result.warnings.length)setError(result.warnings.join(" "));
+    }catch(e){setError(e.message);}
+  }
+  async function smartStyle(theme,mode){try{const next=applyDesignTheme(latest.current,theme,{colors:mode!=="fonts",fonts:mode!=="colors"});await ensureDocumentFonts(next);apply(next);}catch(e){setError(e.message);}}
+  async function makeVariations(){try{const next=generateVariations(latest.current);await ensureDocumentFonts(next);if(apply(next)){setSelectedIds([]);setMobile("");setError("Six new layouts added. Review text fitting and object placement.");}}catch(e){setError(e.message);}}
   async function exportImage() {
     if (cropId) {setError("Apply or cancel the crop before exporting.");return;}
     setExporting(true);
@@ -857,7 +879,7 @@ export default function Editor() {
   const sidebar = (
     <>
       <div className="panel-eyebrow">YOUR CREATIVE TOOLKIT</div>
-      <h2>{tab}</h2>
+      <h2>{tab==="Resize"?"Resize & create":tab}</h2>
       {tab === "Text" && <TextLibrary onAdd={kind=>{
         try {
           const e=makeElement("text",crypto.randomUUID());
@@ -933,14 +955,7 @@ export default function Editor() {
           </div>
         </>
       )}
-      {tab === "Resize" && (
-        <CanvasSettings expanded
-          doc={doc}
-          apply={apply}
-          dimensions={dimensions}
-          setDimensions={setDimensions}
-        />
-      )}
+      {tab === "Resize" && <SmartTools key={doc.activePageId||"single"} doc={doc} onResize={resizeSmart} onVariations={makeVariations} onTheme={smartStyle} onArrange={mode=>{try{const ids=selectedIds.length?selectedIds:doc.elements.filter(e=>!e.locked&&!e.hidden).map(e=>e.id);apply(mode==="center"?alignSelection(doc,ids,"center"):distributeSelection(doc,ids,"y"));}catch(e){setError(e.message);}}}/>}
       {tab === "Backgrounds" && (
         <>
           <label className="editor-field">
@@ -1121,6 +1136,7 @@ export default function Editor() {
       <SelectionControls {...selectionProps} />
     ) : panel === "export" ? (
       <ExportPanel
+        exportAllPages={exportAllPages}
         doc={doc}
         format={format}
         setFormat={setFormat}
@@ -1443,6 +1459,7 @@ export default function Editor() {
             />
           </div>
         </div>
+        {!preview&&<PageStrip projectId={id} doc={doc} onAction={pageAction} disabled={exporting||!!cropId}/>}
         <div className="editor-zoom">
           <button
             onClick={() => setZoom((z) => Math.max(0.05, z - 0.1))}
@@ -1462,7 +1479,7 @@ export default function Editor() {
           </ToolButton>
           <button onClick={() => setZoom(1)}>100%</button>
           <span className="page-indicator">
-            Canvas 1 · {doc.elements.length}/100 elements
+            Page {doc.pages?doc.pages.findIndex(p=>p.id===doc.activePageId)+1:1} of {doc.pages?.length||1} · {doc.elements.length}/100 elements
           </span>
         </div>
       </section>

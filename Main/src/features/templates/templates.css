@@ -877,3 +877,4 @@
     transition: none;
   }
 }
+.multipage-template-section{margin:20px 0 26px}.multipage-template-section>summary{cursor:pointer;font-weight:600;font-size:15px;padding:12px 0}.multipage-template-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:12px}.multipage-template-grid button{background:var(--surface);border:1px solid var(--border);border-radius:14px;color:var(--foreground);text-align:left;padding:12px;display:flex;flex-direction:column;gap:7px}.multipage-template-grid img{width:100%;height:140px;object-fit:contain;border-radius:8px;background:var(--surface-alt)}.multipage-template-grid strong{font-size:14px}.multipage-template-grid span{font-size:11px;color:var(--muted)}@media(max-width:650px){.multipage-template-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}

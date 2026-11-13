@@ -6,6 +6,7 @@ import Image from "next/image";
 import metadata from "@/lib/templates/curated-metadata.json";
 import { discoverTemplates } from "@/lib/templates/discovery";
 import { StudioIcon } from "@/components/ui/studio-icon";
+import {multiPageTemplates,generateMultiPageTemplate} from "@/lib/templates/multipage";
 import "./templates.css";
 const { templates, categories, sizes } = metadata;
 const styles = [...new Set(templates.map((t) => t.style))].sort();
@@ -93,6 +94,7 @@ export default function TemplateLibrary() {
           </Link>
         </div>
       </div>
+      <details className="multipage-template-section"><summary>Multi-page collections · 9 editable sets</summary><div className="multipage-template-grid">{multiPageTemplates.map(t=><button key={t.id} disabled={!!busy} onClick={async()=>{if(busy)return;setBusy(t.id);setError("");try{const doc=await generateMultiPageTemplate(t.id),{designStore}=await import("@/lib/editor/store"),id=crypto.randomUUID();await designStore.save(id,doc,0);router.push(`/editor/${id}`);}catch(e){setError(e.message);setBusy("");}}}><Image src={`/images/templates/${t.cover}.webp`} width={160} height={180} alt=""/><strong>{busy===t.id?"Opening…":t.name}</strong><span>3 editable pages</span></button>)}</div></details>
       <div className="curated-category-rail" aria-label="Template categories">
         <button
           aria-pressed={category === "All"}

@@ -106,6 +106,7 @@ export function ExportPanel({
   projectFile,
   portable,
   upgradeBackup,
+  exportAllPages,
 }) {
   return (
     <>
@@ -133,11 +134,12 @@ export function ExportPanel({
           <option value={1}>Maximum · 100%</option>
         </select>
       </label>
+      {doc.pages&&<div className="smart-action-row"><button disabled={exporting} onClick={()=>exportAllPages("zip")}>All {doc.pages.length} pages · ZIP</button><button disabled={exporting} onClick={()=>exportAllPages("pdf")}>All pages · PDF</button><p className="editor-small">Raster PDF: A4 presets use 300 ppi sizing; other sizes use 96 ppi. RGB only; no bleed, CMYK or PDF/X.</p></div>}
       <div className="export-size">
         <strong>
           {doc.canvas.width} × {doc.canvas.height}
         </strong>
-        <span>pixels · current canvas</span>
+        <span>pixels · current page</span>
       </div>
       <ToolButton
         icon="download"
@@ -147,7 +149,7 @@ export function ExportPanel({
       >
         {exporting
           ? "Preparing artwork…"
-          : `Download ${format === "png" ? "PNG" : "JPG"}`}
+          : `Current page · ${format === "png" ? "PNG" : "JPG"}`}
       </ToolButton>
       <details className="studio-details">
         <summary>Editable project & backup</summary>

@@ -58,6 +58,7 @@ export const designStore = {
             if (!record.trashedAt || includeTrash) result.push({
               id: record.id,
               revision: record.revision,
+              pageCount: d.pages?.length || 1,
               trashedAt: record.trashedAt,
               name: d.name,
               canvas: { width: d.canvas.width, height: d.canvas.height },

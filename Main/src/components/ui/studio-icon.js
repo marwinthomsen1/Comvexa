@@ -1,5 +1,6 @@
 import {
   MoreHorizontal,
+  GripVertical,
   Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight,
   MousePointer2,
   SquareDashed,
@@ -61,6 +62,7 @@ import {
 } from "lucide-react";
 const icons = {
   more: MoreHorizontal,
+  grip: GripVertical,
   bold: Bold, italic: Italic, underline: Underline, "align-left": AlignLeft, "align-center": AlignCenter, "align-right": AlignRight,
   select: MousePointer2,
   all: SquareDashed,

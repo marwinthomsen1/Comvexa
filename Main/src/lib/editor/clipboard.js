@@ -1,10 +1,11 @@
+import {pageDocuments,allElements} from "./pages.js";
 import { validateDocument } from "./document.js";
 import { expandSelection } from "./selection.js";
 const LIMIT = 24 * 1024 * 1024;
 export function clipboardPayload(doc, ids) {
   const wanted = new Set(expandSelection(doc, ids));
   const document = validateDocument({
-    ...doc,
+    ...pageDocuments(doc)[doc.pages?doc.pages.findIndex(p=>p.id===doc.activePageId):0],
     elements: doc.elements.filter((e) => wanted.has(e.id)),
   });
   if (!document.elements.length) throw new Error("Select something to copy.");
@@ -31,7 +32,7 @@ export function pasteSelection(
     source.elements.flatMap((e) => (e.binding ? [e.binding.campaignId] : [])),
   );
   const currentCampaigns = new Set(
-    doc.elements.flatMap((e) => (e.binding ? [e.binding.campaignId] : [])),
+    allElements(doc).flatMap((e) => (e.binding ? [e.binding.campaignId] : [])),
   );
   if (doc.provenance?.campaignId)
     currentCampaigns.add(doc.provenance.campaignId);

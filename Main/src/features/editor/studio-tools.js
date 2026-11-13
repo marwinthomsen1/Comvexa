@@ -8,7 +8,7 @@ export const STUDIO_TOOLS = [
   { id: "Uploads", icon: "upload", hint: "Add your own images" },
   { id: "Backgrounds", icon: "palette", hint: "Change the canvas color" },
   { id: "Layers", icon: "layers", hint: "Select and arrange your elements" },
-  { id: "Resize", icon: "resize", hint: "Canvas dimensions and presets" },
+  { id: "Resize", icon: "resize", hint: "Smart resize, variations and design styles" },
 ];
 export function selectionLabel(element) {
   if (!element) return "Your canvas";

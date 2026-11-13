@@ -1,3 +1,4 @@
+import {validatePagedDocument} from "./pages.js";
 import {validatePhotoFrame} from "../creative/frames.js";
 import { validatePhotoStyle } from "./photo-style.js";
 import { FONT_NAMES } from "../typography/fonts.js";
@@ -28,6 +29,7 @@ export function newDesign(
   return { ...createBlankDocument(width, height), name, assets: {} };
 }
 export function validateDocument(value) {
+  if(value && Object.hasOwn(value,"pages")) return validatePagedDocument(value);
   requireValue(
     value && [1, 2].includes(value.schemaVersion),
     "Unsupported design version.",

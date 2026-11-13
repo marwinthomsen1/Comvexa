@@ -1,3 +1,4 @@
+import {allElements,mapAllElements} from "../editor/pages.js";
 import { openDesignDB } from "../editor/database.js";
 import { validateDocument } from "../editor/document.js";
 import {
@@ -55,7 +56,7 @@ function all(t, done) {
 }
 function campaignsFor(doc, records, raw) {
   const ids = new Set(
-    doc.elements.flatMap((e) => (e.binding ? [e.binding.campaignId] : [])),
+    allElements(doc).flatMap((e) => (e.binding ? [e.binding.campaignId] : [])),
   );
   if (doc.provenance?.campaignId) ids.add(doc.provenance.campaignId);
   return raw
@@ -66,7 +67,7 @@ function campaignsFor(doc, records, raw) {
         records
           .filter(
             (r) =>
-              r.document.elements.some((e) => e.binding?.campaignId === c.id) ||
+              allElements(r.document).some((e) => e.binding?.campaignId === c.id) ||
               r.document.provenance?.campaignId === c.id,
           )
           .map((r) => r.document),
@@ -136,7 +137,7 @@ export const connectedStore = {
       const associated = records.filter(
         (r) =>
           r.document.provenance?.campaignId === id ||
-          r.document.elements.some((e) => e.binding?.campaignId === id),
+          allElements(r.document).some((e) => e.binding?.campaignId === id),
       );
       const campaign = normalizeCampaign(
         stored,
@@ -163,7 +164,7 @@ export const connectedStore = {
       const campaigns = campaignsFor(document, records, raw);
       if (
         new Set(
-          document.elements.flatMap((e) =>
+          allElements(document).flatMap((e) =>
             e.binding ? [e.binding.campaignId] : [],
           ),
         ).size > 1
@@ -176,7 +177,7 @@ export const connectedStore = {
       const revision = expectedRevision + 1;
       const upgradeBackup =
         current?.legacyV1Backup ||
-        (current?.document.schemaVersion === 1 && resolved.schemaVersion === 2
+        (current?.document.schemaVersion === 1 && resolved.schemaVersion >= 2
           ? portableEnvelope(
               current.document,
               campaignsFor(current.document, records, raw),
@@ -184,6 +185,7 @@ export const connectedStore = {
           : null);
       t.objectStore("designs").put({
         ...current,
+        ...(current && !current.document.pages && resolved.pages && !current.legacyPageBackup ? {legacyPageBackup:portableEnvelope(current.document,campaignsFor(current.document,records,raw))}:{}),
         ...(upgradeBackup ? { legacyV1Backup: upgradeBackup } : {}),
         id,
         document: resolved,
@@ -205,7 +207,7 @@ export const connectedStore = {
       const associated = records.filter(
         (r) =>
           r.document.provenance?.campaignId === id ||
-          r.document.elements.some((e) => e.binding?.campaignId === id),
+          allElements(r.document).some((e) => e.binding?.campaignId === id),
       );
       const current = normalizeCampaign(
         stored,
@@ -294,6 +296,7 @@ export const connectedStore = {
       for (const c of campaigns)
         if (raw.some((old) => old.id === c.id))
           throw new Error("Import identifier collision. Retry the import.");
+      doc = mapAllElements(doc,e=>e.binding?{...e,binding:{...e.binding,campaignId:mapping.get(e.binding.campaignId)||e.binding.campaignId}}:e);
       doc = {
         ...doc,
         elements: doc.elements.map((e) =>

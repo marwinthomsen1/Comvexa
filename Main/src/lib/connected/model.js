@@ -1,3 +1,4 @@
+import {allElements,pageDocuments,pageSnapshots,mapAllElements} from "../editor/pages.js";
 import { validateDocument } from "../editor/document.js";
 const ID = /^[a-zA-Z0-9.-]{1,80}$/;
 const DEFAULTS = {
@@ -230,6 +231,10 @@ export function adaptSharedCrop(crop, oldAsset, newAsset, width, height) {
   };
 }
 export function resolveDocument(document, campaigns, { strict = true } = {}) {
+  if(document.pages){
+    const checked=validateDocument(document),snapshots=pageSnapshots(checked),resolved=pageDocuments(checked).map(p=>resolveDocument(p,campaigns,{strict})),assets=Object.assign({},...resolved.map(r=>r.document.assets)),pages=snapshots.map((p,i)=>({...p,canvas:resolved[i].document.canvas,elements:resolved[i].document.elements})),active=pages.find(p=>p.id===checked.activePageId);
+    return{document:validateDocument({...checked,pages,assets,canvas:active.canvas,elements:active.elements}),warnings:[...new Set(resolved.flatMap(r=>r.warnings))],revisions:Object.assign({},...resolved.map(r=>r.revisions))};
+  }
   const doc = validateDocument(document),
     warnings = [],
     revisions = {};
@@ -294,7 +299,7 @@ export function resolveDocument(document, campaigns, { strict = true } = {}) {
 }
 export function connectElement(document, elementId, campaign, fieldId) {
   check(
-    !document.elements.some(
+    !allElements(document).some(
       (e) =>
         e.id !== elementId && e.binding && e.binding.campaignId !== campaign.id,
     ),
@@ -361,7 +366,7 @@ export function planUpdate(
   for (const id of removed) {
     if (
       records.some((r) =>
-        r.document.elements.some(
+        allElements(r.document).some(
           (e) =>
             e.binding?.campaignId === current.id && e.binding.fieldId === id,
         ),
@@ -376,13 +381,13 @@ export function planUpdate(
     const base = resolveDocument(record.document, [current], {
       strict: false,
     }).document;
-    const elements = base.elements.map((e) =>
+    const detached = mapAllElements(base,(e) =>
       e.binding?.campaignId === current.id &&
       removed.includes(e.binding.fieldId)
         ? { ...e, binding: null, localOverride: false }
         : e,
     );
-    const result = resolveDocument({ ...base, elements }, [next], {
+    const result = resolveDocument(detached, [next], {
       strict: false,
     });
     if (result.warnings.length) throw new Error(result.warnings[0]);
