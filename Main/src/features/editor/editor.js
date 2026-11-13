@@ -97,6 +97,7 @@ export default function Editor() {
       autoSaveTimer.current = setTimeout(() => save(latest.current), 800);
   }
   const [cropId, setCropId] = useState(null);
+  const [comparePhotoId,setComparePhotoId] = useState(null);
   const [panel, setPanel] = useState("selection");
   const [hasUpgradeBackup, setHasUpgradeBackup] = useState(false);
   const [layerSearch, setLayerSearch] = useState("");
@@ -609,6 +610,15 @@ export default function Editor() {
     observer.observe(node);
     return () => observer.disconnect();
   }, [doc?.canvas.width, doc?.canvas.height]);
+  async function insertCreative(stickerId, frameId) {
+    try {
+      const asset = stickerId ? await (await import("@/lib/creative/stickers")).stickerAsset(stickerId) : await (await import("@/lib/templates/assets")).sampleAsset("travel");
+      const assetId=crypto.randomUUID(), id=crypto.randomUUID(),base=latest.current;
+      const e={...makeElement("image",id),width:frameId?420:240,height:frameId?420:240,assetId,crop:coverCrop(asset,1,1),...(frameId?{photoFrame:{id:frameId,color:"#ffffff",border:2}}:{})};
+      apply(addElement({...base,schemaVersion:frameId?2:base.schemaVersion,assets:{...base.assets,[assetId]:asset}},e));
+      setSelected(id);setPanel("selection");setMobile("properties");
+    }catch(e){setError(e.message);}
+  }
   async function imageFile(file, replacing = false) {
     try {
       const asset = await readImage(file);
@@ -902,7 +912,7 @@ export default function Editor() {
           <p>Use your own images or images you have permission to use.</p>
         </>
       )}
-      {tab === "Elements" && <ElementLibrary onInsert={(kind, fill) => {
+      {tab === "Elements" && <ElementLibrary onSticker={id=>insertCreative(id,null)} onFrame={id=>insertCreative(null,id)} onInsert={(kind, fill) => {
         try {
           const id = crypto.randomUUID();
           apply(insertLibraryElement(latest.current, kind, id, fill));
@@ -1161,6 +1171,7 @@ export default function Editor() {
         projectFile={projectFile}
         portable={portable}
         replace={replace}
+        onCompare={active=>setComparePhotoId(active?element.id:null)}
         onCrop={()=>{setCropId(element.id);setMobile("");setEditId(null);}}
         connectionPanel={
           <ConnectionPanel
@@ -1425,6 +1436,7 @@ export default function Editor() {
           <div className="canvas-centering">
             <DesignCanvas
               doc={doc}
+              comparisonId={comparePhotoId===selected?comparePhotoId:null}
               selectedIds={liveSelection}
               select={selectObject}
               selectIds={setSelectedIds}

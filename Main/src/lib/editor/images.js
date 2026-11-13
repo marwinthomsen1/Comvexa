@@ -1,3 +1,5 @@
+import {applyPhotoSurface} from "../creative/surface.js";
+import {framePhoto} from "../creative/frames.js";
 import { adjustPhotoPixels } from "./photo-style.js";
 export const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 export function inspectImage(bytes, mime) {
@@ -89,19 +91,25 @@ export function loadImage(src) {
 }
 // Normalize decoded pixels before transforms, avoiding browser first-use image
 // resampling differences between an image element and its cached texture.
-export async function loadRenderImage(src, photoStyle) {
+export async function loadRenderImage(src, photoStyle, maxDimension = null) {
   const image = await loadImage(src);
   const canvas = document.createElement("canvas");
-  canvas.width = image.naturalWidth;
-  canvas.height = image.naturalHeight;
+  const scale = maxDimension ? Math.min(1,maxDimension/Math.max(image.naturalWidth,image.naturalHeight)) : 1;
+  canvas.width = Math.max(1,Math.round(image.naturalWidth*scale));
+  canvas.height = Math.max(1,Math.round(image.naturalHeight*scale));
   const context = canvas.getContext("2d");
-  context.drawImage(image, 0, 0);
+  context.drawImage(image, 0, 0, canvas.width, canvas.height);
   if (photoStyle && Object.values(photoStyle).some(v=>v!==0)) {
     const pixels = context.getImageData(0,0,canvas.width,canvas.height);
     adjustPhotoPixels(pixels.data, photoStyle);
     context.putImageData(pixels,0,0);
   }
+  if(photoStyle) applyPhotoSurface(canvas,photoStyle);
   return canvas;
+}
+export async function loadElementImage(asset,element,maxDimension=null){
+ const source=await loadRenderImage(asset.src,element.photoStyle,maxDimension);
+ return element.photoFrame?framePhoto(source,element,maxDimension):source;
 }
 export async function readImage(file) {
   if (!file || file.size > MAX_IMAGE_BYTES)

@@ -3,7 +3,7 @@ import { textStyleAttributes } from "../typography/style.js";
 import { graphicPathAttributes } from "../elements/render.js";
 import Konva from "konva";
 import { exportSpec } from "./document.js";
-import { loadRenderImage } from "./images.js";
+import { loadRenderImage, loadElementImage } from "./images.js";
 export function nodeAttributes(e) {
   return {
     x: e.x,
@@ -30,7 +30,7 @@ export async function renderExport(doc, format, quality, maxDimension = null) {
   stage.add(layer);
   try {
     for (const [id, a] of Object.entries(doc.assets))
-      images[id] = await loadRenderImage(a.src);
+      images[id] = await loadRenderImage(a.src,undefined,maxDimension);
     layer.add(
       new Konva.Rect({
         width: spec.width,
@@ -57,18 +57,18 @@ export async function renderExport(doc, format, quality, maxDimension = null) {
       else if (e.type === "image") {
         const a = doc.assets[e.assetId];
         let source = images[e.assetId];
-        if (e.photoStyle && Object.values(e.photoStyle).some(v=>v!==0)) {
-          source = await loadRenderImage(a.src,e.photoStyle);
+        if (e.photoFrame || (e.photoStyle && Object.values(e.photoStyle).some(v=>v!==0))) {
+          source = await loadElementImage(a,e,maxDimension);
           images[`adjusted-${e.id}`] = source;
         }
         node = new Konva.Image({
           ...attrs,
           image: source,
-          crop: {
-            x: e.crop.x * a.width,
-            y: e.crop.y * a.height,
-            width: e.crop.width * a.width,
-            height: e.crop.height * a.height,
+          crop: e.photoFrame?{x:0,y:0,width:source.width,height:source.height}:{
+            x: e.crop.x * source.width,
+            y: e.crop.y * source.height,
+            width: e.crop.width * source.width,
+            height: e.crop.height * source.height,
           },
         });
       } else if (e.graphicKind) {

@@ -194,6 +194,7 @@ export function PropertiesPanel({
   setDimensions,
   replace,
   onCrop,
+  onCompare,
   onPaste,
 }) {
   const more = useRef(null);
@@ -242,7 +243,7 @@ export function PropertiesPanel({
             />
           </label>
         )}
-        {element.type === "image" && <PhotoControls key={element.id} element={element} onPatch={patch=>change(element.id,patch)} onCrop={onCrop} onReplace={()=>replace.current.click()} onMore={()=>{more.current.open=!more.current.open;more.current.scrollIntoView({block:"nearest"});}}/>}
+        {element.type === "image" && <PhotoControls onCompare={onCompare} key={element.id} asset={doc.assets[element.assetId]} element={element} onPatch={patch=>change(element.id,patch)} onCrop={onCrop} onReplace={()=>replace.current.click()} onMore={()=>{more.current.open=!more.current.open;more.current.scrollIntoView({block:"nearest"});}}/>}
         {element.type !== "text" && <label className="photo-slider">Opacity<output>{Math.round(element.opacity*100)}%</output><input type="range" min={0} max={1} step={.01} value={element.opacity} onChange={e=>prop("opacity",Number(e.target.value))}/></label>}
         {["rect", "ellipse"].includes(element.type) && (
           <details className="studio-details">

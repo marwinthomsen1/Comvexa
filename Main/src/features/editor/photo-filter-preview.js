@@ -1,0 +1,6 @@
+"use client";
+/* Generated blob/data previews never use a network optimizer. */
+/* eslint-disable @next/next/no-img-element */
+import {useEffect,useRef,useState} from 'react';
+const cache=new Map();let queue=Promise.resolve();
+export default function PhotoFilterPreview({asset,style,cacheKey,label}){const root=useRef(null),[src,setSrc]=useState('');const key=JSON.stringify([cacheKey,style]);useEffect(()=>{let active=true;const observer=new IntersectionObserver(entries=>{if(!entries.some(e=>e.isIntersecting))return;observer.disconnect();queue=queue.catch(()=>{}).then(async()=>{if(!active)return;let result=cache.get(key);if(!result){const {loadRenderImage}=await import('@/lib/editor/images');const canvas=await loadRenderImage(asset.src,JSON.parse(key)[1],120);result=canvas.toDataURL('image/jpeg',.75);canvas.width=0;canvas.height=0;cache.set(key,result);if(cache.size>120)cache.delete(cache.keys().next().value);}if(active)setSrc(result);}).catch(()=>{});},{rootMargin:'80px'});observer.observe(root.current);return()=>{active=false;observer.disconnect();};},[key,asset.src]);return <span className="photo-look-preview" ref={root}>{src?<img src={src} alt={label}/>:<span aria-hidden="true">✦</span>}</span>;}

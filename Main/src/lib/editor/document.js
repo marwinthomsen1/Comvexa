@@ -1,3 +1,4 @@
+import {validatePhotoFrame} from "../creative/frames.js";
 import { validatePhotoStyle } from "./photo-style.js";
 import { FONT_NAMES } from "../typography/fonts.js";
 import { validateTextStyle } from "../typography/style.js";
@@ -211,6 +212,10 @@ export function validateDocument(value) {
         cornerRadius: e.cornerRadius,
       });
     }
+    if (e.photoFrame !== undefined && e.photoFrame !== null) {
+      requireValue(value.schemaVersion === 2 && e.type === "image", "Frames require a v2 image.");
+      out.photoFrame=validatePhotoFrame(e.photoFrame);
+    }
     if (e.photoStyle !== undefined) {
       requireValue(value.schemaVersion === 2 && e.type === "image", "Photo adjustments require a v2 image element.");
       out.photoStyle = validatePhotoStyle(e.photoStyle);
@@ -324,7 +329,7 @@ export function makeElement(type, id) {
 export function patchElement(doc, id, patch) {
   return validateDocument({
     ...doc,
-    ...(patch.textStyle || patch.photoStyle ? {schemaVersion:2} : {}),
+    ...(patch.textStyle || patch.photoStyle || patch.photoFrame ? {schemaVersion:2} : {}),
     elements: doc.elements.map((e) =>
       e.id === id
         ? {

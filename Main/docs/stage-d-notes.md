@@ -1,0 +1,10 @@
+# Stage D maintenance notes
+
+- Catalogs: 42 filters, 200 original stickers, 50 single-photo clipping frames, 32 effects. Definitions live in `src/lib/creative/`.
+- Existing v1/v2 documents remain supported. Optional validated `photoStyle` fields and `photoFrame` metadata use v2. Original assets remain untouched. Crop, connected images, grouping and exports use existing paths.
+- Filters/effects use the shared pixel/canvas pipeline. Editing previews are capped at 1024px; export uses original sources. Filter thumbnails are lazy, queued, bounded and cached. Frame rendering caps at 4096px. Generated sticker inserts are transparent 400px PNGs from original local SVG illustrations; individual sticker colors/text are not separately editable.
+- Frames are single-image masks with adjustable border/color. Multi-photo collage frames, neon glow frame borders and background removal are deferred. Background-removal investigation: the [IMG.LY project](https://github.com/imgly/background-removal-js) uses AGPL and browser model assets; no dependency, model or paid service was added pending suitability review.
+- Photo comparison affects preview only. Filter/effect Apply closes live editing; Cancel restores photo style/frame settings captured when the panel opened. Crop has its own Apply/Cancel workflow. Some sliders produce multiple undo entries.
+- Existing limits remain: 100 elements and 30 image assets per design. Stickers are image assets. Old projects and shared photos are not migrated destructively.
+- Fast-mode checks: one lint run found two unused-variable errors, both corrected afterward; lint was not rerun. One production build passed. New regression tests were added, but no automated tests, browser checks, screenshots, device testing or export comparison batches were run.
+- Preview: http://127.0.0.1:3000/editor. Select a photo for Crop / Filters / Adjust / Effects / Frames / More. Elements contains Stickers / Shapes / Frames. Inserted frames include a sample photo; use Replace to add your own.

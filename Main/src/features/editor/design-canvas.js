@@ -24,7 +24,7 @@ import {
   formatAngle,
   finalTransformPatches,
 } from "@/lib/editor/transform-session";
-import { loadRenderImage } from "@/lib/editor/images";
+import { loadElementImage } from "@/lib/editor/images";
 import {
   editableIds,
   expandSelection,
@@ -67,15 +67,13 @@ function Element({
   preview,
 }) {
   const [image, setImage] = useState(null);
-  const photoKey = JSON.stringify(e.photoStyle || null);
+  const photoKey = JSON.stringify({photoStyle:e.photoStyle,photoFrame:e.photoFrame,...(e.photoFrame?{crop:e.crop,width:e.width,height:e.height}:{})});
   useEffect(() => {
-    let active = true,
-      rendered;
+    let active = true;
     if (asset)
-      loadRenderImage(asset.src, JSON.parse(photoKey))
+      loadElementImage(asset, JSON.parse(photoKey), 1024)
         .then((i) => {
           if (active) {
-            rendered = i;
             setImage(i);
           } else {
             i.width = 0;
@@ -85,10 +83,8 @@ function Element({
         .catch(() => {});
     return () => {
       active = false;
-      if (rendered) {
-        rendered.width = 0;
-        rendered.height = 0;
-      }
+      // Keep the current texture intact while its replacement is processing.
+      // Konva releases the old canvas reference after image props change.
     };
   }, [asset?.src, photoKey]);
   const props = {
@@ -129,11 +125,11 @@ function Element({
       <KImage
         {...props}
         image={image}
-        crop={{
-          x: e.crop.x * asset.width,
-          y: e.crop.y * asset.height,
-          width: e.crop.width * asset.width,
-          height: e.crop.height * asset.height,
+        crop={e.photoFrame?{x:0,y:0,width:image?.width||1,height:image?.height||1}:{
+          x: e.crop.x * (image?.width||asset.width),
+          y: e.crop.y * (image?.height||asset.height),
+          width: e.crop.width * (image?.width||asset.width),
+          height: e.crop.height * (image?.height||asset.height),
         }}
       />
     );
@@ -178,6 +174,7 @@ export default function DesignCanvas({
   aspectLocked,
   onGestureChange,
   cropId,
+  comparisonId,
   onCropApply,
   onCropCancel,
 }) {
@@ -661,7 +658,7 @@ export default function DesignCanvas({
               .map((e) => (
                 <Element
                   key={e.id}
-                  element={e}
+                  element={e.id===comparisonId?{...e,photoStyle:undefined}:e}
                   asset={doc.assets[e.assetId]}
                   canDrag={
                     !cropping && editableIds(doc, [e.id]).includes(e.id) && !multiSelect
