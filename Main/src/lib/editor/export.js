@@ -1,3 +1,6 @@
+import {arcPath,displayText} from "../typography/layout.js";
+import {drawingPaths} from "./drawing.js";
+import {fillAttributes} from "./fills.js";
 import { ensureDocumentFonts } from "../typography/fonts.js";
 import { textStyleAttributes } from "../typography/style.js";
 import { graphicPathAttributes } from "../elements/render.js";
@@ -12,6 +15,7 @@ export function nodeAttributes(e) {
     height: e.height,
     rotation: e.rotation,
     opacity: e.opacity,
+    globalCompositeOperation:e.blendMode||"source-over",
   };
 }
 export async function renderExport(doc, format, quality, maxDimension = null) {
@@ -35,17 +39,19 @@ export async function renderExport(doc, format, quality, maxDimension = null) {
       new Konva.Rect({
         width: spec.width,
         height: spec.height,
-        fill: doc.canvas.background,
+        fill: doc.canvas.transparent?(format==='jpeg'?'#ffffff':undefined):doc.canvas.background,
+        ...fillAttributes({width:spec.width,height:spec.height,fillEffect:doc.canvas.transparent?null:doc.canvas.fillEffect}),
       }),
     );
     for (const e of doc.elements) {
       if (e.hidden) continue;
       const attrs = nodeAttributes(e);
       let node;
-      if (e.type === "text")
+      if(e.type==='text'&&e.textLayout?.mode==='arc')node=new Konva.TextPath({...attrs,data:arcPath(e),text:e.text.replaceAll('\n',' '),fontFamily:e.fontFamily,fontSize:e.fontSize,...textStyleAttributes(e),align:e.align,fill:e.fill});
+      else if (e.type === "text")
         node = new Konva.Text({
           ...attrs,
-          text: e.text,
+          text: displayText(e),
           fontFamily: e.fontFamily,
           fontSize: e.fontSize,
           ...textStyleAttributes(e),
@@ -71,6 +77,7 @@ export async function renderExport(doc, format, quality, maxDimension = null) {
             height: e.crop.height * source.height,
           },
         });
+      } else if(e.drawing){node=new Konva.Group(attrs);for(const path of drawingPaths(e))node.add(new Konva.Path(path));
       } else if (e.graphicKind) {
         node = new Konva.Group(attrs);
         node.add(new Konva.Path(graphicPathAttributes(e)));
@@ -79,6 +86,7 @@ export async function renderExport(doc, format, quality, maxDimension = null) {
           ...attrs,
           offsetX: -e.width / 2,
           offsetY: -e.height / 2,
+          ...fillAttributes(e),
           radiusX: e.width / 2,
           radiusY: e.height / 2,
           fill: e.fill,
@@ -92,6 +100,7 @@ export async function renderExport(doc, format, quality, maxDimension = null) {
           stroke: e.stroke,
           strokeWidth: e.strokeWidth,
           cornerRadius: e.cornerRadius,
+          ...fillAttributes(e),
         });
       layer.add(node);
     }

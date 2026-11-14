@@ -1,3 +1,5 @@
+import {validateTextLayout} from "../typography/layout.js";
+import {validateDrawing,validateFill,validateAnimation,validateBlend} from "./creative-properties.js";
 import {validatePagedDocument} from "./pages.js";
 import {validatePhotoFrame} from "../creative/frames.js";
 import { validatePhotoStyle } from "./photo-style.js";
@@ -215,6 +217,11 @@ export function validateDocument(value) {
         cornerRadius: e.cornerRadius,
       });
     }
+    if(e.textLayout!==undefined&&e.textLayout!==null){requireValue(e.type==='text'&&value.schemaVersion===2,'Text layout requires v2 text.');out.textLayout=validateTextLayout(e.textLayout);}
+    if(e.drawing!==undefined){requireValue(value.schemaVersion===2&&e.type==='rect'&&!e.graphicKind,'Drawing requires a v2 stroke.');out.drawing=validateDrawing(e.drawing);}
+    if(e.fillEffect!==undefined&&e.fillEffect!==null){requireValue(value.schemaVersion===2&&['rect','ellipse'].includes(e.type)&&!e.drawing,'Fill effects require a v2 shape.');out.fillEffect=validateFill(e.fillEffect);}
+    if(e.blendMode!==undefined)out.blendMode=validateBlend(e.blendMode);
+    if(e.animation!==undefined&&e.animation!==null)out.animation=validateAnimation(e.animation);
     if (e.photoFrame !== undefined && e.photoFrame !== null) {
       requireValue(value.schemaVersion === 2 && e.type === "image", "Frames require a v2 image.");
       out.photoFrame=validatePhotoFrame(e.photoFrame);
@@ -279,6 +286,9 @@ export function validateDocument(value) {
       width: canvas.width,
       height: canvas.height,
       background: canvas.background,
+      ...(canvas.fillEffect?{fillEffect:validateFill(canvas.fillEffect)}:{}),
+      ...(canvas.transparent===true?{transparent:true}:{}),
+      ...(canvas.transition?{transition:validateAnimation(canvas.transition,true)}:{}),
     },
     elements,
     assets: Object.fromEntries(
@@ -332,7 +342,7 @@ export function makeElement(type, id) {
 export function patchElement(doc, id, patch) {
   return validateDocument({
     ...doc,
-    ...(patch.textStyle || patch.photoStyle || patch.photoFrame ? {schemaVersion:2} : {}),
+    ...(patch.textStyle || patch.photoStyle || patch.photoFrame || patch.drawing || patch.fillEffect || patch.animation || patch.textLayout ? {schemaVersion:2} : {}),
     elements: doc.elements.map((e) =>
       e.id === id
         ? {

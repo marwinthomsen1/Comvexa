@@ -1,7 +1,11 @@
 "use client";
 import {useRef} from "react";
 import PhotoControls from "./photo-controls";
+import FillControls from './fill-controls';
+import {ElementMotion} from './animation-tools';
+import {BLEND_MODES,BRUSHES} from '@/lib/editor/creative-properties';
 import TypographyControls from "./typography-controls";
+import {coverCrop} from "@/lib/templates/fitting";
 import { PRESETS, reorder } from "@/lib/editor/document";
 import { ToolButton } from "@/components/ui/studio-icon";
 import { selectionLabel } from "./studio-tools";
@@ -39,6 +43,7 @@ export function CanvasSettings({ doc, apply, dimensions, setDimensions, expanded
           }
         />
       </label>
+      <FillControls value={doc.canvas.fillEffect} onChange={fillEffect=>apply({...doc,canvas:{...doc.canvas,fillEffect,transparent:false}})}/>
       <details className="studio-details" open={expanded}><summary>Canvas size · {doc.canvas.width} × {doc.canvas.height}</summary>
       <p className="editor-small">
         Change the page size. Existing elements keep their positions and sizes.
@@ -134,7 +139,7 @@ export function ExportPanel({
           <option value={1}>Maximum · 100%</option>
         </select>
       </label>
-      {doc.pages&&<div className="smart-action-row"><button disabled={exporting} onClick={()=>exportAllPages("zip")}>All {doc.pages.length} pages · ZIP</button><button disabled={exporting} onClick={()=>exportAllPages("pdf")}>All pages · PDF</button><p className="editor-small">Raster PDF: A4 presets use 300 ppi sizing; other sizes use 96 ppi. RGB only; no bleed, CMYK or PDF/X.</p></div>}
+      {doc.pages&&<div className="smart-action-row"><button disabled={exporting} onClick={()=>exportAllPages("zip")}>All {doc.pages.length} pages · ZIP</button><button disabled={exporting} onClick={()=>exportAllPages("pdf")}>All pages · PDF</button><p className="editor-small">Raster PDF: A4, US Letter and business-card presets use 300 ppi sizing; other sizes use 96 ppi. RGB only; no bleed, CMYK or PDF/X.</p></div>}
       <div className="export-size">
         <strong>
           {doc.canvas.width} × {doc.canvas.height}
@@ -232,6 +237,7 @@ export function PropertiesPanel({
         {element.type === "text" && (
           <>
             <TypographyControls key={element.id} element={element} onPatch={patch=>change(element.id,patch)} Field={Field}/>
+            <details className="studio-details"><summary>Curved & vertical text</summary><p className="editor-small">Best for short headings. Curved text follows a single arc; resize its frame to adjust the path. Edit the original wording directly on canvas.</p><div className="motion-grid">{[['normal','Normal'],['arc','Curved'],['vertical','Vertical']].map(([mode,label])=><button key={mode} aria-pressed={(element.textLayout?.mode||'normal')===mode} onClick={()=>change(element.id,{textLayout:mode==='normal'?null:{mode,bend:45},...(mode==='vertical'?{fontSize:Math.max(6,Math.min(element.fontSize,element.height/Math.max(1,[...element.text].length)/element.lineHeight))}:{})})}>{label}</button>)}</div>{element.textLayout?.mode==='arc'&&<label className="photo-slider">Curve<output>{element.textLayout.bend}°</output><input type="range" min="-90" max="90" value={element.textLayout.bend} onChange={e=>change(element.id,{textLayout:{...element.textLayout,bend:Number(e.target.value)}})}/></label>}</details>
             <details className="studio-details"><summary>Edit text content</summary><textarea aria-label="Text content" value={element.text} maxLength={5000} onChange={e=>prop("text",e.target.value)}/><ToolButton icon="type" onClick={()=>{setEditId(element.id);setMobile("");}}>Edit on canvas</ToolButton></details>
           </>
         )}
@@ -245,9 +251,14 @@ export function PropertiesPanel({
             />
           </label>
         )}
+        {element.drawing&&<details className="studio-details" open><summary>Stroke appearance</summary><label className="editor-field">Brush<select value={element.drawing.brush} onChange={e=>prop('drawing',{...element.drawing,brush:e.target.value})}>{BRUSHES.map(b=><option key={b}>{b}</option>)}</select></label><label className="photo-slider">Stroke size<output>{Math.round(element.drawing.weight*element.width)} px</output><input type="range" min="1" max={Math.min(200,element.width*10)} value={Math.min(200,element.drawing.weight*element.width)} onChange={e=>prop('drawing',{...element.drawing,weight:Number(e.target.value)/element.width})}/></label></details>}
+        {['rect','ellipse'].includes(element.type)&&!element.drawing&&<FillControls value={element.fillEffect} onChange={fillEffect=>prop('fillEffect',fillEffect)}/>}
         {element.type === "image" && <PhotoControls onCompare={onCompare} key={element.id} asset={doc.assets[element.assetId]} element={element} onPatch={patch=>change(element.id,patch)} onCrop={onCrop} onReplace={()=>replace.current.click()} onMore={()=>{more.current.open=!more.current.open;more.current.scrollIntoView({block:"nearest"});}}/>}
+        {element.type==='image'&&!element.groupId&&<button className="subtle-button panel-wide" onClick={()=>{const background={...element,x:0,y:0,width:doc.canvas.width,height:doc.canvas.height,rotation:0,crop:coverCrop(doc.assets[element.assetId],doc.canvas.width,doc.canvas.height),photoFrame:null};apply({...doc,elements:[background,...doc.elements.filter(e=>e.id!==element.id)]});}}>Use photo as background</button>}
         {element.type !== "text" && <label className="photo-slider">Opacity<output>{Math.round(element.opacity*100)}%</output><input type="range" min={0} max={1} step={.01} value={element.opacity} onChange={e=>prop("opacity",Number(e.target.value))}/></label>}
-        {["rect", "ellipse"].includes(element.type) && (
+        <details className="studio-details"><summary>Blending</summary><label className="editor-field">Blend mode<select value={element.blendMode||'source-over'} onChange={e=>prop('blendMode',e.target.value)}>{BLEND_MODES.map(mode=><option key={mode} value={mode}>{mode==='source-over'?'Normal':mode[0].toUpperCase()+mode.slice(1)}</option>)}</select></label></details>
+        <ElementMotion element={element} onPatch={patch=>change(element.id,patch)}/>
+        {["rect", "ellipse"].includes(element.type) && !element.drawing && (
           <details className="studio-details">
             <summary>{element.graphicKind ? "Border" : "Border & corners"}</summary>
             <label className="editor-field">

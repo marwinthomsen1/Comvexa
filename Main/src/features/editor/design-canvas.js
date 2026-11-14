@@ -7,12 +7,19 @@ import {
   Rect,
   Ellipse,
   Text,
+  TextPath,
   Image as KImage,
   Transformer,
   Group,
   Line,
 } from "react-konva";
 import PhotoCrop from "./photo-crop";
+import DrawingOverlay from './drawing-overlay';
+import PrecisionOverlay from './precision-overlay';
+import {drawingPaths} from '@/lib/editor/drawing';
+import {fillAttributes} from '@/lib/editor/fills';
+import {motionFrame} from '@/lib/editor/motion';
+import {arcPath,displayText} from "@/lib/typography/layout";
 import { textStyleAttributes } from "@/lib/typography/style";
 import { graphicPathAttributes } from "@/lib/elements/render";
 import { flushSync } from "react-dom";
@@ -95,6 +102,7 @@ function Element({
     height: e.height,
     rotation: e.rotation,
     opacity: e.opacity,
+    globalCompositeOperation:e.blendMode||"source-over",
     // Translation has a single pointer-session owner; never start Konva DD
     // alongside Transformer._proxyDrag's multi-node drag controller.
     draggable: false,
@@ -107,11 +115,12 @@ function Element({
     onDblClick: () => e.type === "text" && !e.locked && onEdit(e.id),
     onDblTap: () => e.type === "text" && !e.locked && onEdit(e.id),
   };
+  if(e.type==='text'&&e.textLayout?.mode==='arc')return <TextPath {...props} data={arcPath(e)} text={e.text.replaceAll('\n',' ')} fontFamily={e.fontFamily} fontSize={e.fontSize} {...textStyleAttributes(e)} align={e.align} fill={e.fill}/>;
   if (e.type === "text")
     return (
       <Text
         {...props}
-        text={e.text}
+        text={displayText(e)}
         fontFamily={e.fontFamily}
         fontSize={e.fontSize}
         {...textStyleAttributes(e)}
@@ -133,12 +142,14 @@ function Element({
         }}
       />
     );
+  if(e.drawing)return <Group {...props}>{drawingPaths(e).map((attrs,i)=><Path key={i} {...attrs}/>)}</Group>;
   if (e.graphicKind)
     return <Group {...props}><Path {...graphicPathAttributes(e)} /></Group>;
   if (e.type === "ellipse")
     return (
       <Ellipse
         {...props}
+        {...fillAttributes(e)}
         radiusX={e.width / 2}
         radiusY={e.height / 2}
         offsetX={-e.width / 2}
@@ -155,11 +166,17 @@ function Element({
       stroke={e.stroke}
       strokeWidth={e.strokeWidth}
       cornerRadius={e.cornerRadius}
+      {...fillAttributes(e)}
     />
   );
 }
 export default function DesignCanvas({
   doc,
+  drawing,
+  precision,
+  onStroke,
+  onErase,
+  motionPreview,
   selectedIds,
   select,
   patch,
@@ -178,6 +195,9 @@ export default function DesignCanvas({
   onCropApply,
   onCropCancel,
 }) {
+  const [playing,setPlaying]=useState(false);
+  const played=useRef(0);
+  const artwork=useRef(null);
   const stage = useRef(null),
     transformer = useRef(null),
     guideX = useRef(null),
@@ -350,7 +370,7 @@ export default function DesignCanvas({
   }
   function beginPointer(event, e) {
     if (
-      preview ||
+      preview || playing || drawing ||
       editing ||
       event.evt.button > 0 ||
       multiSelect ||
@@ -373,13 +393,13 @@ export default function DesignCanvas({
       start,
       doc,
       items: doc.elements.filter((n) => allowed.includes(n.id)),
-      snap: createSnapSession(doc, allowed, zoom, true),
+      snap: createSnapSession(doc, allowed, zoom, true, precision),
       touch: !!event.evt.touches,
     };
   }
   function startMarquee(event) {
     if (
-      preview ||
+      preview || playing || drawing ||
       editing ||
       cropping ||
       !(
@@ -572,7 +592,7 @@ export default function DesignCanvas({
     if (!tr) return;
     const items = doc.elements.filter((e) => movable.includes(e.id));
     const next = selectionFrame(orientation.current, items, signature);
-    const nodes = preview ? [] : nodesFor(movable);
+    const nodes = preview || playing || drawing ? [] : nodesFor(movable);
     if (
       tr
         .nodes()
@@ -583,13 +603,30 @@ export default function DesignCanvas({
     if (items.length > 1) tr.rotation(next.rotation);
     orientation.current = next;
     tr.forceUpdate();
-  }, [doc, signature, preview, zoom]);
+  }, [doc, signature, preview, zoom, playing, drawing]);
   useEffect(() => {
     if (preview || editId) cancel();
   }, [preview, editId]);
+  useEffect(()=>{
+    if(!motionPreview||played.current===motionPreview)return;
+    played.current=motionPreview;
+    const animations=doc.elements.filter(e=>e.animation&&!e.hidden).map(e=>({e,node:stage.current?.findOne('#'+e.id)})).filter(v=>v.node),transition=doc.canvas.transition;
+    if(!animations.length&&!transition)return;
+    cancel();setEditId(null);setPlaying(true);let frameId,start=null;
+    const total=Math.max(...animations.map(({e})=>(e.animation.delay+e.animation.duration)*1000),transition?(transition.delay+transition.duration)*1000:0);
+    const restore=()=>{for(const {e,node} of animations)node.setAttrs({x:e.x,y:e.y,opacity:e.opacity,rotation:e.rotation,scaleX:1,scaleY:1});artwork.current?.setAttrs({x:0,y:0,scaleX:1,scaleY:1,opacity:1});};
+    const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function tick(now){if(start===null)start=now;const elapsed=now-start;
+      for(const {e,node} of animations){const a=e.animation,p=(elapsed-a.delay*1000)/(a.duration*1000),f=motionFrame(reduce?'fade-in':a.type,p);node.setAttrs({opacity:e.opacity*f.opacity,x:e.x+f.dx+e.width*(1-f.scale)/2,y:e.y+f.dy+e.height*(1-f.scale)/2,rotation:e.rotation+f.rotation,scaleX:f.scale,scaleY:f.scale});}
+      if(transition){const p=(elapsed-transition.delay*1000)/(transition.duration*1000),f=motionFrame(reduce?'fade':transition.type,p);artwork.current?.setAttrs({opacity:f.opacity,x:f.dx+doc.canvas.width*(1-f.scale)/2,y:f.dy+doc.canvas.height*(1-f.scale)/2,scaleX:f.scale,scaleY:f.scale});}
+      if(elapsed<total)frameId=requestAnimationFrame(tick);else{restore();setPlaying(false);}
+    }
+    frameId=requestAnimationFrame(tick);const stop=()=>{cancelAnimationFrame(frameId);restore();setPlaying(false);};const escape=e=>{if(e.key==='Escape')stop();};window.addEventListener('keydown',escape);window.addEventListener('blur',stop);
+    return()=>{cancelAnimationFrame(frameId);restore();window.removeEventListener('keydown',escape);window.removeEventListener('blur',stop);setPlaying(false);};
+  },[motionPreview,doc]);
   function startEdit(id) {
     const e = doc.elements.find((e) => e.id === id);
-    if (session.current || e.locked) return;
+    if (session.current || playing || drawing || preview || e.locked) return;
     setText(e.text);
     setEditId(id);
   }
@@ -642,6 +679,7 @@ export default function DesignCanvas({
       >
         <Layer x={gutter / zoom} y={gutter / zoom}>
           <Group
+            ref={artwork}
             clipX={0}
             clipY={0}
             clipWidth={doc.canvas.width}
@@ -651,7 +689,8 @@ export default function DesignCanvas({
               name="paper"
               width={doc.canvas.width}
               height={doc.canvas.height}
-              fill={doc.canvas.background}
+              fill={doc.canvas.transparent?undefined:doc.canvas.background}
+              {...fillAttributes({width:doc.canvas.width,height:doc.canvas.height,fillEffect:doc.canvas.transparent?null:doc.canvas.fillEffect})}
             />
             {doc.elements
               .filter((e) => !e.hidden)
@@ -661,20 +700,20 @@ export default function DesignCanvas({
                   element={e.id===comparisonId?{...e,photoStyle:undefined}:e}
                   asset={doc.assets[e.assetId]}
                   canDrag={
-                    !cropping && editableIds(doc, [e.id]).includes(e.id) && !multiSelect
+                    !playing && !drawing && !cropping && editableIds(doc, [e.id]).includes(e.id) && !multiSelect
                   }
-                  onPointerStart={(event) => !cropping && beginPointer(event, e)}
+                  onPointerStart={(event) => !playing && !drawing && !cropping && beginPointer(event, e)}
                   onCursor={cursor}
                   onSelect={(event) => {
                     if (skipClick.current) {
                       skipClick.current = false;
                       return;
                     }
-                    if (!preview && !cropping)
+                    if (!preview && !playing && !drawing && !cropping)
                       select(e.id, !!event.evt.shiftKey || multiSelect);
                   }}
                   onEdit={startEdit}
-                  preview={preview}
+                  preview={preview||playing||!!drawing}
                 />
               ))}
           </Group>
@@ -682,7 +721,7 @@ export default function DesignCanvas({
         <Layer>
           <Transformer
             ref={transformer}
-            visible={!preview && !editing && !cropping}
+            visible={!preview && !playing && !drawing && !editing && !cropping}
             flipEnabled={false}
             shiftBehavior="none"
             ignoreStroke
@@ -735,6 +774,9 @@ export default function DesignCanvas({
           />
         </Layer>
       </Stage>
+      {!preview&&!playing&&precision&&<PrecisionOverlay width={doc.canvas.width} height={doc.canvas.height} zoom={zoom} value={precision}/>}
+      {!preview&&!playing&&drawing&&!cropping&&<DrawingOverlay key={doc.activePageId||'single'} doc={doc} zoom={zoom} settings={drawing} onStroke={onStroke} onErase={onErase} onGesture={onGestureChange} onErasePreview={ids=>{for(const e of doc.elements)if(e.drawing)stage.current?.findOne('#'+e.id)?.visible(!e.hidden&&!ids.includes(e.id));}}/>}
+      {playing&&<span className="motion-preview-badge" role="status">Playing preview · Escape to stop</span>}
       <div ref={hud} className="transform-hud" hidden aria-hidden="true" />
       {cropping && <PhotoCrop key={cropping.id} element={cropping} asset={doc.assets[cropping.assetId]} zoom={zoom} onApply={onCropApply} onCancel={onCropCancel}/>}
       {editing && (

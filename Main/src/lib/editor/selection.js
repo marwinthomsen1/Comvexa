@@ -306,7 +306,7 @@ export function reorderSelection(doc, ids, direction) {
     ),
   });
 }
-export function createSnapSession(doc, ids, zoom = 1, enabled = true) {
+export function createSnapSession(doc, ids, zoom = 1, enabled = true, precision = null) {
   const targets = new Set(editableIds(doc, ids)),
     box = bounds(doc.elements.filter((e) => targets.has(e.id)));
   const others = doc.elements
@@ -324,6 +324,7 @@ export function createSnapSession(doc, ids, zoom = 1, enabled = true) {
       0,
       doc.canvas[size] / 2,
       doc.canvas[size],
+      ...(precision?.show?[precision.margin,doc.canvas[size]-precision.margin,...precision.guides.filter(g=>g.axis===axis).map(g=>g.position)]:[]),
       ...others.flatMap((b) => [
         b[axis],
         b[axis] + b[size] / 2,
@@ -331,6 +332,8 @@ export function createSnapSession(doc, ids, zoom = 1, enabled = true) {
       ]),
     ],
   }));
+  // Match existing gaps once at pointer-down, preserving the hot drag path.
+  for(const axis of axes){const size=axis.axis==='x'?'width':'height',ordered=[...others].sort((a,b)=>a[axis.axis]-b[axis.axis]);for(let i=1;i<ordered.length;i++){const before=ordered[i-1],after=ordered[i],gap=after[axis.axis]-before[axis.axis]-before[size];if(gap>0)axis.stops.push(after[axis.axis]+after[size]+gap,before[axis.axis]-gap);}}
   return (dx, dy) => {
     const result = { dx, dy, guides: [] };
     if (!enabled || !targets.size) return result;
@@ -338,7 +341,9 @@ export function createSnapSession(doc, ids, zoom = 1, enabled = true) {
       let best = 8 / Math.max(0.05, zoom),
         change = 0,
         guide;
-      for (const target of axis.stops)
+      const stops=[...axis.stops];
+      if(precision?.show&&precision.grid)for(const offset of axis.offsets)stops.push(Math.round((axis.start+result[axis.delta]+offset)/precision.spacing)*precision.spacing);
+      for (const target of stops)
         for (const offset of axis.offsets) {
           const d = target - (axis.start + result[axis.delta] + offset);
           if (Math.abs(d) < best) {

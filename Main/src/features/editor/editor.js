@@ -30,12 +30,17 @@ import TextLibrary from "./text-library";
 import TemplatePicker from "./template-picker";
 import PageStrip from "./page-strip";
 import SmartTools from "./smart-tools";
+import DrawingTools,{DEFAULT_DRAWING} from './drawing-tools';
+import PrecisionTools,{DEFAULT_PRECISION} from './precision-tools';
+import FillControls from './fill-controls';
+import AnimationTools from './animation-tools';
+import {layoutAction} from '@/lib/editor/layout-actions';
 import {pageSnapshots,switchPage,addPage,removePage,renamePage,reorderPage,allElements,mapAllElements} from "@/lib/editor/pages";
 import {smartResize,generateVariations,applyDesignTheme} from "@/lib/editor/smart-create";
 import { insertLibraryElement } from "@/lib/elements/insert";
 import DesignCanvas from "./design-canvas";
 import { StudioIcon, ToolButton } from "@/components/ui/studio-icon";
-import { STUDIO_TOOLS, selectionLabel, connectionLabel } from "./studio-tools";
+import { STUDIO_TOOLS, toolGroup, selectionLabel, connectionLabel } from "./studio-tools";
 import { leaveStudio } from "./studio-session";
 import { sampleAsset } from "@/lib/templates/assets";
 import Image from "next/image";
@@ -129,6 +134,7 @@ export default function Editor() {
     () => selectedIds.filter((id) => doc?.elements.some((e) => e.id === id)),
     [selectedIds, doc?.elements],
   );
+  const [drawingSettings,setDrawingSettings]=useState(DEFAULT_DRAWING),[precision,setPrecision]=useState(DEFAULT_PRECISION),[motionPreview,setMotionPreview]=useState(0);
   const [multiSelect, setMultiSelect] = useState(false),
     [snapping, setSnapping] = useState(true),
     [clipboardBusy, setClipboardBusy] = useState(false);
@@ -303,7 +309,9 @@ export default function Editor() {
     };
   }, [mobile]);
   function openTool(name) {
-    setTab(name);
+    const group=STUDIO_TOOLS.find(t=>t.id===name);
+    setTab(group?(group.tabs.includes(tab)?tab:group.tabs[0]):name);
+    setCropId(null);setEditId(null);
     setMobile("tools");
     setPreview(false);
   }
@@ -842,7 +850,11 @@ export default function Editor() {
   const sidebar = (
     <>
       <div className="panel-eyebrow">YOUR CREATIVE TOOLKIT</div>
-      <h2>{tab==="Resize"?"Resize & create":tab}</h2>
+      <h2>{tab==="Resize"?"Resize & create":tab==='Precision'?'Position & guides':tab}</h2>
+      {(toolGroup(tab)?.tabs.length||0)>1&&<div className="tool-subnav" role="group" aria-label={`${toolGroup(tab).id} tools`}>{toolGroup(tab).tabs.map(id=><button key={id} aria-pressed={tab===id} onClick={()=>{setTab(id);setCropId(null);setEditId(null);}}>{id==='Resize'?'Resize & styles':id==='Precision'?'Precision':id}</button>)}</div>}
+      {tab==='Drawing'&&<DrawingTools settings={drawingSettings} onChange={setDrawingSettings} onDone={()=>{setTab('Elements');setMobile('');}}/>}
+      {tab==='Precision'&&<><PrecisionTools value={precision} onChange={setPrecision} doc={doc}/><div className="layout-shortcuts">{[['center','Center Everything'],['align','Align Selection'],['distribute','Distribute Evenly'],['tidy','Tidy Layout'],['fit','Fit to Page']].map(([action,label])=><button key={action} onClick={()=>{try{apply(layoutAction(doc,action==='center'?[]:selectedIds,action,precision.margin));}catch(e){setError(e.message);}}}>{label}</button>)}</div><p className="editor-small">Layout actions use the selection, or all unlocked objects. Tidy stacks groups vertically with equal gaps; Fit preserves proportions.</p></>}
+      {tab==='Animate'&&<AnimationTools doc={doc} element={element} onPatch={patch=>change(element.id,patch)} onCanvas={patch=>apply({...doc,canvas:{...doc.canvas,...patch}})} onPlay={()=>{setTab('Animate');setEditId(null);setCropId(null);setMobile('');setMotionPreview(n=>n+1);}}/>}
       {tab === "Text" && <TextLibrary onAdd={kind=>{
         try {
           const e=makeElement("text",crypto.randomUUID());
@@ -915,46 +927,13 @@ export default function Editor() {
           </div>
         </>
       )}
-      {tab === "Resize" && <SmartTools key={doc.activePageId||"single"} doc={doc} onResize={resizeSmart} onVariations={makeVariations} onTheme={smartStyle} onArrange={mode=>{try{const ids=selectedIds.length?selectedIds:doc.elements.filter(e=>!e.locked&&!e.hidden).map(e=>e.id);apply(mode==="center"?alignSelection(doc,ids,"center"):distributeSelection(doc,ids,"y"));}catch(e){setError(e.message);}}}/>}
-      {tab === "Backgrounds" && (
-        <>
-          <label className="editor-field">
-            Canvas color
-            <input
-              type="color"
-              value={doc.canvas.background}
-              onChange={(e) =>
-                apply({
-                  ...doc,
-                  canvas: { ...doc.canvas, background: e.target.value },
-                })
-              }
-            />
-          </label>
-          <div className="editor-swatches">
-            {[
-              "#ffffff",
-              "#17192b",
-              "#fff1d0",
-              "#262096",
-              "#d6ff56",
-              "#f9b6d8",
-            ].map((color) => (
-              <button
-                aria-label={`Background ${color}`}
-                style={{ background: color }}
-                key={color}
-                onClick={() =>
-                  apply({
-                    ...doc,
-                    canvas: { ...doc.canvas, background: color },
-                  })
-                }
-              />
-            ))}
-          </div>
-        </>
-      )}
+      {tab === "Resize" && <SmartTools key={doc.activePageId||"single"} doc={doc} onResize={resizeSmart} onVariations={makeVariations} onTheme={smartStyle} onArrange={mode=>{try{const ids=selectedIds.length?selectedIds:doc.elements.filter(e=>!e.locked&&!e.hidden).map(e=>e.id);apply(layoutAction(doc,ids,mode,precision.margin));}catch(e){setError(e.message);}}}/>}
+      {tab === "Backgrounds" && <>
+        <label className="editor-field">Canvas color<input type="color" value={doc.canvas.background} onChange={e=>apply({...doc,canvas:{...doc.canvas,background:e.target.value,fillEffect:null,transparent:false}})}/></label>
+        <label className="editor-check"><input type="checkbox" checked={!!doc.canvas.transparent} onChange={e=>apply({...doc,canvas:{...doc.canvas,transparent:e.target.checked}})}/>Transparent background</label>
+        <FillControls value={doc.canvas.fillEffect} onChange={fillEffect=>apply({...doc,canvas:{...doc.canvas,fillEffect,transparent:false}})}/>
+        <p className="editor-small">PNG preserves transparency. JPG and PDF use a white backdrop. For a photo background, add a photo, fit it to the page and send it behind other layers.</p>
+      </>}
       {tab === "Layers" && (
         <>
           <p>
@@ -1274,7 +1253,7 @@ export default function Editor() {
             key={tool.id}
             title={tool.hint}
             aria-label={tool.id}
-            aria-pressed={tab === tool.id && !preview}
+            aria-pressed={toolGroup(tab)?.id === tool.id && !preview}
             onClick={() => openTool(tool.id)}
           >
             <StudioIcon name={tool.icon} />
@@ -1394,11 +1373,16 @@ export default function Editor() {
           </div>
         )}
 
-        {!preview && <SelectionControls {...selectionProps} compact />}
+        {!preview && <div className="precision-bar"><SelectionControls {...selectionProps} compact/><button className="guides-toggle" aria-pressed={precision.show} onClick={()=>setPrecision(v=>({...v,show:!v.show}))}>Guides {precision.show?'on':'off'}</button>{tab==='Drawing'&&<button className="guides-toggle" onClick={()=>setMobile('')}>Draw on canvas</button>}</div>}
         <div className="editor-viewport" ref={viewport}>
           <div className="canvas-centering">
             <DesignCanvas
               doc={doc}
+              drawing={tab==='Drawing'&&!preview?drawingSettings:null}
+              precision={precision}
+              motionPreview={motionPreview}
+              onStroke={stroke=>{if(apply(addElement({...latest.current,schemaVersion:latest.current.pages?3:2},stroke)))setSelectedIds([stroke.id]);}}
+              onErase={ids=>apply(deleteSelection(latest.current,ids))}
               comparisonId={comparePhotoId===selected?comparePhotoId:null}
               selectedIds={liveSelection}
               select={selectObject}
