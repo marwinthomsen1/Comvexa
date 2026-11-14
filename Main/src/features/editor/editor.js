@@ -865,8 +865,8 @@ export default function Editor() {
           if(cropId){setError("Apply or cancel the crop before opening a template.");return;}
           let document;
           if(multi){const {generateMultiPageTemplate}=await import("@/lib/templates/multipage");document=await generateMultiPageTemplate(templateId);}
-          else{const [{generateCurated},{curatedAssets},{browserMeasure}]=await Promise.all([import("@/lib/templates/curated-generate"),import("@/lib/templates/curated-assets"),import("@/lib/templates/fitting")]);document=generateCurated(templateId,await curatedAssets(templateId),browserMeasure);}
-          const nextId=crypto.randomUUID();await designStore.save(nextId,document,0);await navigateSafely(`/editor/${nextId}`);
+          else{const {createTemplateDocument}=await import("@/lib/templates/open-template");document=await createTemplateDocument(templateId);}
+          const nextId=crypto.randomUUID();await designStore.save(nextId,document,0);const {rememberTemplate}=await import("@/lib/templates/open-template");rememberTemplate(templateId);await navigateSafely(`/editor/${nextId}`);
         }catch(e){setError(e.message);}
       }}/>}
       {tab === "Uploads" && (

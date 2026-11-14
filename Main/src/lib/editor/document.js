@@ -12,6 +12,7 @@ export const PRESETS = {
   facebook: [1200, 630, "Facebook Post"],
   a4: [2480, 3508, "A4 Portrait · 300 ppi"],
   a4landscape: [3508, 2480, "A4 Landscape · 300 ppi"],
+  letter: [2550, 3300, "US Letter · 300 ppi"],
 };
 export const FONTS = FONT_NAMES;
 export const MAX_BYTES = 20 * 1024 * 1024;

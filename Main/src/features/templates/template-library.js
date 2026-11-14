@@ -3,7 +3,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import metadata from "@/lib/templates/curated-metadata.json";
+import metadata, {templateThumbnail} from "@/lib/templates/library-metadata";
+import {createTemplateDocument, rememberTemplate} from "@/lib/templates/open-template";
 import { discoverTemplates } from "@/lib/templates/discovery";
 import { StudioIcon } from "@/components/ui/studio-icon";
 import {multiPageTemplates,generateMultiPageTemplate} from "@/lib/templates/multipage";
@@ -23,10 +24,15 @@ export default function TemplateLibrary() {
     [limit, setLimit] = useState(24);
   const items = useMemo(() => discoverTemplates({query, category, ratio, style}), [query, category, ratio, style]);
   useEffect(() => {
+    function sync(){const params=new URLSearchParams(window.location.search);setCategory(params.get('category')?.split(',').every(id=>categories.some(c=>c[0]===id))?params.get('category'):'All');setQuery(params.get('q')||'');setLimit(24);}
+    sync();window.addEventListener('popstate',sync);return()=>window.removeEventListener('popstate',sync);
+  }, []);
+  useEffect(() => {
     if (selected) dialog.current?.showModal();
   }, [selected]);
   function filter(set, value) {
     set(value);
+    if(set===setCategory){const url=new URL(window.location.href);value==='All'?url.searchParams.delete('category'):url.searchParams.set('category',value);window.history.replaceState(null,'',url);}
     setLimit(24);
   }
   async function start(t) {
@@ -34,25 +40,10 @@ export default function TemplateLibrary() {
     setBusy(t.id);
     setError("");
     try {
-      await document.fonts.ready;
-      const [
-        { generateCurated },
-        { curatedAssets },
-        { browserMeasure },
-        { designStore },
-      ] = await Promise.all([
-        import("@/lib/templates/curated-generate"),
-        import("@/lib/templates/curated-assets"),
-        import("@/lib/templates/fitting"),
-        import("@/lib/editor/store"),
-      ]);
-      const doc = generateCurated(
-          t.id,
-          await curatedAssets(t.id),
-          browserMeasure,
-        ),
-        id = crypto.randomUUID();
+      const {designStore}=await import("@/lib/editor/store");
+      const doc=await createTemplateDocument(t.id), id=crypto.randomUUID();
       await designStore.save(id, doc, 0);
+      rememberTemplate(t.id);
       router.push(`/editor/${id}`);
     } catch (e) {
       setError(e.message);
@@ -65,24 +56,25 @@ export default function TemplateLibrary() {
     setRatio("All");
     setStyle("All");
     setLimit(24);
+    window.history.replaceState(null,"",window.location.pathname);
   }
   return (
     <section className="templates-page curated-library">
       <div className="curated-heading">
         <div>
-          <span className="eyebrow">THE COMVEXA COLLECTION / VOLUME 01</span>
+          <span className="eyebrow">THE COMVEXA COLLECTION</span>
           <h1>
-            Good design.
+            Your next idea.
             <br />
             <em>A great beginning.</em>
           </h1>
           <p>
-            100 original compositions for everyday ideas and extraordinary
+            {templates.length} original compositions for everyday ideas and extraordinary
             moments. Pick your starting point. Make every detail yours.
           </p>
         </div>
         <div className="curated-heading-aside">
-          <span className="collection-number">100</span>
+          <span className="collection-number">{templates.length}</span>
           <span>
             COMPOSITIONS
             <br />
@@ -100,7 +92,7 @@ export default function TemplateLibrary() {
           aria-pressed={category === "All"}
           onClick={() => filter(setCategory, "All")}
         >
-          All designs <span>100</span>
+          All designs <span>{templates.length}</span>
         </button>
         {categories.map(([id, name, count]) => (
           <button
@@ -122,7 +114,7 @@ export default function TemplateLibrary() {
             type="search"
             value={query}
             onChange={(e) => filter(setQuery, e.target.value)}
-            placeholder="Try wedding, editorial, coffee or bold…"
+            placeholder="Try resume, pitch deck, wedding or editorial…"
           />
         </label>
         <label>
@@ -164,7 +156,7 @@ export default function TemplateLibrary() {
             target="_blank"
             rel="noreferrer"
           >
-            View all 100 ↗
+            Original collection ↗
           </a>
         </div>
       </div>
@@ -179,14 +171,15 @@ export default function TemplateLibrary() {
           <article className="curated-card" key={t.id}>
             <button
               className="curated-artwork"
-              aria-label={`Use ${t.name}`}
-              onClick={() => start(t)}
+              aria-label={`Preview ${t.name}`}
+              onClick={() => setSelected(t)}
+              disabled={!!busy}
               style={{
                 aspectRatio: `${sizes[t.ratio].width}/${sizes[t.ratio].height}`,
               }}
             >
               <Image
-                src={`/images/templates/${t.id}.webp`}
+                src={templateThumbnail(t)}
                 alt={`${t.name}, ${t.style} editable ${sizes[t.ratio].label}`}
                 width={480}
                 height={Math.round(
@@ -197,7 +190,7 @@ export default function TemplateLibrary() {
               />
               <span className="curated-card-overlay">
                 <StudioIcon name="eye" size={16} />
-                Use template
+                Preview template
               </span>
             </button>
             <div className="curated-card-copy">
@@ -236,6 +229,7 @@ export default function TemplateLibrary() {
         <dialog
           ref={dialog}
           className="template-preview-dialog curated-dialog"
+          onClose={() => setSelected(null)}
           onCancel={() => setSelected(null)}
           onClick={(e) => {
             if (e.target === dialog.current) setSelected(null);
@@ -249,7 +243,7 @@ export default function TemplateLibrary() {
             <StudioIcon name="close" />
           </button>
           <Image
-            src={`/images/templates/${selected.id}.webp`}
+            src={templateThumbnail(selected)}
             alt={selected.name}
             width={480}
             height={Math.round(
@@ -259,10 +253,12 @@ export default function TemplateLibrary() {
             className="curated-large-preview"
           />
           <div>
+            {selected.pageCount>1&&<div className="deck-preview-strip">{Array.from({length:selected.pageCount},(_,i)=><Image key={i} src={`/images/templates/${selected.id}${i?`-page-${i+1}`:''}.svg`} alt={`Page ${i+1}`} width={240} height={135} loading="lazy"/>)}</div>}
             <span className="eyebrow">
               {selected.style} / {sizes[selected.ratio].label}
             </span>
             <h2>{selected.name}</h2>
+            <p>{selected.pageCount || 1} editable {(selected.pageCount || 1)===1?'page':'pages'}</p>
             {error && <p role="alert">{error}</p>}
             <p>{selected.description}</p>
             <p>
@@ -284,7 +280,7 @@ export default function TemplateLibrary() {
             </button>
             <p>
               Saved in this browser. Standard PNG/JPG exports have no watermark.
-              No cloud backup.
+              No cloud backup. PDF exports use images; text is not selectable. PPTX export is not supported.
             </p>
           </div>
         </dialog>

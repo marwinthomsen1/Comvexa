@@ -1,0 +1,81 @@
+import {newDesign,makeElement,validateDocument} from '../editor/document.js';
+import {fitText} from './fitting.js';
+import {resumePlans,presentationPlans,printPlans,collagePlans} from './expansion-catalog.js';
+const ink='#202c38',muted='#506070',accent='#244e61',paper='#ffffff';
+const titles={profile:'PROFILE',experience:'EXPERIENCE',education:'EDUCATION',skills:'SKILLS',projects:'SELECTED PROJECTS',languages:'LANGUAGES'};
+const content={
+ profile:'Thoughtful professional who turns complex challenges into clear, useful outcomes. Brings a collaborative approach, careful research and a commitment to quality.',
+ experience:'Project Coordinator · Northstar Studio\n2023–Present\nLed cross-functional planning for six client projects. Introduced a weekly review that reduced handoff delays by 20%.\n\nProject Assistant · Alder Works\n2021–2023\nCoordinated schedules, documented decisions and supported the delivery of a new customer service program.',
+ education:'BA, Business & Communication\nWestbridge College · 2017–2021\nCapstone: accessible services for local communities.',
+ skills:'Project planning\nResearch & analysis\nStakeholder communication\nDocumentation\nPresentation design\nTeam collaboration',
+ projects:'Community service redesign\nMapped customer journeys and tested clearer information with a small research group.\n\nKnowledge library\nBuilt a shared guide to make team onboarding easier.',
+ languages:'English · Fluent\nSpanish · Working proficiency\n\nAdapt language levels and location details to the role.'
+};
+function painter(width,height){const doc=newDesign('Template',width,height);doc.canvas.background=paper;let seq=0;
+ const shape=(x,y,w,h,fill)=>doc.elements.push({...makeElement('rect',`element-${++seq}`),x,y,width:w,height:h,fill,cornerRadius:0});
+ const text=(value,x,y,w,h,size=14,font='Arial',color=ink,bold=false,align='left')=>{const fit=fitText(value,{width:w*.96,height:h*.96},{font,weight:bold?'bold':'normal',max:size,min:Math.min(size,12),lineHeight:1.3});if(fit.overflow)throw Error(`Text exceeds template box: ${value.slice(0,45)}`);doc.elements.push({...makeElement('text',`element-${++seq}`),x,y,width:w,height:h,text:fit.text,fontSize:fit.fontSize,fontFamily:font,fontWeight:bold?'bold':'normal',fill:color,align,lineHeight:1.3});};
+ return {doc,shape,text};}
+function resume(t){const p=painter(794,1123),{doc,shape,text}=p;doc.name=t.name;const h=t.header;
+ if(h==='band')shape(0,0,794,174,'#eaf0f3');
+ if(h==='left')shape(24,192,230,862,'#edf2f3');
+ if(h==='right')shape(524,192,246,862,'#edf2f3');
+ if(h==='display'){shape(0,0,16,1123,accent);shape(48,215,698,3,accent);}
+ if(h==='rule'||h==='serif')shape(48,157,698,h==='serif'?1:3,accent);
+ if(h==='split'){shape(48,38,4,112,accent);shape(420,45,326,2,accent);}
+ const serif=['serif','split'].includes(h),compact=h==='compact',display=h==='display';
+ text('ALEX MORGAN',h==='split'?68:48,compact?34:44,h==='split'?332:698,display?80:53,display?48:34,serif?'Georgia':'Arial',ink,true);
+ text(t.style==='Student & Fresh Graduate'?'Graduate · Research & Communication':t.style==='Executive'?'Strategy & Operations Leader':t.style==='Creative'?'Design & Creative Operations':'Project & Operations Professional',h==='split'?68:48,display?134:104,h==='split'?332:698,34,15,'Arial',accent);
+ text('alex.morgan@example.com\n+1 202-555-0147 · Westbridge',h==='split'?440:48,h==='split'?65:display?172:compact?110:138,h==='split'?300:698,h==='split'?65:34,12,'Arial',muted);
+ for(const {kind,box:[x,y,w,h]} of t.sections){const group=`section-${kind}`;const from=doc.elements.length;
+ text(titles[kind],x,y,w,26,13,'Arial',accent,true);if(!t.style.startsWith('ATS'))shape(x,y+30,w,1,'#ced8de');
+ let body=content[kind];if(t.style==='Executive'&&kind==='experience')body='Operations Director · Northstar Studio\n2022–Present\nLed a 24-person team across service delivery and planning. Improved project margins by 12% through clearer ownership and quarterly resource reviews.\n\nStrategy Manager · Alder Works\n2018–2022\nDeveloped a three-year service roadmap and introduced a leadership review process.';if(kind==='languages'&&h<150)body='English · Fluent    /    Spanish · Working proficiency';if(kind==='skills'&&w>500)body=body.replaceAll('\n',' · ');if(w<240&&kind==='projects')body='Community service redesign\nResearch, journey mapping and usability review.\n\nKnowledge library\nAn onboarding guide for a growing team.';
+ if(t.style==='Student & Fresh Graduate'&&kind==='experience')body='Research Intern · Alder Works\nSummer 2024\nOrganized interview notes and helped prepare a community research report.\n\nStudent Volunteer · Campus Collective\n2023–2024\nPlanned workshops and coordinated student communications.';
+ text(body,x,y+43,w,h-43,kind==='experience'?15:14,kind==='profile'&&serif?'Georgia':'Arial');
+ doc.elements.slice(from).forEach(e=>e.groupId=group);
+ }
+ return doc;}
+const deckCopy=[
+ ['Understand the starting point','Summarize the situation in one clear sentence.','Context','Explain what matters to your audience and why this is the right time to act.','Opportunity','Describe the gap you can address with a focused, practical approach.'],
+ ['Make the idea tangible','Show the approach, then explain the value.','Approach','Start small, learn from feedback and refine the experience with your team.','Value','Connect your proposed work to a useful, measurable outcome.'],
+ ['Turn the plan into progress','Make the next steps easy to understand.','01 · Discover','Listen, research and define the most important challenge.','02 · Deliver','Build, review and share the result. Track what changes.']
+];
+function deck(t){const pages=[];
+ for(let i=0;i<5;i++){const {doc,shape,text}=painter(1600,900);const dark=i===0||i===4;doc.canvas.background=dark?ink:paper;const fg=dark?paper:ink;
+ const editorial=t.index===5,school=t.index===2,product=t.index===6;
+ if(dark){shape(editorial?1130:1100,0,editorial?470:500,900,accent);if(school)shape(1120,140,320,620,'#d8e6cd');if(product)shape(1050,160,400,580,'#c3d8e1');}
+ else {shape(72,73,60,5,accent);shape(72,815,1456,1,'#d5dfe5');}
+ text(t.name.toUpperCase(),72,55,900,42,19,'Arial',dark?'#ccdce5':muted,true);
+ if(i===0){text(t.title,72,200,930,330,76,editorial?'Georgia':'Arial',fg,true);text('Prepared by Alex Morgan\nNovember 2026 · Fictional example',72,680,850,100,25,'Arial','#ccdce5');text('01',1170,620,300,180,130,'Georgia',paper);}
+ else if(i===4){text('Let’s move\nforward.',72,210,1000,300,90,editorial?'Georgia':'Arial',fg,true);text('Questions, feedback & next steps\nalex.morgan@example.com',72,650,960,120,28,'Arial','#ccdce5');}
+ else {const c=deckCopy[i-1];text(t.topics[i-1],72,135,1450,110,60,editorial?'Georgia':'Arial',ink,true);text(c[1],72,270,1350,75,28,'Arial',muted);
+ if(t.index===1&&i===2){shape(72,390,440,340,'#eaf0f3');text('THE SOLUTION',102,425,380,50,23,'Arial',accent,true);text('One clear experience.\nLess friction.\nMore useful outcomes.',102,505,370,180,31);text(c[2],610,390,850,70,36,'Arial',accent,true);text(c[3],610,490,850,190,30);}
+ else if((t.index+i)%3===0){for(let j=0;j<3;j++){const x=72+j*496;shape(x,395,460,310,'#edf2f3');text(`0${j+1}`,x+28,420,390,65,40,'Georgia',accent);text([c[2],c[4],'Next step'][j],x+28,505,390,70,28,'Arial',ink,true);text(['Define the goal.','Share the evidence.','Agree on an action.'][j],x+28,610,390,60,23);}}
+ else {const reverse=t.index%2===1;const x=reverse?840:72,z=reverse?72:840;shape(x,390,680,350,'#edf2f3');text(c[2],x+32,425,610,80,36,'Arial',accent,true);text(c[3],x+32,530,610,170,29);text(c[4],z,425,650,80,36,'Arial',accent,true);text(c[5],z,530,650,170,29);}
+ text(c[0],72,760,1300,40,18,'Arial',muted);}
+ text(String(i+1).padStart(2,'0'),1430,825,100,35,18,'Arial',dark?paper:muted,false,'right');
+ // Prefix IDs so a five-slide set has globally unique editable elements.
+ doc.elements.forEach(e=>e.id=`slide-${i+1}-${e.id}`);pages.push({id:`slide-${i+1}`,name:i===0?'Cover':i===4?'Next steps':t.topics[i-1],canvas:doc.canvas,elements:doc.elements});}
+ return {name:t.name,pages,assets:{}};}
+function printDocument(t){const pages=[];for(let i=0;i<t.pageCount;i++){
+ const landscape=t.ratio==='print-landscape',card=t.ratio==='card',w=card?700:landscape?1123:794,h=card?400:landscape?794:1123;
+ const {doc,shape,text}=painter(w,h);doc.name=t.name;
+ const heading=(title,subtitle)=>{text(title,48,56,w-96,130,card?34:40,'Georgia',ink,true);text(subtitle,48,192,w-96,90,16,'Arial',muted);shape(48,300,w-96,2,accent);};
+ switch(t.id){
+ case 'print-business-card':if(i===0){shape(0,0,22,h,accent);text('ALDER\nSTUDIO',55,64,580,160,54,'Georgia',ink,true);text('Considered design for everyday life.',55,290,580,50,18);}else{shape(0,0,w,h,ink);text('Alex Morgan',48,60,600,70,38,'Georgia',paper);text('Design & Strategy\nalex.morgan@example.com\n+1 202-555-0147',48,170,600,160,22,'Arial','#d7e2e8');}break;
+ case 'print-certificate':shape(24,24,w-48,4,accent);shape(24,h-28,w-48,4,accent);text('CERTIFICATE OF ACHIEVEMENT',80,100,w-160,70,34,'Arial',accent,true,'center');text('Awarded to',80,250,w-160,50,23,'Georgia',muted,false,'center');text('Alex Morgan',80,320,w-160,100,68,'Georgia',ink,false,'center');text('For thoughtful work and dedication to the Community Design Program.',160,465,w-320,90,25,'Georgia',ink,false,'center');text('12 November 2026\nProgram director · Signature',80,650,w-160,80,19,'Arial',muted,false,'center');break;
+ case 'print-weekly-planner':heading('Make room for what matters.','WEEK OF: __________________     /     ONE PRIORITY: __________________');for(let j=0;j<7;j++){const x=j<5?48:420,y=j<5?340+j*128:340+(j-5)*205,bw=j<5?330:326; text(['MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY','SUNDAY'][j],x,y,bw,25,13,'Arial',accent,true);for(let k=0;k<3;k++)shape(x,y+44+k*23,bw,1,'#d8e0e4');}text('NOTES & SMALL WINS',420,800,326,35,14,'Arial',accent,true);break;
+ case 'print-calendar':text('JANUARY',48,48,800,100,66,'Georgia',ink);text('2027',850,65,220,80,38,'Arial',accent,true,'right');for(let j=0;j<7;j++)text(['MON','TUE','WED','THU','FRI','SAT','SUN'][j],48+j*147,190,130,35,17,'Arial',muted,true);for(let d=1;d<=31;d++){const slot=d+3,x=48+(slot%7)*147,y=260+Math.floor(slot/7)*88;shape(x,y-10,130,1,'#d8e0e4');text(String(d),x,y,130,60,24);}break;
+ case 'print-menu':heading('GATHER','SEASONAL KITCHEN / ALL DAY MENU');[['TO BEGIN','Garden salad · 12\nRoasted tomato soup · 10\nSourdough & cultured butter · 7'],['FROM THE KITCHEN','Herb-roasted vegetables · 22\nLemon chicken & grains · 26\nWild mushroom pasta · 24'],['SOMETHING SWEET','Citrus olive oil cake · 9\nChocolate tart · 10']].forEach(([title,body],j)=>{text(title,48,350+j*205,698,35,16,'Arial',accent,true);text(body,48,405+j*205,698,140,22,'Georgia');});text('Please ask our team about ingredients and allergens.',48,1040,698,35,14,'Arial',muted);break;
+ case 'print-letter':text('ALDER STUDIO',48,48,698,70,36,'Georgia',ink,true);text('alex.morgan@example.com · Westbridge',48,130,698,35,15,'Arial',muted);shape(48,200,698,2,accent);text('14 November 2026\n\nDear Alex,',48,250,698,150,18);text('Thank you for sharing your ideas with us. We are pleased to outline the next steps for our upcoming collaboration.\n\nOur team will prepare a project brief, confirm the schedule and arrange an introductory workshop. Please review the enclosed details and share any questions before we begin.\n\nWe look forward to creating something useful together.\n\nKind regards,\nAlex Morgan\nStudio Director',48,440,698,540,19,'Georgia');break;
+ case 'print-checklist':heading('Ready for launch.','PROJECT: __________________       OWNER: __________________');['Confirm the brief and success measures','Review the content and visual assets','Check links, contact details and permissions','Collect feedback from stakeholders','Confirm the release schedule','Prepare handover notes','Publish when approval is complete','Review results and record lessons'].forEach((v,j)=>{shape(48,350+j*75,20,20,'#e3ebef');text(v,88,345+j*75,658,60,19);});break;
+ case 'print-program':heading(i?'A good evening, together.':'Community Design Evening',i?'THE RUN OF SHOW':'FRIDAY 20 NOVEMBER 2026 / WESTBRIDGE HALL');text(i?'18:00 · Doors & welcome\n\n18:30 · Opening conversation\n\n19:00 · Ideas from the community\n\n20:00 · Shared supper\n\n21:00 · Closing remarks':'An evening of ideas, conversation and shared possibilities.\n\nJoin local makers and neighbors for stories about the places we call home.',48,370,698,540,i?25:31,'Georgia');text('Hosted by the fictional Westbridge Collective',48,1030,698,40,14,'Arial',muted);break;
+ default:{const catalog=t.category==='catalogs',portfolio=t.category==='portfolios';heading(i===0?t.name:i===1?(catalog?'Everyday objects':portfolio?'01 / Community identity':'What we can do together'):(catalog?'Materials & details':portfolio?'02 / Information design':'A clear way forward'),i===0?'ALDER STUDIO / SELECTED COLLECTION':catalog?'FORM, FUNCTION & EVERYDAY USE':'STRATEGY / DESIGN / DELIVERY');if(i===0){shape(48,350,698,460,'#e6eef1');text(catalog?'Simple forms.\nUseful things.':portfolio?'Ideas made\nclear.':'Good work begins\nwith a conversation.',85,420,620,260,50,'Georgia');text('A considered collection from our fictional independent studio.',48,900,698,130,22);}else{for(let j=0;j<2;j++){const y=350+j*290;shape(48,y,230,230,j?'#dde7e1':'#e8e0d5');text(catalog?(j?'Stoneware vessel':'Oak desk tray'):portfolio?(j?'The outcome':'The challenge'):(j?'02 / Build & deliver':'01 / Research & define'),320,y+8,426,85,27,'Georgia',ink,true);text(catalog?(j?'Hand-finished ceramic\nWarm white · $42':'Solid oak, natural finish\nSmall collection · $36'):portfolio?'A clear visual system that makes everyday information easier to find and use.':'A focused process that turns research into a practical, carefully designed result.',320,y+115,426,140,18);}}}}
+ doc.elements.forEach(e=>e.id=`print-${i}-${e.id}`);pages.push({id:`print-page-${i}`,name:i===0?'Front':`Page ${i+1}`,canvas:doc.canvas,elements:doc.elements});}
+ return {name:t.name,pages,assets:{}};}
+function collage(t,assets){const {doc,shape,text}=painter(794,1123);text(t.name,48,45,698,t.id==='collage-birthday'?175:90,t.id==='collage-birthday'?55:38,'Georgia',ink,true);const asset=assets.travel;if(!asset)throw Error('Collage example photo could not load. Retry.');doc.assets={travel:asset};
+ for(const [index,[x,y,w,h]] of t.frames.entries()){if(['collage-polaroid','collage-scrapbook'].includes(t.id))shape(x-10,y-10,w+20,h+45,'#eee9e0');const ratio=w/h,source=asset.width/asset.height,crop=source>ratio?{x:(1-ratio/source)/2,y:0,width:ratio/source,height:1}:{x:0,y:(1-source/ratio)/2,width:1,height:source/ratio};doc.elements.push({...makeElement('image',`photo-${index}`),x,y,width:w,height:h,assetId:'travel',crop});}
+ text('MOMENTS WORTH KEEPING / REPLACE EACH PHOTO WITH YOUR OWN',48,1045,698,35,12,'Arial',muted);return {name:t.name,pages:[{id:'collage-page',name:'Photo collage',canvas:doc.canvas,elements:doc.elements}],assets:doc.assets};}
+export function generateExpansion(id,assets={}){const r=resumePlans.find(t=>t.id===id),d=presentationPlans.find(t=>t.id===id),p=printPlans.find(t=>t.id===id),c=collagePlans.find(t=>t.id===id);let result;if(r){const doc=resume(r);result={name:doc.name,pages:[{id:'page-1',name:'Resume',canvas:doc.canvas,elements:doc.elements}],assets:doc.assets};}else if(d)result=deck(d);else if(p)result=printDocument(p);else if(c)result=collage(c,assets);else throw Error('Unknown expansion template.');
+ // Print pages use 300 ppi. Ratios match ISO A4, with rounding under one pixel.
+ if(!d)for(const page of result.pages){const source=page.canvas.width,target=p?.ratio==='card'?1050:source>1000?3508:2480,scale=target/source;page.canvas={...page.canvas,width:target,height:p?.ratio==='card'?600:source>1000?2480:3508};page.elements=page.elements.map(e=>({...e,x:e.x*scale,y:e.y*scale,width:e.width*scale,height:e.height*scale,...(e.type==='text'?{fontSize:e.fontSize*scale}:{}),...(['rect','ellipse'].includes(e.type)?{strokeWidth:e.strokeWidth*scale,cornerRadius:e.cornerRadius*scale}:{})}));}
+ const first=result.pages[0];return validateDocument({...newDesign(result.name),...result,schemaVersion:3,pageVersion:1,activePageId:first.id,canvas:first.canvas,elements:first.elements});}

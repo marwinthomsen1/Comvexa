@@ -1,0 +1,8 @@
+import curated from './curated-metadata.json' with {type:'json'};
+import {expansionTemplates} from './expansion-catalog.js';
+const labels=[['resumes','CVs & Resumes'],['presentations','Presentations'],['social','Social Media'],['posters','Posters & Flyers'],['business','Business & Marketing'],['events','Invitations & Events'],['business-cards','Business Cards'],['certificates','Certificates'],['food','Restaurant Menus'],['brochures','Brochures'],['catalogs','Product Catalogs'],['portfolios','Portfolios'],['planners','Planners & Calendars'],['personal','Education'],['collages','Photo Collages'],['travel','Travel & Tourism'],['fashion','Fashion & Beauty'],['motors','Cars & Motorcycles'],['property','Real Estate'],['other','Other Creative Designs']];
+// Keep original IDs and recipes; only discovery classification changes.
+const templates=[...expansionTemplates,...curated.templates.map(t=>({...t,category:['poster','flyer'].includes(t.ratio)?'posters':t.category,pageCount:1}))];
+const sizes={...curated.sizes,'resume-a4':{width:2480,height:3508,label:'A4 portrait · 300 ppi'},letter:{width:2550,height:3300,label:'US Letter'},card:{width:1050,height:600,label:'Business card · 3.5 × 2 in'},'print-landscape':{width:3508,height:2480,label:'A4 landscape · 300 ppi'},slides:{width:1600,height:900,label:'Presentation · 16:9'}};
+export default {templates,sizes,categories:labels.map(([id,name])=>[id,name,templates.filter(t=>t.category===id).length])};
+export const templateThumbnail=t=>`/images/templates/${t.id}.${expansionTemplates.some(v=>v.id===t.id)&&!t.id.startsWith('collage-')?'svg':'webp'}`;
