@@ -66,6 +66,8 @@ export function pasteSelection(
       locked: false,
       ...(e.groupId ? { groupId: groups.get(e.groupId) } : {}),
       ...(e.assetId ? { assetId: assetIds.get(e.assetId) } : {}),
+      ...(e.photoOriginalAssetId?{photoOriginalAssetId:assetIds.get(e.photoOriginalAssetId)}:{}),
+      ...(e.photoCutoutAssetId?{photoCutoutAssetId:assetIds.get(e.photoCutoutAssetId)}:{}),
     };
   });
   const document = validateDocument({

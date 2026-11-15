@@ -28,6 +28,7 @@ import { ensureDocumentFonts } from "@/lib/typography/fonts";
 import ElementLibrary from "./element-library";
 import TextLibrary from "./text-library";
 import TemplatePicker from "./template-picker";
+import CreativeTools from "@/features/premium/creative-tools";
 import VideoPanel from '@/features/video/video-panel';
 import UploadsPanel from '@/features/video/uploads-panel';
 import VideoTimeline from '@/features/video/timeline';
@@ -75,6 +76,7 @@ import { readWorkspace } from "@/lib/workspace/local-store";
 import { PROJECT_SIZES } from "@/lib/workspace/validation";
 import "./editor.css";
 import "@/features/video/video.css";
+import "@/features/premium/premium.css";
 import "@/features/connected/connected.css";
 import { ConnectionPanel } from "@/features/connected/connection-panel";
 import { subscribeChanges } from "@/lib/connected/store";
@@ -141,6 +143,7 @@ export default function Editor() {
     () => selectedIds.filter((id) => doc?.elements.some((e) => e.id === id)),
     [selectedIds, doc?.elements],
   );
+  const [photoRequest,setPhotoRequest]=useState(null);
   const [compactTools,setCompactTools]=useState(false);
   const initialVideoMode=useRef(false);
   const [videoTime,setVideoTime]=useState(0),[videoPreview,setVideoPreview]=useState(false),[videoClip,setVideoClip]=useState(null),[videoSection,setVideoSection]=useState(false);
@@ -871,6 +874,7 @@ export default function Editor() {
       <div className="panel-eyebrow">YOUR CREATIVE TOOLKIT</div>
       <h2>{tab==="Resize"?"Resize & create":tab==='Precision'?'Position & guides':tab}</h2>
       {(toolGroup(tab)?.tabs.length||0)>1&&<div className="tool-subnav" role="group" aria-label={`${toolGroup(tab).id} tools`}>{toolGroup(tab).tabs.map(id=><button key={id} aria-pressed={tab===id} onClick={()=>{setTab(id);setCropId(null);setEditId(null);}}>{id==='Resize'?'Resize & styles':id==='Precision'?'Precision':id}</button>)}</div>}
+      {tab==='Creative Tools'&&<CreativeTools doc={doc} element={element} selectedIds={selectedIds} onApply={(next,base)=>{if(latest.current!==base){setError('The design changed. Preview the operation again.');return false;}return apply(next);}} onSelect={id=>{setSelected(id);setVideoPreview(false);setPanel('selection');}} onOpen={nextId=>navigateSafely('/editor/'+nextId)} onError={setError} onTool={kind=>{if(kind==='layout'){openTool('Precision');return;}if(!element||(kind.startsWith('photo')?element.type!=='image':element.type!=='text')){setError(`Select a ${kind.startsWith('photo')?'photo':'text'} layer first.`);return;}if(kind.startsWith('photo'))setPhotoRequest({section:kind==='photo-effects'?'effects':'adjust',token:Date.now()});openPanel();}}/>}
       {tab==='Drawing'&&<DrawingTools settings={drawingSettings} onChange={setDrawingSettings} onDone={()=>{setTab('Elements');setMobile('');}}/>}
       {tab==='Precision'&&<><PrecisionTools value={precision} onChange={setPrecision} doc={doc}/><div className="layout-shortcuts">{[['center','Center Everything'],['align','Align Selection'],['distribute','Distribute Evenly'],['tidy','Tidy Layout'],['fit','Fit to Page']].map(([action,label])=><button key={action} onClick={()=>{try{apply(layoutAction(doc,action==='center'?[]:selectedIds,action,precision.margin));}catch(e){setError(e.message);}}}>{label}</button>)}</div><p className="editor-small">Layout actions use the selection, or all unlocked objects. Tidy stacks groups vertically with equal gaps; Fit preserves proportions.</p></>}
       {tab==='Animate'&&<AnimationTools video={!!doc.video} doc={doc} element={element} onPatch={patch=>change(element.id,patch)} onCanvas={patch=>apply({...doc,canvas:{...doc.canvas,...patch}})} onPlay={()=>{setTab('Animate');setEditId(null);setCropId(null);setMobile('');if(doc.video){setVideoPreview(true);setVideoTime(0);}else setMotionPreview(n=>n+1);}}/>}
@@ -1101,6 +1105,7 @@ export default function Editor() {
       />
     ) : (
       <PropertiesPanel
+        photoRequest={photoRequest}
         element={element}
         onPaste={() => selectionAction("paste")}
         doc={doc}

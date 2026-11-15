@@ -698,7 +698,7 @@ export default function DesignCanvas({
                 <Element
                   key={e.id}
                   element={e.id===comparisonId?{...e,photoStyle:undefined}:e}
-                  asset={doc.assets[e.assetId]}
+                  asset={doc.assets[e.id===comparisonId?(e.photoOriginalAssetId||e.assetId):e.assetId]}
                   canDrag={
                     !playing && !drawing && !cropping && editableIds(doc, [e.id]).includes(e.id) && !multiSelect
                   }

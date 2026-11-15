@@ -1,0 +1,28 @@
+{
+  "brandKitRestored": true,
+  "logoRestored": true,
+  "backgroundWorkerPassed": true,
+  "pngCornerAlpha": 0,
+  "pngCenterRGBA": [
+    40,
+    90,
+    150,
+    255
+  ],
+  "sourcePhotoPreserved": true,
+  "bulkRows": 2,
+  "sourceDesignUnchanged": true,
+  "exportedFiles": [
+    "01-Blue Mug.png",
+    "02-Green Bottle.png"
+  ],
+  "pngDimensions": [
+    320,
+    180
+  ],
+  "pngPixelHashes": [
+    967297917,
+    3098327706
+  ],
+  "exportBytes": 12626
+}

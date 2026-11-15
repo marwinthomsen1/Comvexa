@@ -1,5 +1,6 @@
 "use client";
-import {useRef} from "react";
+import {useRef,useState} from "react";
+import PhotoBackgroundPanel from "@/features/premium/photo-background-panel";
 import VideoDownload from "@/features/video/video-download";
 import PhotoControls from "./photo-controls";
 import FillControls from './fill-controls';
@@ -189,6 +190,7 @@ export function ExportPanel({
   );
 }
 export function PropertiesPanel({
+  photoRequest,
   element,
   connectionPanel,
   doc,
@@ -208,6 +210,7 @@ export function PropertiesPanel({
   onPaste,
 }) {
   const more = useRef(null);
+  const [photoBackground,setPhotoBackground]=useState(false),[backgroundError,setBackgroundError]=useState('');
   if (!element)
     return (
       <>
@@ -257,7 +260,9 @@ export function PropertiesPanel({
         )}
         {element.drawing&&<details className="studio-details" open><summary>Stroke appearance</summary><label className="editor-field">Brush<select value={element.drawing.brush} onChange={e=>prop('drawing',{...element.drawing,brush:e.target.value})}>{BRUSHES.map(b=><option key={b}>{b}</option>)}</select></label><label className="photo-slider">Stroke size<output>{Math.round(element.drawing.weight*element.width)} px</output><input type="range" min="1" max={Math.min(200,element.width*10)} value={Math.min(200,element.drawing.weight*element.width)} onChange={e=>prop('drawing',{...element.drawing,weight:Number(e.target.value)/element.width})}/></label></details>}
         {['rect','ellipse'].includes(element.type)&&!element.drawing&&<FillControls value={element.fillEffect} onChange={fillEffect=>prop('fillEffect',fillEffect)}/>}
-        {element.type === "image" && <PhotoControls onCompare={onCompare} key={element.id} asset={doc.assets[element.assetId]} element={element} onPatch={patch=>change(element.id,patch)} onCrop={onCrop} onReplace={()=>replace.current.click()} onMore={()=>{more.current.open=!more.current.open;more.current.scrollIntoView({block:"nearest"});}}/>}
+        {element.type === "image" && <PhotoControls toolRequest={photoRequest} onBackground={()=>setPhotoBackground(v=>!v)} onCompare={onCompare} key={element.id} asset={doc.assets[element.assetId]} element={element} onPatch={patch=>change(element.id,patch)} onCrop={onCrop} onReplace={()=>replace.current.click()} onMore={()=>{more.current.open=!more.current.open;more.current.scrollIntoView({block:"nearest"});}}/>}
+        {backgroundError&&<p role="alert">{backgroundError}</p>}
+        {element.type==='image'&&photoBackground&&<PhotoBackgroundPanel key={element.id} doc={doc} element={element} onApply={(next,base)=>{if(doc!==base)return false;return apply(next);}} onError={setBackgroundError}/>}
         {element.type==='image'&&!element.groupId&&<button className="subtle-button panel-wide" onClick={()=>{const background={...element,x:0,y:0,width:doc.canvas.width,height:doc.canvas.height,rotation:0,crop:coverCrop(doc.assets[element.assetId],doc.canvas.width,doc.canvas.height),photoFrame:null};apply({...doc,elements:[background,...doc.elements.filter(e=>e.id!==element.id)]});}}>Use photo as background</button>}
         {element.type !== "text" && <label className="photo-slider">Opacity<output>{Math.round(element.opacity*100)}%</output><input type="range" min={0} max={1} step={.01} value={element.opacity} onChange={e=>prop("opacity",Number(e.target.value))}/></label>}
         <details className="studio-details"><summary>Blending</summary><label className="editor-field">Blend mode<select value={element.blendMode||'source-over'} onChange={e=>prop('blendMode',e.target.value)}>{BLEND_MODES.map(mode=><option key={mode} value={mode}>{mode==='source-over'?'Normal':mode[0].toUpperCase()+mode.slice(1)}</option>)}</select></label></details>

@@ -50,7 +50,7 @@ export default function TypographyControls({element:e,onPatch,Field}) {
   </details>
   <details className="studio-details"><summary><StudioIcon name="spark" size={16}/> Effect settings</summary>
 
-   {s.effect==="gradient"&&<><label className="editor-field">Gradient start<input type="color" value={s.gradientFrom} onChange={event=>style("gradientFrom",event.target.value)}/></label><label className="editor-field">Gradient end<input type="color" value={s.gradientTo} onChange={event=>style("gradientTo",event.target.value)}/></label><p>Gradient colors replace the flat text color.</p><Field label="Gradient angle" value={s.gradientAngle} min={0} max={360} onChange={v=>style("gradientAngle",v)}/></>}
+   {["gradient","metallic","chrome","glass"].includes(s.effect)&&<><label className="editor-field">Gradient start<input type="color" value={s.gradientFrom} onChange={event=>style("gradientFrom",event.target.value)}/></label><label className="editor-field">Gradient end<input type="color" value={s.gradientTo} onChange={event=>style("gradientTo",event.target.value)}/></label><p>Gradient colors replace the flat text color.</p><Field label="Gradient angle" value={s.gradientAngle} min={0} max={360} onChange={v=>style("gradientAngle",v)}/></>}
    <label className="editor-field">Outline color<input type="color" value={s.outlineColor} onChange={event=>style("outlineColor",event.target.value)}/></label>
    <Field label="Outline width" value={s.outlineWidth} min={0} max={30} step={.5} onChange={v=>style("outlineWidth",v)}/>
    <label className="editor-field">Shadow / glow color<input type="color" value={s.shadowColor} onChange={event=>style("shadowColor",event.target.value)}/></label>

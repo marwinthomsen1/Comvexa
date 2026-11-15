@@ -218,6 +218,7 @@ export function validateDocument(value) {
         cornerRadius: e.cornerRadius,
       });
     }
+    for(const ref of ['photoOriginalAssetId','photoCutoutAssetId'])if(e[ref]!==undefined&&e[ref]!==null){requireValue(e.type==='image'&&typeof e[ref]==='string'&&!!assets[e[ref]],'Preserved photo source is missing.');out[ref]=e[ref];}
     if(e.timing!==undefined&&e.timing!==null)out.timing=validateTiming(e.timing);
     if(e.textLayout!==undefined&&e.textLayout!==null){requireValue(e.type==='text'&&value.schemaVersion===2,'Text layout requires v2 text.');out.textLayout=validateTextLayout(e.textLayout);}
     if(e.drawing!==undefined){requireValue(value.schemaVersion===2&&e.type==='rect'&&!e.graphicKind,'Drawing requires a v2 stroke.');out.drawing=validateDrawing(e.drawing);}
@@ -295,7 +296,7 @@ export function validateDocument(value) {
     elements,
     assets: Object.fromEntries(
       Object.entries(assets).filter(([id]) =>
-        elements.some((e) => e.assetId === id),
+        elements.some((e) => e.assetId === id || e.photoOriginalAssetId===id || e.photoCutoutAssetId===id),
       ),
     ),
     bindings: [],

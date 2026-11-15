@@ -6,6 +6,6 @@ export const creativeFeatureAvailability={
  backgroundRemoval:{availability:'future-premium',implemented:false},
  automaticSubtitles:{availability:'future-premium',implemented:false},
  aiVideo:{availability:'future-premium',implemented:false},
- brandKits:{availability:'future-premium',implemented:false},
- bulkCreation:{availability:'future-premium',implemented:false},
+ brandKits:{availability:'pro',implemented:true},
+ bulkCreation:{availability:'pro',implemented:true},
 };

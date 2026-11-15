@@ -4,7 +4,7 @@ export const TEXT_STYLE_DEFAULTS = {
  shadowColor:"#241443", shadowBlur:0, shadowOffsetX:0, shadowOffsetY:0, shadowOpacity:0,
  gradientFrom:"#7235ef", gradientTo:"#f43a9b", gradientAngle:0,
 };
-export const TEXT_EFFECTS = ["none","shadow","outline","glow","offset","neon","gradient"];
+export const TEXT_EFFECTS = ["none","shadow","outline","glow","offset","neon","gradient","metallic","chrome","glass","raised"];
 const hex=value=>typeof value==="string"&&/^#[0-9a-f]{6}$/i.test(value);
 export function validateTextStyle(value) {
  if(!value || typeof value!=="object" || Array.isArray(value) || Object.keys(value).some(k=>!Object.hasOwn(TEXT_STYLE_DEFAULTS,k))) throw new Error("Invalid typography style.");
@@ -21,6 +21,10 @@ export function effectStyle(effect, current={}) {
  if(effect==="glow")Object.assign(s,{shadowOpacity:1,shadowBlur:22,shadowColor:"#a242ff"});
  if(effect==="offset")Object.assign(s,{shadowOpacity:1,shadowOffsetX:6,shadowOffsetY:6});
  if(effect==="neon")Object.assign(s,{outlineWidth:1,outlineColor:"#f43a9b",shadowColor:"#f43a9b",shadowOpacity:1,shadowBlur:24});
+ if(effect==='metallic')Object.assign(s,{gradientFrom:'#88622c',gradientTo:'#f2d997',gradientAngle:90,outlineColor:'#72522c',outlineWidth:.6});
+ if(effect==='chrome')Object.assign(s,{gradientFrom:'#263d52',gradientTo:'#dce7ef',gradientAngle:90,outlineColor:'#718494',outlineWidth:1,shadowOpacity:.3,shadowBlur:2,shadowOffsetY:2});
+ if(effect==='glass')Object.assign(s,{gradientFrom:'#bbdef7',gradientTo:'#9b9ed8',gradientAngle:120,outlineColor:'#e4efff',outlineWidth:1,shadowColor:'#294763',shadowOpacity:.25,shadowBlur:8,shadowOffsetY:3});
+ if(effect==='raised')Object.assign(s,{shadowColor:'#352d4c',shadowOpacity:.85,shadowBlur:0,shadowOffsetX:4,shadowOffsetY:5,outlineColor:'#352d4c',outlineWidth:.7});
  return validateTextStyle(s);
 }
 export function textStyleAttributes(e) {
@@ -31,8 +35,8 @@ export function textStyleAttributes(e) {
   textDecoration:s.underline?"underline":"",letterSpacing:s.letterSpacing,
   stroke:s.outlineColor,strokeWidth:s.outlineWidth,fillAfterStrokeEnabled:true,
   shadowColor:s.shadowColor,shadowBlur:s.shadowBlur,shadowOffsetX:s.shadowOffsetX,shadowOffsetY:s.shadowOffsetY,shadowOpacity:s.shadowOpacity,shadowEnabled:s.shadowOpacity>0,shadowForStrokeEnabled:false,
-  fillPriority:s.effect==="gradient"?"linear-gradient":"color",
-  fillLinearGradientStartPoint:{x:e.width/2-dx,y:e.height/2-dy},fillLinearGradientEndPoint:{x:e.width/2+dx,y:e.height/2+dy},fillLinearGradientColorStops:[0,s.gradientFrom,1,s.gradientTo],
+  fillPriority:["gradient","metallic","chrome","glass"].includes(s.effect)?"linear-gradient":"color",
+  fillLinearGradientStartPoint:{x:e.width/2-dx,y:e.height/2-dy},fillLinearGradientEndPoint:{x:e.width/2+dx,y:e.height/2+dy},fillLinearGradientColorStops:s.effect==='metallic'?[0,s.gradientFrom,.3,s.gradientTo,.48,'#ffffff',.53,s.gradientFrom,.74,s.gradientTo,1,s.gradientFrom]:s.effect==='chrome'?[0,s.gradientFrom,.35,s.gradientTo,.48,'#ffffff',.51,s.gradientFrom,.7,s.gradientTo,1,'#ffffff']:s.effect==='glass'?[0,s.gradientFrom+'77',.48,'#ffffffbb',.52,s.gradientTo+'44',1,s.gradientFrom+'88']:[0,s.gradientFrom,1,s.gradientTo],
  };
 }
 // Scale dimensional text styling with text/group transforms, just like font size.

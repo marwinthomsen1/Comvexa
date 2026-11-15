@@ -1,6 +1,10 @@
 import {fitText} from "../templates/fitting.js";
 import {effectStyle} from "./style.js";
 export const textPresets = [
+ {id:'metallic',name:'Metallic editorial',fontFamily:'Bodoni Moda',fontWeight:'bold',fill:'#ad874d',fontSize:78,lineHeight:1.15,effect:'metallic'},
+ {id:'chrome',name:'Chrome headline',fontFamily:'Montserrat',fontWeight:'bold',fill:'#a9bdcf',fontSize:76,lineHeight:1.1,effect:'chrome'},
+ {id:'glass',name:'Glass lettering',fontFamily:'Outfit',fontWeight:'bold',fill:'#bdd8ef',fontSize:76,lineHeight:1.1,effect:'glass'},
+ {id:'raised',name:'Raised display',fontFamily:'Anton',fontWeight:'normal',fill:'#e7a68e',fontSize:82,lineHeight:1.12,effect:'raised'},
  {id:"modern",name:"Modern headline",fontFamily:"Inter",fontWeight:"bold",fill:"#17243c",fontSize:76,lineHeight:1.05,style:{letterSpacing:-1}},
  {id:"luxury",name:"Luxury title",fontFamily:"Bodoni Moda",fontWeight:"normal",fill:"#9b742c",fontSize:78,lineHeight:1.15,style:{letterSpacing:4}},
  {id:"minimal",name:"Minimal subtitle",fontFamily:"Manrope",fontWeight:"normal",fill:"#465267",fontSize:32,lineHeight:1.4,style:{letterSpacing:3}},

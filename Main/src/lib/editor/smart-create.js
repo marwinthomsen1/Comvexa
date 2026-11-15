@@ -6,6 +6,15 @@ export function smartResize(doc,width,height){if(!Number.isInteger(width)||!Numb
  const document=validateDocument({...doc,canvas:{...doc.canvas,width,height},elements});return{document,warnings:elements.some(e=>e.type==='text'&&e.fontSize<12)?['Some text is small after resizing. Review readability before exporting.']:[]};
 }
 export const designThemes=[{id:'studio',name:'Creative studio',background:'#f6f0ff',ink:'#282143',accent:'#9b42d8',heading:'Outfit',body:'Inter'},{id:'editorial',name:'Editorial',background:'#f5f0e6',ink:'#253f36',accent:'#b16b45',heading:'Playfair Display',body:'Lato'},{id:'electric',name:'After dark',background:'#14152b',ink:'#f4efff',accent:'#48e3d5',heading:'Montserrat',body:'Inter'},{id:'warm',name:'Sunset',background:'#fff3dd',ink:'#823f3d',accent:'#e96855',heading:'Bodoni Moda',body:'Manrope'},{id:'minimal',name:'Minimal',background:'#ffffff',ink:'#202e3c',accent:'#4367b4',heading:'Manrope',body:'Lora'}];
+designThemes.push(
+ {id:'luxury',name:'Luxury',background:'#181c24',ink:'#e8e2d5',accent:'#cba977',heading:'Bodoni Moda',body:'Lato'},
+ {id:'corporate',name:'Corporate',background:'#f5f8fc',ink:'#1c3553',accent:'#3269a3',heading:'Montserrat',body:'Inter'},
+ {id:'playful',name:'Playful',background:'#fff2d1',ink:'#3d3569',accent:'#d95c79',heading:'Outfit',body:'Nunito'},
+ {id:'fashion',name:'Fashion',background:'#f7eee9',ink:'#292432',accent:'#8a4a61',heading:'Cormorant Garamond',body:'Manrope'},
+ {id:'technology',name:'Technology',background:'#101b29',ink:'#e0eef8',accent:'#57c8ce',heading:'Space Grotesk',body:'Inter'},
+ {id:'retro',name:'Retro',background:'#f4dfb5',ink:'#5b3841',accent:'#b9513d',heading:'Alfa Slab One',body:'Lato'},
+ {id:'elegant',name:'Elegant',background:'#eff4ee',ink:'#29443a',accent:'#9a7747',heading:'Playfair Display',body:'Lora'}
+);
 export function applyDesignTheme(doc,id,{colors=true,fonts=true}={}){const theme=designThemes.find(t=>t.id===id);if(!theme)throw Error('Unknown design style.');let textIndex=0;return validateDocument({...doc,canvas:{...doc.canvas,...(colors?{background:theme.background}:{})},elements:doc.elements.map(e=>{if(e.locked)return e;if(e.type==='text'){const first=textIndex++===0;return{...e,...(colors?{fill:first?theme.accent:theme.ink,...(e.textStyle?{textStyle:{...e.textStyle,gradientFrom:theme.accent,gradientTo:theme.ink,outlineColor:theme.ink,shadowColor:theme.accent}}:{})}:{}),...(fonts?{fontFamily:first?theme.heading:theme.body}:{})};}return colors&&e.type!=='image'?{...e,fill:theme.accent}:e;})});}
 export const variationNames=['Minimal','Bold','Elegant','Colorful','Editorial','Modern promotional'];
 export function variation(doc,index){if(doc.elements.some(e=>e.groupId||e.locked))throw Error('Ungroup and unlock this page before generating new layouts. The original page will stay unchanged.');const w=doc.canvas.width,h=doc.canvas.height,pad=Math.min(w,h)*.055,images=doc.elements.filter(e=>e.type==='image'),texts=doc.elements.filter(e=>e.type==='text');const imageBoxes=[[.08,.49,.84,.44],[.5,.05,.45,.9],[.2,.07,.6,.55],[.06,.08,.88,.5],[.05,.1,.44,.8],[.06,.05,.88,.45]];

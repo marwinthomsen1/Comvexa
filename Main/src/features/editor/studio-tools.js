@@ -5,6 +5,7 @@ export const STUDIO_TOOLS = [
  {id:'Text',icon:'type',hint:'Typography and text presets',tabs:['Text']},
  {id:'Photos',icon:'image',hint:'Photos and uploads; select a photo for crop, masks and adjustments',tabs:['Photos']},
  {id:'Elements',icon:'shapes',hint:'Shapes, stickers, frames and drawing',tabs:['Elements','Drawing']},
+ {id:'Creative Tools',icon:'spark',hint:'Brand Kits, photo backgrounds, styles and bulk design creation',tabs:['Creative Tools']},
  {id:'Uploads',icon:'upload',hint:'Upload and reuse video, music and images',tabs:['Uploads']},
  {id:'Video',icon:'video',hint:'Create and edit short-form video',tabs:['Video']},
  {id:'Audio',icon:'audio',hint:'Music, voice tracks and clip sound',tabs:['Audio']},
