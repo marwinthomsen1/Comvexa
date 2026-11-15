@@ -28,6 +28,12 @@ import { ensureDocumentFonts } from "@/lib/typography/fonts";
 import ElementLibrary from "./element-library";
 import TextLibrary from "./text-library";
 import TemplatePicker from "./template-picker";
+import VideoPanel from '@/features/video/video-panel';
+import UploadsPanel from '@/features/video/uploads-panel';
+import VideoTimeline from '@/features/video/timeline';
+import VideoPreview from '@/features/video/video-preview';
+import {blankVideo,validateVideo,newClip,clipEnd} from '@/lib/video/document';
+import {importMedia} from '@/lib/video/media-store';
 import PageStrip from "./page-strip";
 import SmartTools from "./smart-tools";
 import DrawingTools,{DEFAULT_DRAWING} from './drawing-tools';
@@ -68,6 +74,7 @@ import { download, renderExport } from "@/lib/editor/export";
 import { readWorkspace } from "@/lib/workspace/local-store";
 import { PROJECT_SIZES } from "@/lib/workspace/validation";
 import "./editor.css";
+import "@/features/video/video.css";
 import "@/features/connected/connected.css";
 import { ConnectionPanel } from "@/features/connected/connection-panel";
 import { subscribeChanges } from "@/lib/connected/store";
@@ -134,10 +141,14 @@ export default function Editor() {
     () => selectedIds.filter((id) => doc?.elements.some((e) => e.id === id)),
     [selectedIds, doc?.elements],
   );
+  const [compactTools,setCompactTools]=useState(false);
+  const initialVideoMode=useRef(false);
+  const [videoTime,setVideoTime]=useState(0),[videoPreview,setVideoPreview]=useState(false),[videoClip,setVideoClip]=useState(null),[videoSection,setVideoSection]=useState(false);
   const [drawingSettings,setDrawingSettings]=useState(DEFAULT_DRAWING),[precision,setPrecision]=useState(DEFAULT_PRECISION),[motionPreview,setMotionPreview]=useState(0);
   const [multiSelect, setMultiSelect] = useState(false),
     [snapping, setSnapping] = useState(true),
     [clipboardBusy, setClipboardBusy] = useState(false);
+  useEffect(()=>{if(!doc)return;if(!initialVideoMode.current){initialVideoMode.current=true;if(doc.video){setTab('Video');setVideoPreview(true);}}if(doc.video)setVideoTime(t=>Math.min(t,doc.video.duration));if(videoClip&&!doc.video?.[videoClip.key]?.some(c=>c.id===videoClip.id))setVideoClip(null);},[doc?.video]);
   function setSelected(id) {
     setCropId(null);
     setSelectedIds(id ? [id] : []);
@@ -656,6 +667,7 @@ export default function Editor() {
   }
   async function importProject(file) {
     try {
+      if(file?.name.endsWith('.zip')){const {restoreVideoBackup}=await import('@/lib/video/backup'),value=await restoreVideoBackup(file),nextId=crypto.randomUUID();await designStore.importConnected(nextId,value,0);await navigateSafely('/editor/'+nextId);return;}
       if (!file || file.size > MAX_PORTABLE_BYTES)
         throw new Error("Project files must be at most 64 MB.");
       let input = JSON.parse(await file.text());
@@ -723,7 +735,14 @@ export default function Editor() {
       setError(e.message);
     }
   }
+  function updateVideo(video){const checked=validateVideo(video);return apply({...latest.current,video:checked});}
+  function enableVideo(video,size=null){const current=latest.current;if(current.pages?.length>1)throw Error('Video editing currently uses one page. Export this page as an animation, or create a single-page video design.');const checked=validateVideo(video);const next=size?smartResize(current,size[0],size[1]).document:current;if(apply({...next,video:checked})){setDimensions(next.canvas);setVideoTime(0);setTab('Uploads');setMobile('tools');}}
+  async function uploadVideoMedia(file,replaceClip=null){const base=latest.current;if(base.pages?.length>1)throw Error('Create a single-page video project before adding video or audio.');const {id:mediaId,metadata}=await importMedia(file);const current=latest.current,video=current.video||blankVideo(10),media={...video.media,[mediaId]:metadata};let next={...video,media};if(replaceClip){if(metadata.kind!=='video')throw Error('Choose a video file to replace this clip.');next.clips=video.clips.map(c=>c.id===replaceClip.id?{...c,mediaId,in:0,out:Math.min(metadata.duration,c.out-c.in)}:c);}if(!apply({...current,video:validateVideo(next)}))throw Error('Media was persisted but could not be added to this document.');setVideoPreview(false);setStatus('Original media saved in this browser');}
+  function addTimelineMedia(mediaId){try{const current=latest.current,video=current.video,m=video.media[mediaId],key=m.kind==='video'?'clips':'audio',start=key==='clips'?Math.max(0,...video.clips.map(clipEnd)):Math.min(videoTime,video.duration-.05);if(video.duration-start<.05)throw Error('The timeline is full. Increase its duration or trim a clip.');const c=newClip(mediaId,m,start,video.duration);if(updateVideo({...video,[key]:[...video[key],c]})){setVideoClip({key,id:c.id});setVideoTime(start);setTab(key==='audio'?'Audio':'Video');setVideoPreview(true);setMobile('');}}catch(e){setError(e.message);}}
+  function removeTimelineMedia(mediaId){try{const v=latest.current.video;if([...v.clips,...v.audio].some(c=>c.mediaId===mediaId))throw Error('Remove clips using this source before removing it from the library.');const media={...v.media};delete media[mediaId];updateVideo({...v,media});}catch(e){setError(e.message);}}
+  async function videoBackupFile(){try{const {videoBackup}=await import('@/lib/video/backup'),portable=await designStore.portable(latest.current);download(await videoBackup(portable),`${latest.current.name}.comvexa-video.zip`);setStatus('Project and original media backup ready');}catch(e){setError('Media backup failed: '+e.message);}}
   async function projectFile() {
+    if(doc.video&&Object.keys(doc.video.media).length){await videoBackupFile();return;}
     try {
       const value = await designStore.portable(doc);
       download(
@@ -854,7 +873,7 @@ export default function Editor() {
       {(toolGroup(tab)?.tabs.length||0)>1&&<div className="tool-subnav" role="group" aria-label={`${toolGroup(tab).id} tools`}>{toolGroup(tab).tabs.map(id=><button key={id} aria-pressed={tab===id} onClick={()=>{setTab(id);setCropId(null);setEditId(null);}}>{id==='Resize'?'Resize & styles':id==='Precision'?'Precision':id}</button>)}</div>}
       {tab==='Drawing'&&<DrawingTools settings={drawingSettings} onChange={setDrawingSettings} onDone={()=>{setTab('Elements');setMobile('');}}/>}
       {tab==='Precision'&&<><PrecisionTools value={precision} onChange={setPrecision} doc={doc}/><div className="layout-shortcuts">{[['center','Center Everything'],['align','Align Selection'],['distribute','Distribute Evenly'],['tidy','Tidy Layout'],['fit','Fit to Page']].map(([action,label])=><button key={action} onClick={()=>{try{apply(layoutAction(doc,action==='center'?[]:selectedIds,action,precision.margin));}catch(e){setError(e.message);}}}>{label}</button>)}</div><p className="editor-small">Layout actions use the selection, or all unlocked objects. Tidy stacks groups vertically with equal gaps; Fit preserves proportions.</p></>}
-      {tab==='Animate'&&<AnimationTools doc={doc} element={element} onPatch={patch=>change(element.id,patch)} onCanvas={patch=>apply({...doc,canvas:{...doc.canvas,...patch}})} onPlay={()=>{setTab('Animate');setEditId(null);setCropId(null);setMobile('');setMotionPreview(n=>n+1);}}/>}
+      {tab==='Animate'&&<AnimationTools video={!!doc.video} doc={doc} element={element} onPatch={patch=>change(element.id,patch)} onCanvas={patch=>apply({...doc,canvas:{...doc.canvas,...patch}})} onPlay={()=>{setTab('Animate');setEditId(null);setCropId(null);setMobile('');if(doc.video){setVideoPreview(true);setVideoTime(0);}else setMotionPreview(n=>n+1);}}/>}
       {tab === "Text" && <TextLibrary onAdd={kind=>{
         try {
           const e=makeElement("text",crypto.randomUUID());
@@ -881,18 +900,8 @@ export default function Editor() {
           const nextId=crypto.randomUUID();await designStore.save(nextId,document,0);const {rememberTemplate}=await import("@/lib/templates/open-template");rememberTemplate(templateId);await navigateSafely(`/editor/${nextId}`);
         }catch(e){setError(e.message);}
       }}/>}
-      {tab === "Uploads" && (
-        <>
-          <p>
-            PNG, JPG or WebP. Up to 8 MB and 4096 × 4096 px. Optimized locally
-            to a maximum 2048 px edge; never uploaded.
-          </p>
-          <button onClick={() => upload.current.click()}>
-            Upload an image
-          </button>
-          <p>Use your own images or images you have permission to use.</p>
-        </>
-      )}
+      {tab==='Uploads'&&<UploadsPanel doc={doc} onUpload={uploadVideoMedia} onImage={imageFile} onImageReuse={assetId=>{const a=doc.assets[assetId],width=Math.min(600,doc.canvas.width*.8),item={...makeElement('image',crypto.randomUUID()),assetId,width,height:width*a.height/a.width,crop:{x:0,y:0,width:1,height:1}};if(apply(addElement(latest.current,item))){setSelected(item.id);setVideoPreview(false);}}} onAdd={addTimelineMedia} onRemove={removeTimelineMedia} onError={setError} onSourcePreview={()=>setVideoPreview(false)}/>}
+      {(tab==='Video'||tab==='Audio')&&<VideoPanel doc={doc} selected={videoClip} onSelect={setVideoClip} audioOnly={tab==='Audio'} onEnable={enableVideo} onVideo={next=>{try{updateVideo(next);}catch(e){setError(e.message);}}} onPreview={()=>{setVideoPreview(true);setVideoSection(false);setMobile('');}} onReplace={(file,c)=>uploadVideoMedia(file,c).catch(e=>setError(e.message))} onError={setError}/>}
       {tab === "Elements" && <ElementLibrary onSticker={id=>insertCreative(id,null)} onFrame={id=>insertCreative(null,id)} onInsert={(kind, fill) => {
         try {
           const id = crypto.randomUUID();
@@ -1076,6 +1085,9 @@ export default function Editor() {
     ) : panel === "export" ? (
       <ExportPanel
         exportAllPages={exportAllPages}
+        videoSnapshot={async()=>{setVideoPreview(false);const snapshot=await designStore.exportSnapshot(id,latest.current,revision.current);return snapshot.document;}}
+        onVideoBusy={setExporting}
+        onVideoError={setError}
         doc={doc}
         format={format}
         setFormat={setFormat}
@@ -1136,7 +1148,7 @@ export default function Editor() {
   return (
     <main
       id="main-content"
-      className={`editor-shell ${preview ? "editor-previewing" : ""}`}
+      className={`editor-shell ${preview ? "editor-previewing" : ""} ${compactTools?"compact-tool-navigation":""}`}
     >
       <header className="editor-top">
         <Brand
@@ -1248,6 +1260,7 @@ export default function Editor() {
         </div>
       )}
       <nav className="editor-tabs" aria-label="Editor tools">
+        <button className="compact-tools-toggle" title={compactTools?'Show tool labels':'Use compact tool icons'} aria-label="Toggle compact tool navigation" aria-pressed={compactTools} onClick={()=>setCompactTools(v=>!v)}><StudioIcon name="more"/><span>Compact</span></button>
         {STUDIO_TOOLS.map((tool) => (
           <button
             key={tool.id}
@@ -1376,7 +1389,7 @@ export default function Editor() {
         {!preview && <div className="precision-bar"><SelectionControls {...selectionProps} compact/><button className="guides-toggle" aria-pressed={precision.show} onClick={()=>setPrecision(v=>({...v,show:!v.show}))}>Guides {precision.show?'on':'off'}</button>{tab==='Drawing'&&<button className="guides-toggle" onClick={()=>setMobile('')}>Draw on canvas</button>}</div>}
         <div className="editor-viewport" ref={viewport}>
           <div className="canvas-centering">
-            <DesignCanvas
+            {doc.video&&videoPreview?<VideoPreview doc={doc} time={videoTime} onTime={setVideoTime} onError={setError} section={videoSection&&videoClip?(()=>{const c=doc.video[videoClip.key].find(c=>c.id===videoClip.id);return c?{start:c.start,end:clipEnd(c)}:null;})():null}/>:<DesignCanvas
               doc={doc}
               drawing={tab==='Drawing'&&!preview?drawingSettings:null}
               precision={precision}
@@ -1400,10 +1413,11 @@ export default function Editor() {
               cropId={cropId===selected?cropId:null}
               onCropCancel={()=>setCropId(null)}
               onCropApply={crop=>{change(cropId,{crop});setCropId(null);}}
-            />
+            />}
           </div>
         </div>
-        {!preview&&<PageStrip projectId={id} doc={doc} onAction={pageAction} disabled={exporting||!!cropId}/>}
+        {doc.video&&<><div className="video-mode-controls"><button aria-pressed={videoPreview} onClick={()=>{setVideoPreview(true);setMobile('');}}>Playback preview</button><button aria-pressed={!videoPreview} onClick={()=>setVideoPreview(false)}>Edit text & graphics</button>{videoClip&&<label><input type="checkbox" checked={videoSection} onChange={e=>setVideoSection(e.target.checked)}/>Preview selected clip only</label>}</div><VideoTimeline doc={doc} time={videoTime} onTime={t=>{setVideoTime(t);setVideoPreview(true);}} onVideo={updateVideo} selected={videoClip} onSelect={selection=>{setVideoClip(selection);if(selection)setTab(selection.key==='audio'?'Audio':'Video');}} selectedIds={selectedIds} selectElements={ids=>{setSelectedIds(ids);setVideoPreview(false);setPanel('selection');}} onError={setError} onElementTiming={()=>openPanel()}/></>}
+        {!preview&&!doc.video&&<PageStrip projectId={id} doc={doc} onAction={pageAction} disabled={exporting||!!cropId}/>}
         <div className="editor-zoom">
           <button
             onClick={() => setZoom((z) => Math.max(0.05, z - 0.1))}
@@ -1467,7 +1481,7 @@ export default function Editor() {
         ref={portable}
         hidden
         type="file"
-        accept=".json,application/json"
+        accept=".json,.zip,application/json,application/zip"
         onChange={(e) => {
           importProject(e.target.files[0]);
           e.target.value = "";

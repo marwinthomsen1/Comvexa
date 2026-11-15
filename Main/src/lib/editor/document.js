@@ -1,3 +1,4 @@
+import {validateVideo,validateTiming} from "../video/document.js";
 import {validateTextLayout} from "../typography/layout.js";
 import {validateDrawing,validateFill,validateAnimation,validateBlend} from "./creative-properties.js";
 import {validatePagedDocument} from "./pages.js";
@@ -217,6 +218,7 @@ export function validateDocument(value) {
         cornerRadius: e.cornerRadius,
       });
     }
+    if(e.timing!==undefined&&e.timing!==null)out.timing=validateTiming(e.timing);
     if(e.textLayout!==undefined&&e.textLayout!==null){requireValue(e.type==='text'&&value.schemaVersion===2,'Text layout requires v2 text.');out.textLayout=validateTextLayout(e.textLayout);}
     if(e.drawing!==undefined){requireValue(value.schemaVersion===2&&e.type==='rect'&&!e.graphicKind,'Drawing requires a v2 stroke.');out.drawing=validateDrawing(e.drawing);}
     if(e.fillEffect!==undefined&&e.fillEffect!==null){requireValue(value.schemaVersion===2&&['rect','ellipse'].includes(e.type)&&!e.drawing,'Fill effects require a v2 shape.');out.fillEffect=validateFill(e.fillEffect);}
@@ -298,6 +300,7 @@ export function validateDocument(value) {
     ),
     bindings: [],
     ...(provenance ? { provenance } : {}),
+    ...(value.video?{video:validateVideo(value.video)}:{}),
   };
   requireValue(
     new TextEncoder().encode(JSON.stringify(result)).byteLength <= MAX_BYTES,

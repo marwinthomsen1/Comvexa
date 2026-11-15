@@ -1,5 +1,6 @@
 "use client";
 import {useRef} from "react";
+import VideoDownload from "@/features/video/video-download";
 import PhotoControls from "./photo-controls";
 import FillControls from './fill-controls';
 import {ElementMotion} from './animation-tools';
@@ -112,9 +113,11 @@ export function ExportPanel({
   portable,
   upgradeBackup,
   exportAllPages,
+  videoSnapshot,onVideoBusy,onVideoError,
 }) {
   return (
     <>
+      <VideoDownload doc={doc} snapshot={videoSnapshot} onBusy={onVideoBusy} onError={onVideoError}/>
       <div className="panel-eyebrow">READY TO SHARE</div>
       <h2>Download your design</h2>
       <p className="editor-small">
@@ -179,7 +182,7 @@ export function ExportPanel({
           className="panel-wide"
           onClick={() => portable.current.click()}
         >
-          Import project file
+          Import project / media ZIP
         </ToolButton>
       </details>
     </>
@@ -233,6 +236,7 @@ export function PropertiesPanel({
         </p>
       )}
       <fieldset disabled={element.locked}>
+        {doc.video&&<details className="studio-details" open><summary>Video timing</summary><div className="video-clip-time"><label>Start (s)<input type="number" min="0" max={doc.video.duration-.05} step=".05" value={element.timing?.start||0} onChange={e=>change(element.id,{timing:{start:Number(e.target.value),end:element.timing?.end||doc.video.duration}})}/></label><label>End (s)<input type="number" min=".05" max={doc.video.duration} step=".05" value={element.timing?.end||doc.video.duration} onChange={e=>change(element.id,{timing:{start:element.timing?.start||0,end:Number(e.target.value)}})}/></label></div><button onClick={()=>change(element.id,{timing:null})}>Show for whole video</button></details>}
         <legend className="sr-only">Element appearance</legend>
         {element.type === "text" && (
           <>

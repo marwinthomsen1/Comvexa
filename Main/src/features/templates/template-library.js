@@ -6,6 +6,8 @@ import Image from "next/image";
 import metadata, {templateThumbnail} from "@/lib/templates/library-metadata";
 import {createTemplateDocument, rememberTemplate} from "@/lib/templates/open-template";
 import { discoverTemplates } from "@/lib/templates/discovery";
+import dynamic from "next/dynamic";
+const VideoTemplatePreview=dynamic(()=>import("@/features/video/template-preview"),{ssr:false,loading:()=> <p role="status">Preparing video preview…</p>});
 import { StudioIcon } from "@/components/ui/studio-icon";
 import {multiPageTemplates,generateMultiPageTemplate} from "@/lib/templates/multipage";
 import "./templates.css";
@@ -195,7 +197,7 @@ export default function TemplateLibrary() {
             </button>
             <div className="curated-card-copy">
               <span>
-                {t.style} / {sizes[t.ratio].label}
+                {t.video?'Video · ':''}{t.style} / {sizes[t.ratio].label}
               </span>
               <h2>{t.name}</h2>
               <button onClick={() => start(t)} disabled={!!busy}>
@@ -242,7 +244,7 @@ export default function TemplateLibrary() {
           >
             <StudioIcon name="close" />
           </button>
-          <Image
+          {selected.video?<VideoTemplatePreview id={selected.id}/>:<>          <Image
             src={templateThumbnail(selected)}
             alt={selected.name}
             width={480}
@@ -252,6 +254,7 @@ export default function TemplateLibrary() {
             )}
             className="curated-large-preview"
           />
+</>}
           <div>
             {selected.pageCount>1&&<div className="deck-preview-strip">{Array.from({length:selected.pageCount},(_,i)=><Image key={i} src={`/images/templates/${selected.id}${i?`-page-${i+1}`:''}.svg`} alt={`Page ${i+1}`} width={240} height={135} loading="lazy"/>)}</div>}
             <span className="eyebrow">
@@ -280,7 +283,7 @@ export default function TemplateLibrary() {
             </button>
             <p>
               Saved in this browser. Standard PNG/JPG exports have no watermark.
-              No cloud backup. PDF exports use images; text is not selectable. PPTX export is not supported.
+              No cloud backup. PDF exports use images; text is not selectable. Video exports are available in browser-supported formats. PPTX export is not supported.
             </p>
           </div>
         </dialog>

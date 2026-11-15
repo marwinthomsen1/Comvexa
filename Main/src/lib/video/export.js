@@ -1,0 +1,25 @@
+import {createVideoSession} from './session.js';
+import {webmDuration} from './webm-duration.js';
+export function videoFormats(){if(typeof MediaRecorder==='undefined'||!HTMLCanvasElement.prototype.captureStream)return [];return [
+ {mime:'video/webm;codecs=vp8,opus',extension:'webm',label:'WebM · VP8 / Opus'},
+ {mime:'video/mp4;codecs=avc1.42E01E,mp4a.40.2',extension:'mp4',label:'MP4 · H.264 / AAC'},
+ ].filter(f=>MediaRecorder.isTypeSupported(f.mime));}
+export async function probeVideo(blob){const url=URL.createObjectURL(blob),video=document.createElement('video');video.muted=true;video.playsInline=true;video.src=url;try{return await new Promise((resolve,reject)=>{let started=false;const finish=error=>{clearTimeout(timer);video.pause();if(error)reject(error);else resolve({width:video.videoWidth,height:video.videoHeight,duration:video.duration,playedTo:video.currentTime});},timer=setTimeout(()=>finish(Error('The exported container could not be played back in this browser. No successful export is claimed.')),12000);video.onerror=()=>finish(Error('The browser could not decode the exported video. Try the other format.'));video.onloadeddata=()=>{if(started)return;started=true;video.play().catch(finish);};video.ontimeupdate=()=>{if(video.currentTime>=.08)finish();};video.onended=()=>finish();video.load();});}finally{video.pause();video.removeAttribute('src');video.load();URL.revokeObjectURL(url);}}
+let recording=false;
+export async function exportVideo(doc,{format,resolution=720,onProgress=()=>{},signal}={}){
+ if(!format||!videoFormats().some(f=>f.mime===format.mime))throw Error('This browser does not support the selected video encoder. Use a supported format in a current desktop browser.');
+ if(document.hidden)throw Error('Keep this tab visible while exporting.');
+ if(recording)throw Error('Another video is already exporting in this tab.');recording=true;
+ const canvas=document.createElement('canvas');let session,recorder,stream,raf,failed,stopped=false;const chunks=[];
+ try{onProgress('Preparing artwork and media…',0);session=await createVideoSession(doc,canvas,{resolution,monitor:false});await session.resume();await session.frame(0,false);if(signal?.aborted)throw Error('Video export cancelled.');
+ stream=canvas.captureStream(30);for(const track of session.mix.stream.getAudioTracks())stream.addTrack(track);recorder=new MediaRecorder(stream,{mimeType:format.mime,videoBitsPerSecond:resolution===1080?8000000:4500000,audioBitsPerSecond:128000});
+ await new Promise((resolve,reject)=>{let start=null,busy=false,last=0,total=0;const abort=()=>stop(Error('Video export cancelled.')),hidden=()=>{if(document.hidden)stop(Error('Export stopped because the tab was hidden. Keep it visible and try again.'));};
+ function stop(error){if(stopped)return;stopped=true;failed=error||null;cancelAnimationFrame(raf);session.pause();if(recorder.state!=='inactive')recorder.stop();else reject(error||Error('The recorder stopped unexpectedly.'));}
+ recorder.ondataavailable=e=>{if(e.data.size){total+=e.data.size;if(total>200*1024*1024){stop(Error('Export exceeds the 200 MB limit. Choose a shorter video or 720p.'));return;}chunks.push(e.data);}};
+ recorder.onerror=e=>stop(e.error||Error('Video recording failed.'));recorder.onstop=()=>{signal?.removeEventListener('abort',abort);document.removeEventListener('visibilitychange',hidden);failed?reject(failed):resolve();};signal?.addEventListener('abort',abort,{once:true});document.addEventListener('visibilitychange',hidden);
+ async function tick(){if(stopped||busy)return;busy=true;try{const now=session.audio.currentTime;if(start===null)start=now;const t=now-start;if(t>=session.timeline.duration){stop();return;}if(last&&now-last>1.5)throw Error('This device could not keep up with real-time recording. Try 720p or a shorter project.');last=now;await session.frame(t,true);if(stopped)return;onProgress(`Recording ${t.toFixed(1)} / ${session.timeline.duration.toFixed(1)} seconds…`,Math.min(1,t/session.timeline.duration));}catch(error){stop(error);}finally{busy=false;if(!stopped)raf=requestAnimationFrame(tick);}}
+ recorder.start(500);raf=requestAnimationFrame(tick);
+ });
+ onProgress('Finalizing and checking playback…',1);let blob=new Blob(chunks,{type:recorder.mimeType||format.mime});if(blob.size<1000)throw Error('The recorder produced an empty or incomplete video.');if(format.extension==='webm')blob=await webmDuration(blob,session.timeline.duration);const header=new Uint8Array(await blob.slice(0,16).arrayBuffer()),valid=format.extension==='webm'?header[0]===0x1a&&header[1]===0x45&&header[2]===0xdf&&header[3]===0xa3:String.fromCharCode(...header.slice(4,8))==='ftyp';if(!valid)throw Error('The output container does not match its label; download was stopped.');const playback=await probeVideo(blob);onProgress('Playable video ready',1);return {blob,extension:format.extension,playback,width:canvas.width,height:canvas.height};
+ }finally{recording=false;cancelAnimationFrame(raf);if(recorder?.state==='recording')recorder.stop();stream?.getTracks().forEach(t=>t.stop());await session?.destroy();canvas.width=0;canvas.height=0;}
+}

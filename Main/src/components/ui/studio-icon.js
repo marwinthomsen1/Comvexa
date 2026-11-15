@@ -1,4 +1,5 @@
 import {
+  Video, AudioLines,
   MoreHorizontal,
   GripVertical,
   Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight,
@@ -61,6 +62,7 @@ import {
   Sparkles,
 } from "lucide-react";
 const icons = {
+  video:Video, audio:AudioLines,
   more: MoreHorizontal,
   grip: GripVertical,
   bold: Bold, italic: Italic, underline: Underline, "align-left": AlignLeft, "align-center": AlignCenter, "align-right": AlignRight,

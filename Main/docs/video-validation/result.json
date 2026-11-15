@@ -1,0 +1,36 @@
+{
+  "browser": "Microsoft Edge (native MediaRecorder)",
+  "container": "WebM",
+  "videoCodec": "VP8",
+  "audioCodec": "Opus",
+  "width": 1280,
+  "height": 720,
+  "durationSeconds": 2.5,
+  "bytes": 470063,
+  "playbackAdvancedToSeconds": 0.211534,
+  "decodedFramePixels": [
+    [
+      19,
+      186,
+      106,
+      255
+    ],
+    [
+      184,
+      160,
+      18,
+      255
+    ]
+  ],
+  "sourceAudio440HzAmplitude": 0.06880492471935556,
+  "addedMusic880HzAmplitude": 0.08414881242906663,
+  "trimmedReorderedClips": 2,
+  "audioTracks": 1,
+  "mediaSourcesRestoredAfterPageReload": 2,
+  "mediaZipRestorePassed": true,
+  "titleWhitePixelsBeforeAndAfter": [
+    0,
+    1029
+  ],
+  "staticMultiplyBlendCheckPassed": true
+}
