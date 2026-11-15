@@ -1,5 +1,5 @@
 "use client";
-import {useRef,useState} from "react";
+import {useEffect,useRef,useState} from "react";
 import PhotoBackgroundPanel from "@/features/premium/photo-background-panel";
 import VideoDownload from "@/features/video/video-download";
 import PhotoControls from "./photo-controls";
@@ -191,6 +191,7 @@ export function ExportPanel({
 }
 export function PropertiesPanel({
   photoRequest,
+  toolRequest,
   element,
   connectionPanel,
   doc,
@@ -209,7 +210,8 @@ export function PropertiesPanel({
   onCompare,
   onPaste,
 }) {
-  const more = useRef(null);
+  const more = useRef(null),appearance=useRef(null);
+  useEffect(()=>{if(!toolRequest)return;const section=toolRequest.section;if(section==='more'){if(more.current)more.current.open=true;more.current?.querySelector('input')?.focus();return;}if(section==='fill')appearance.current?.querySelector('input[type="color"]')?.focus();const selector=section==='border'?'[data-property-section="border"]':section==='fill-effects'?'[data-property-section="fill-effects"]':null;const target=selector?appearance.current?.querySelector(selector):null;if(target){target.open=true;target.scrollIntoView({block:"nearest"});target.querySelector('button,input')?.focus();}},[toolRequest]);
   const [photoBackground,setPhotoBackground]=useState(false),[backgroundError,setBackgroundError]=useState('');
   if (!element)
     return (
@@ -238,12 +240,12 @@ export function PropertiesPanel({
           This element is locked. Unlock it to edit.
         </p>
       )}
-      <fieldset disabled={element.locked}>
+      <fieldset ref={appearance} disabled={element.locked}>
         {doc.video&&<details className="studio-details" open><summary>Video timing</summary><div className="video-clip-time"><label>Start (s)<input type="number" min="0" max={doc.video.duration-.05} step=".05" value={element.timing?.start||0} onChange={e=>change(element.id,{timing:{start:Number(e.target.value),end:element.timing?.end||doc.video.duration}})}/></label><label>End (s)<input type="number" min=".05" max={doc.video.duration} step=".05" value={element.timing?.end||doc.video.duration} onChange={e=>change(element.id,{timing:{start:element.timing?.start||0,end:Number(e.target.value)}})}/></label></div><button onClick={()=>change(element.id,{timing:null})}>Show for whole video</button></details>}
         <legend className="sr-only">Element appearance</legend>
         {element.type === "text" && (
           <>
-            <TypographyControls key={element.id} element={element} onPatch={patch=>change(element.id,patch)} Field={Field}/>
+            <TypographyControls toolRequest={toolRequest} key={element.id} element={element} onPatch={patch=>change(element.id,patch)} Field={Field}/>
             <details className="studio-details"><summary>Curved & vertical text</summary><p className="editor-small">Best for short headings. Curved text follows a single arc; resize its frame to adjust the path. Edit the original wording directly on canvas.</p><div className="motion-grid">{[['normal','Normal'],['arc','Curved'],['vertical','Vertical']].map(([mode,label])=><button key={mode} aria-pressed={(element.textLayout?.mode||'normal')===mode} onClick={()=>change(element.id,{textLayout:mode==='normal'?null:{mode,bend:45},...(mode==='vertical'?{fontSize:Math.max(6,Math.min(element.fontSize,element.height/Math.max(1,[...element.text].length)/element.lineHeight))}:{})})}>{label}</button>)}</div>{element.textLayout?.mode==='arc'&&<label className="photo-slider">Curve<output>{element.textLayout.bend}°</output><input type="range" min="-90" max="90" value={element.textLayout.bend} onChange={e=>change(element.id,{textLayout:{...element.textLayout,bend:Number(e.target.value)}})}/></label>}</details>
             <details className="studio-details"><summary>Edit text content</summary><textarea aria-label="Text content" value={element.text} maxLength={5000} onChange={e=>prop("text",e.target.value)}/><ToolButton icon="type" onClick={()=>{setEditId(element.id);setMobile("");}}>Edit on canvas</ToolButton></details>
           </>
@@ -268,7 +270,7 @@ export function PropertiesPanel({
         <details className="studio-details"><summary>Blending</summary><label className="editor-field">Blend mode<select value={element.blendMode||'source-over'} onChange={e=>prop('blendMode',e.target.value)}>{BLEND_MODES.map(mode=><option key={mode} value={mode}>{mode==='source-over'?'Normal':mode[0].toUpperCase()+mode.slice(1)}</option>)}</select></label></details>
         <ElementMotion element={element} onPatch={patch=>change(element.id,patch)}/>
         {["rect", "ellipse"].includes(element.type) && !element.drawing && (
-          <details className="studio-details">
+          <details className="studio-details" data-property-section="border">
             <summary>{element.graphicKind ? "Border" : "Border & corners"}</summary>
             <label className="editor-field">
               Border color

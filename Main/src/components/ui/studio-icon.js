@@ -1,5 +1,5 @@
 import {
-  Video, AudioLines,
+  Video, AudioLines, Star, Hand, PanelLeftClose, PanelRightClose, Maximize, Minimize,
   MoreHorizontal,
   GripVertical,
   Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight,
@@ -62,7 +62,7 @@ import {
   Sparkles,
 } from "lucide-react";
 const icons = {
-  video:Video, audio:AudioLines,
+  video:Video, audio:AudioLines, star:Star, starFilled:Star, hand:Hand, panelLeft:PanelLeftClose, panelRight:PanelRightClose, focus:Maximize, unfocus:Minimize,
   more: MoreHorizontal,
   grip: GripVertical,
   bold: Bold, italic: Italic, underline: Underline, "align-left": AlignLeft, "align-center": AlignCenter, "align-right": AlignRight,
@@ -129,6 +129,7 @@ export function StudioIcon({ name, size = 19, ...props }) {
   return (
     <Component
       size={size}
+      fill={name==="starFilled"?"currentColor":"none"}
       strokeWidth={1.75}
       aria-hidden="true"
       focusable="false"

@@ -1,3 +1,4 @@
+import {rememberAsset} from '../workspace-ui/preferences.js';
 // Document recipes and assets load only after a user chooses a template.
 export async function createTemplateDocument(id){
  if(id.startsWith('video-')){const {generateVideoTemplate}=await import('../video/templates.js');return generateVideoTemplate(id);}
@@ -9,4 +10,4 @@ export async function createTemplateDocument(id){
 }
 const key='comvexa-recent-templates';
 export function recentTemplateIds(){try{const v=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(v)?v.filter(x=>typeof x==='string').slice(0,8):[];}catch{return [];}}
-export function rememberTemplate(id){try{localStorage.setItem(key,JSON.stringify([id,...recentTemplateIds().filter(v=>v!==id)].slice(0,8)));}catch{/* Design storage remains authoritative if preferences are unavailable. */}}
+export function rememberTemplate(id){rememberAsset(id.startsWith('resume-')||id.startsWith('studio-')||id.startsWith('deck-')||id.startsWith('print-')||id.startsWith('collage-')||id.startsWith('video-')?'template:'+id:'template-set:'+id);try{localStorage.setItem(key,JSON.stringify([id,...recentTemplateIds().filter(v=>v!==id)].slice(0,8)));}catch{/* Design storage remains authoritative if preferences are unavailable. */}}

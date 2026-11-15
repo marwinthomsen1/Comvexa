@@ -2,6 +2,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import dynamic from 'next/dynamic';
+import {useWorkspacePreferences} from './workspace/preferences';
+import useCanvasNavigation from './workspace/canvas-navigation';
+import ToolNavigation from './workspace/tool-navigation';
+import ResizeGrip from './workspace/resize-grip';
+import CommandPalette from './workspace/command-palette';
+import ContextToolbar from './workspace/context-toolbar';
+import {workspaceShortcut} from '@/lib/workspace-ui/commands';
+import {rememberTool} from '@/lib/workspace-ui/preferences';
 import { SelectionControls } from "./selection-controls";
 import {
   expandSelection,
@@ -25,18 +34,18 @@ import {
   readClipboard,
 } from "@/lib/editor/clipboard";
 import { ensureDocumentFonts } from "@/lib/typography/fonts";
-import ElementLibrary from "./element-library";
-import TextLibrary from "./text-library";
-import TemplatePicker from "./template-picker";
+const ElementLibrary=dynamic(()=>import("./element-library"),{loading:()=> <p role="status">Opening tools…</p>});
+const TextLibrary=dynamic(()=>import("./text-library"),{loading:()=> <p role="status">Opening tools…</p>});
+const TemplatePicker=dynamic(()=>import("./template-picker"),{loading:()=> <p role="status">Opening tools…</p>});
 import CreativeTools from "@/features/premium/creative-tools";
 import VideoPanel from '@/features/video/video-panel';
 import UploadsPanel from '@/features/video/uploads-panel';
 import VideoTimeline from '@/features/video/timeline';
 import VideoPreview from '@/features/video/video-preview';
-import {blankVideo,validateVideo,newClip,clipEnd} from '@/lib/video/document';
+import {blankVideo,validateVideo,newClip,clipEnd,splitClip} from '@/lib/video/document';
 import {importMedia} from '@/lib/video/media-store';
 import PageStrip from "./page-strip";
-import SmartTools from "./smart-tools";
+const SmartTools=dynamic(()=>import("./smart-tools"),{loading:()=> <p role="status">Opening tools…</p>});
 import DrawingTools,{DEFAULT_DRAWING} from './drawing-tools';
 import PrecisionTools,{DEFAULT_PRECISION} from './precision-tools';
 import FillControls from './fill-controls';
@@ -77,6 +86,7 @@ import { PROJECT_SIZES } from "@/lib/workspace/validation";
 import "./editor.css";
 import "@/features/video/video.css";
 import "@/features/premium/premium.css";
+import "./workspace/workspace.css";
 import "@/features/connected/connected.css";
 import { ConnectionPanel } from "@/features/connected/connection-panel";
 import { subscribeChanges } from "@/lib/connected/store";
@@ -144,7 +154,9 @@ export default function Editor() {
     [selectedIds, doc?.elements],
   );
   const [photoRequest,setPhotoRequest]=useState(null);
-  const [compactTools,setCompactTools]=useState(false);
+  const {value:workspace,update:setWorkspace,error:workspaceError}=useWorkspacePreferences();
+  const compactTools=workspace.compact;
+  const [focusMode,setFocusMode]=useState(false),[searchOpen,setSearchOpen]=useState(false),[propertyRequest,setPropertyRequest]=useState(null),[creativeRequest,setCreativeRequest]=useState(null),[clipRequest,setClipRequest]=useState(null),[photoQuery,setPhotoQuery]=useState('');
   const initialVideoMode=useRef(false);
   const [videoTime,setVideoTime]=useState(0),[videoPreview,setVideoPreview]=useState(false),[videoClip,setVideoClip]=useState(null),[videoSection,setVideoSection]=useState(false);
   const [drawingSettings,setDrawingSettings]=useState(DEFAULT_DRAWING),[precision,setPrecision]=useState(DEFAULT_PRECISION),[motionPreview,setMotionPreview]=useState(0);
@@ -152,9 +164,25 @@ export default function Editor() {
     [snapping, setSnapping] = useState(true),
     [clipboardBusy, setClipboardBusy] = useState(false);
   useEffect(()=>{if(!doc)return;if(!initialVideoMode.current){initialVideoMode.current=true;if(doc.video){setTab('Video');setVideoPreview(true);}}if(doc.video)setVideoTime(t=>Math.min(t,doc.video.duration));if(videoClip&&!doc.video?.[videoClip.key]?.some(c=>c.id===videoClip.id))setVideoClip(null);},[doc?.video]);
+  const navigation=useCanvasNavigation({viewport,doc,zoom,setZoom,enabled:!videoPreview,blocked:()=>!!editId||!!cropId||tab==='Drawing'||gestureActive.current,onGesture:gestureChanged});
+  function inspect(section='more'){setPropertyRequest({section,elementId:selected,token:Date.now()});openPanel();}
+  function runCommand(action){
+    if(gestureActive.current){setError('Finish the current canvas gesture first.');return;}
+    if(action.workspace){if(action.workspace==='save')save(latest.current);if(action.workspace==='preview'){setPreview(v=>!v);setMobile('');}if(action.workspace==='focus')setFocusMode(v=>!v);if(action.workspace==='fit')navigation.fit();if(action.workspace==='actual')navigation.zoomTo(1);return;}
+    if(action.add){navigation.setHand(false);try{const base=latest.current,e=makeElement(action.add,crypto.randomUUID());Object.assign(e,action.add==='text'?{text:'Add a heading',fontSize:Math.min(76,base.canvas.width*.08),width:Math.min(600,base.canvas.width*.8),height:Math.min(200,base.canvas.height*.3)}:{width:base.canvas.width*.3,height:base.canvas.height*.25});e.x=(base.canvas.width-e.width)/2;e.y=(base.canvas.height-e.height)/2;if(apply(addElement(base,e))){setSelected(e.id);setPanel('selection');setVideoPreview(false);}}catch(e){setError(e.message);}return;}
+    if(action.creative){openTool('Creative Tools');setCreativeRequest({id:action.creative,token:Date.now()});return;}
+    if(action.photo){if(element?.type!=='image'||element.locked){setError('Select an unlocked photo first.');return;}if(action.photo==='crop'){setCropId(element.id);setEditId(null);setMobile('');setVideoPreview(false);}else{setPhotoRequest({section:action.photo,elementId:element.id,token:Date.now()});openPanel();}return;}
+    if(action.replace){if(element?.type==='image'&&!element.locked)replace.current?.click();return;}
+    if(action.properties){inspect(action.properties==='text'?'effects':action.properties);return;}
+    if(action.panel){openPanel(action.panel);return;}
+    if(action.tool)openTool(action.tool);
+  }
+  function clipAction(action){if(!videoClip)return;if(action==='split'){try{const {key,id:clipId}=videoClip;updateVideo(splitClip(latest.current.video,key,clipId,videoTime));}catch(e){setError(e.message);}return;}if(action==='delete'){const v=latest.current.video;updateVideo({...v,[videoClip.key]:v[videoClip.key].filter(c=>c.id!==videoClip.id)});setVideoClip(null);return;}openTool(videoClip.key==='audio'?'Audio':'Video');setClipRequest({section:action,clipId:videoClip.id,token:Date.now()});}
+  useEffect(()=>{function key(e){const action=workspaceShortcut(e);if(!action||gestureActive.current)return;e.preventDefault();if(action==='search'){setSearchOpen(v=>!v);return;}if(action==='focus'){setFocusMode(v=>!v);return;}if(action==='guides'){setPrecision(v=>({...v,show:!v.show}));return;}if(action==='hand'){if(tab!=='Drawing'&&!cropId&&!editId)navigation.setHand(v=>!v);return;}if(action==='fit')navigation.fit();if(action==='actual')navigation.zoomTo(1);if(action==='zoom-in')navigation.zoomTo(zoom*1.15);if(action==='zoom-out')navigation.zoomTo(zoom/1.15);}window.addEventListener('keydown',key);return()=>window.removeEventListener('keydown',key);});
   function setSelected(id) {
     setCropId(null);
     setSelectedIds(id ? [id] : []);
+    if(id)setWorkspace({rightOpen:true,leftOpen:false});
   }
   function selectObject(id, additive = false) {
     setCropId(null);
@@ -162,6 +190,8 @@ export default function Editor() {
       selectElement(latest.current, current, id, additive),
     );
     setPanel("selection");
+    setVideoClip(null);
+    if(!selectedIds.includes(id))setWorkspace({rightOpen:true,leftOpen:false});
   }
   function batchChange(changes) {
     try {
@@ -323,6 +353,8 @@ export default function Editor() {
     };
   }, [mobile]);
   function openTool(name) {
+    navigation.setHand(false);
+    setFocusMode(false);setWorkspace(v=>rememberTool({...v,leftOpen:true,rightOpen:false},STUDIO_TOOLS.find(t=>t.id===name||t.tabs.includes(name))?.id||'Design'));
     const group=STUDIO_TOOLS.find(t=>t.id===name);
     setTab(group?(group.tabs.includes(tab)?tab:group.tabs[0]):name);
     setCropId(null);setEditId(null);
@@ -330,6 +362,8 @@ export default function Editor() {
     setPreview(false);
   }
   function openPanel(name = "selection") {
+    navigation.setHand(false);
+    setFocusMode(false);setWorkspace({rightOpen:true,leftOpen:false});
     setPanel(name);
     setMobile("properties");
     setPreview(false);
@@ -556,6 +590,7 @@ export default function Editor() {
   }
   useEffect(() => {
     function key(e) {
+      if(e.defaultPrevented)return;
       if (
         /INPUT|TEXTAREA|SELECT/.test(e.target.tagName) ||
         e.target.isContentEditable
@@ -593,39 +628,7 @@ export default function Editor() {
     window.addEventListener("keydown", key);
     return () => window.removeEventListener("keydown", key);
   });
-  function fit() {
-    if (!doc || !viewport.current) return;
-    const box = viewport.current.getBoundingClientRect();
-    setZoom(
-      Math.max(
-        0.05,
-        Math.min(
-          1,
-          (box.width - 120) / doc.canvas.width,
-          (box.height - 120) / doc.canvas.height,
-        ),
-      ),
-    );
-  }
-  useEffect(() => {
-    if (!doc) return;
-    const node = viewport.current;
-    const observer = new ResizeObserver(() => {
-      const b = node.getBoundingClientRect();
-      setZoom(
-        Math.max(
-          0.05,
-          Math.min(
-            1,
-            (b.width - 120) / doc.canvas.width,
-            (b.height - 120) / doc.canvas.height,
-          ),
-        ),
-      );
-    });
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, [doc?.canvas.width, doc?.canvas.height]);
+  function fit(){navigation.fit();}
   async function insertCreative(stickerId, frameId) {
     try {
       const asset = stickerId ? await (await import("@/lib/creative/stickers")).stickerAsset(stickerId) : await (await import("@/lib/templates/assets")).sampleAsset("travel");
@@ -874,7 +877,7 @@ export default function Editor() {
       <div className="panel-eyebrow">YOUR CREATIVE TOOLKIT</div>
       <h2>{tab==="Resize"?"Resize & create":tab==='Precision'?'Position & guides':tab}</h2>
       {(toolGroup(tab)?.tabs.length||0)>1&&<div className="tool-subnav" role="group" aria-label={`${toolGroup(tab).id} tools`}>{toolGroup(tab).tabs.map(id=><button key={id} aria-pressed={tab===id} onClick={()=>{setTab(id);setCropId(null);setEditId(null);}}>{id==='Resize'?'Resize & styles':id==='Precision'?'Precision':id}</button>)}</div>}
-      {tab==='Creative Tools'&&<CreativeTools doc={doc} element={element} selectedIds={selectedIds} onApply={(next,base)=>{if(latest.current!==base){setError('The design changed. Preview the operation again.');return false;}return apply(next);}} onSelect={id=>{setSelected(id);setVideoPreview(false);setPanel('selection');}} onOpen={nextId=>navigateSafely('/editor/'+nextId)} onError={setError} onTool={kind=>{if(kind==='layout'){openTool('Precision');return;}if(!element||(kind.startsWith('photo')?element.type!=='image':element.type!=='text')){setError(`Select a ${kind.startsWith('photo')?'photo':'text'} layer first.`);return;}if(kind.startsWith('photo'))setPhotoRequest({section:kind==='photo-effects'?'effects':'adjust',token:Date.now()});openPanel();}}/>}
+      {tab==='Creative Tools'&&<CreativeTools toolRequest={creativeRequest} doc={doc} element={element} selectedIds={selectedIds} onApply={(next,base)=>{if(latest.current!==base){setError('The design changed. Preview the operation again.');return false;}return apply(next);}} onSelect={id=>{setSelected(id);setVideoPreview(false);setPanel('selection');}} onOpen={nextId=>navigateSafely('/editor/'+nextId)} onError={setError} onTool={kind=>{if(kind==='layout'){openTool('Precision');return;}if(!element||(kind.startsWith('photo')?element.type!=='image':element.type!=='text')){setError(`Select a ${kind.startsWith('photo')?'photo':'text'} layer first.`);return;}if(kind.startsWith('photo'))setPhotoRequest({section:kind==='photo-effects'?'effects':'adjust',elementId:element.id,token:Date.now()});openPanel();}}/>}
       {tab==='Drawing'&&<DrawingTools settings={drawingSettings} onChange={setDrawingSettings} onDone={()=>{setTab('Elements');setMobile('');}}/>}
       {tab==='Precision'&&<><PrecisionTools value={precision} onChange={setPrecision} doc={doc}/><div className="layout-shortcuts">{[['center','Center Everything'],['align','Align Selection'],['distribute','Distribute Evenly'],['tidy','Tidy Layout'],['fit','Fit to Page']].map(([action,label])=><button key={action} onClick={()=>{try{apply(layoutAction(doc,action==='center'?[]:selectedIds,action,precision.margin));}catch(e){setError(e.message);}}}>{label}</button>)}</div><p className="editor-small">Layout actions use the selection, or all unlocked objects. Tidy stacks groups vertically with equal gaps; Fit preserves proportions.</p></>}
       {tab==='Animate'&&<AnimationTools video={!!doc.video} doc={doc} element={element} onPatch={patch=>change(element.id,patch)} onCanvas={patch=>apply({...doc,canvas:{...doc.canvas,...patch}})} onPlay={()=>{setTab('Animate');setEditId(null);setCropId(null);setMobile('');if(doc.video){setVideoPreview(true);setVideoTime(0);}else setMotionPreview(n=>n+1);}}/>}
@@ -905,7 +908,7 @@ export default function Editor() {
         }catch(e){setError(e.message);}
       }}/>}
       {tab==='Uploads'&&<UploadsPanel doc={doc} onUpload={uploadVideoMedia} onImage={imageFile} onImageReuse={assetId=>{const a=doc.assets[assetId],width=Math.min(600,doc.canvas.width*.8),item={...makeElement('image',crypto.randomUUID()),assetId,width,height:width*a.height/a.width,crop:{x:0,y:0,width:1,height:1}};if(apply(addElement(latest.current,item))){setSelected(item.id);setVideoPreview(false);}}} onAdd={addTimelineMedia} onRemove={removeTimelineMedia} onError={setError} onSourcePreview={()=>setVideoPreview(false)}/>}
-      {(tab==='Video'||tab==='Audio')&&<VideoPanel doc={doc} selected={videoClip} onSelect={setVideoClip} audioOnly={tab==='Audio'} onEnable={enableVideo} onVideo={next=>{try{updateVideo(next);}catch(e){setError(e.message);}}} onPreview={()=>{setVideoPreview(true);setVideoSection(false);setMobile('');}} onReplace={(file,c)=>uploadVideoMedia(file,c).catch(e=>setError(e.message))} onError={setError}/>}
+      {(tab==='Video'||tab==='Audio')&&<VideoPanel onToolRequestHandled={()=>setClipRequest(null)} toolRequest={clipRequest} doc={doc} selected={videoClip} onSelect={setVideoClip} audioOnly={tab==='Audio'} onEnable={enableVideo} onVideo={next=>{try{updateVideo(next);}catch(e){setError(e.message);}}} onPreview={()=>{setVideoPreview(true);setVideoSection(false);setMobile('');}} onReplace={(file,c)=>uploadVideoMedia(file,c).catch(e=>setError(e.message))} onError={setError}/>}
       {tab === "Elements" && <ElementLibrary onSticker={id=>insertCreative(id,null)} onFrame={id=>insertCreative(null,id)} onInsert={(kind, fill) => {
         try {
           const id = crypto.randomUUID();
@@ -920,8 +923,9 @@ export default function Editor() {
           <p>
             Original Comvexa artwork. Choose a photo to add it to your canvas.
           </p>
+          <label className="editor-field">Find a sample photo<input type="search" value={photoQuery} onChange={e=>setPhotoQuery(e.target.value)} placeholder="Fashion, food, travel, beauty…"/></label>
           <div className="studio-photos">
-            {["fashion", "food", "travel", "beauty", "motors"].map((kind) => (
+            {["fashion", "food", "travel", "beauty", "motors"].filter(kind=>(kind==='motors'?'motorcycle motors':kind).includes(photoQuery.toLowerCase())).map((kind) => (
               <button
                 key={kind}
                 disabled={photoBusy}
@@ -933,6 +937,7 @@ export default function Editor() {
                   width={160}
                   height={160}
                   alt=""
+                  loading="lazy"
                 />
                 <span>{kind === "motors" ? "Motorcycle" : kind}</span>
               </button>
@@ -1105,7 +1110,8 @@ export default function Editor() {
       />
     ) : (
       <PropertiesPanel
-        photoRequest={photoRequest}
+        photoRequest={photoRequest?.elementId===element?.id?photoRequest:null}
+        toolRequest={propertyRequest?.elementId===element?.id?propertyRequest:null}
         element={element}
         onPaste={() => selectionAction("paste")}
         doc={doc}
@@ -1153,7 +1159,8 @@ export default function Editor() {
   return (
     <main
       id="main-content"
-      className={`editor-shell ${preview ? "editor-previewing" : ""} ${compactTools?"compact-tool-navigation":""}`}
+      className={`editor-shell ${preview ? "editor-previewing" : ""} ${compactTools?"compact-tool-navigation":""} workspace-upgrade ${!workspace.leftOpen?'workspace-left-hidden':''} ${!workspace.rightOpen?'workspace-right-hidden':''} ${focusMode?'workspace-focus':''}`}
+      style={{'--left-panel-width':workspace.leftWidth+'px','--right-panel-width':workspace.rightWidth+'px'}}
     >
       <header className="editor-top">
         <Brand
@@ -1209,7 +1216,7 @@ export default function Editor() {
         <span className="editor-size">
           {doc.canvas.width} × {doc.canvas.height}
         </span>
-        <button
+        <button className="top-preview-toggle"
           onClick={() => {
             setPreview(!preview);
             setMobile("");
@@ -1232,6 +1239,7 @@ export default function Editor() {
         >
           Download
         </ToolButton>
+        <div className="workspace-top-actions"><ToolButton icon="search" title="Search tools · Ctrl/⌘ K" aria-label="Search tools" onClick={()=>setSearchOpen(true)}/><ToolButton icon="panelLeft" aria-label="Toggle tools panel" aria-pressed={workspace.leftOpen&&!focusMode} onClick={()=>{setFocusMode(false);setWorkspace({leftOpen:focusMode?true:!workspace.leftOpen});}}/><ToolButton icon="panelRight" aria-label="Toggle properties panel" aria-pressed={workspace.rightOpen&&!focusMode} onClick={()=>{setFocusMode(false);setWorkspace({rightOpen:focusMode?true:!workspace.rightOpen});}}/><ToolButton icon={focusMode?'unfocus':'focus'} title="Focus Mode · F" aria-label={focusMode?'Exit Focus Mode':'Enter Focus Mode'} aria-pressed={focusMode} onClick={()=>{setFocusMode(v=>!v);setMobile('');}}>{focusMode?'Exit Focus':'Focus'}</ToolButton></div>
         <ThemeToggle />
       </header>
       {overflowWarnings.length > 0 && (
@@ -1264,29 +1272,8 @@ export default function Editor() {
           </button>
         </div>
       )}
-      <nav className="editor-tabs" aria-label="Editor tools">
-        <button className="compact-tools-toggle" title={compactTools?'Show tool labels':'Use compact tool icons'} aria-label="Toggle compact tool navigation" aria-pressed={compactTools} onClick={()=>setCompactTools(v=>!v)}><StudioIcon name="more"/><span>Compact</span></button>
-        {STUDIO_TOOLS.map((tool) => (
-          <button
-            key={tool.id}
-            title={tool.hint}
-            aria-label={tool.id}
-            aria-pressed={toolGroup(tab)?.id === tool.id && !preview}
-            onClick={() => openTool(tool.id)}
-          >
-            <StudioIcon name={tool.icon} />
-            <span>{tool.id}</span>
-          </button>
-        ))}
-        <button
-          className="mobile-properties"
-          aria-label="Selection properties"
-          onClick={() => openPanel()}
-        >
-          <StudioIcon name="settings" />
-          <span>Edit</span>
-        </button>
-      </nav>
+      <ToolNavigation tab={tab} prefs={workspace} update={setWorkspace} onTool={openTool} onSearch={()=>setSearchOpen(true)} onProperties={()=>openPanel()}/>
+      <CommandPalette open={searchOpen} onClose={()=>setSearchOpen(false)} onRun={runCommand} type={element?.type}/>
       {mobile && (
         <button
           className="sheet-backdrop"
@@ -1306,94 +1293,18 @@ export default function Editor() {
               <StudioIcon name="close" /> Close tools
             </button>
           )}
+          <div className="workspace-panel-heading"><span>{toolGroup(tab)?.id||tab}</span><button aria-label="Collapse tools panel" onClick={()=>{setWorkspace({leftOpen:false});setMobile('');}}><StudioIcon name="panelLeft"/></button></div>
+          {workspaceError&&<p className="editor-small">{workspaceError}</p>}
           {sidebar}
+          <ResizeGrip label="Tools panel width" value={workspace.leftWidth} min={210} max={380} onChange={leftWidth=>setWorkspace({leftWidth})}/>
         </aside>
       )}
       <section className="editor-center" aria-label="Design workspace">
-        {!preview && (
-          <div
-            className="studio-context"
-            role="toolbar"
-            aria-label="Selection actions"
-          >
-            <div>
-              <StudioIcon
-                name={
-                  element?.type === "text"
-                    ? "type"
-                    : element?.type === "image"
-                      ? "image"
-                      : "settings"
-                }
-              />
-              <strong>
-                {liveSelection.length > 1
-                  ? `${liveSelection.length} selected`
-                  : selectionLabel(element)}
-              </strong>
-
-            </div>
-            <div>
-              {element ? (
-                <>
-                  <ToolButton icon="edit" onClick={() => openPanel()}>
-                    Edit
-                  </ToolButton>
-                  {element.type === "image" && <ToolButton icon="crop" disabled={element.locked} onClick={()=>{setCropId(element.id);setMobile("");}}>Crop</ToolButton>}
-                  {element.type === "text" && (
-                    <ToolButton
-                      icon="type"
-                      disabled={element.locked}
-                      onClick={() => {
-                        setEditId(element.id);
-                        setMobile("");
-                      }}
-                    >
-                      Type
-                    </ToolButton>
-                  )}
-                  <ToolButton
-                    icon="copy"
-                    title="Duplicate · ⌘/Ctrl D"
-                    aria-label="Duplicate selected element"
-                    onClick={duplicate}
-                  />
-                  <ToolButton
-                    icon={element.locked ? "unlock" : "lock"}
-                    title={element.locked ? "Unlock" : "Lock"}
-                    aria-label={
-                      element.locked
-                        ? "Unlock selected element"
-                        : "Lock selected element"
-                    }
-                    onClick={() =>
-                      change(element.id, { locked: !element.locked })
-                    }
-                  />
-                  <ToolButton
-                    icon="trash"
-                    aria-label="Delete selected element"
-                    title="Delete selected element"
-                    disabled={element.locked}
-                    onClick={remove}
-                  />
-                </>
-              ) : (
-                <span className="context-hint">
-                  {liveSelection.length > 1 ? (
-                    <button onClick={() => openPanel()}>Edit selection</button>
-                  ) : (
-                    "Choose a tool or select something to begin"
-                  )}
-                </span>
-              )}
-            </div>
-          </div>
-        )}
+        {!preview&&<ContextToolbar element={element} count={liveSelection.length} videoClip={videoClip} video={doc.video} onInspect={inspect} onCommand={runCommand} onDuplicate={duplicate} onDelete={remove} onLock={()=>change(element.id,{locked:!element.locked})} onVideoAction={clipAction}/>}
 
         {!preview && <div className="precision-bar"><SelectionControls {...selectionProps} compact/><button className="guides-toggle" aria-pressed={precision.show} onClick={()=>setPrecision(v=>({...v,show:!v.show}))}>Guides {precision.show?'on':'off'}</button>{tab==='Drawing'&&<button className="guides-toggle" onClick={()=>setMobile('')}>Draw on canvas</button>}</div>}
-        <div className="editor-viewport" ref={viewport}>
-          <div className="canvas-centering">
+        <div className={`editor-viewport ${navigation.hand?'hand-tool-active':''} ${navigation.panning?'canvas-panning':''}`} ref={viewport} tabIndex={0} aria-label="Canvas viewport. Hold Space and drag to pan; Ctrl or Command wheel to zoom.">
+          <div className={`canvas-centering ${videoPreview?'video-composition-view':'navigable-canvas'}`} style={videoPreview?undefined:{width:`calc(${doc.canvas.width*zoom}px + var(--view-w, 100%))`,height:`calc(${doc.canvas.height*zoom}px + var(--view-h, 100%))`}}>
             {doc.video&&videoPreview?<VideoPreview doc={doc} time={videoTime} onTime={setVideoTime} onError={setError} section={videoSection&&videoClip?(()=>{const c=doc.video[videoClip.key].find(c=>c.id===videoClip.id);return c?{start:c.start,end:clipEnd(c)}:null;})():null}/>:<DesignCanvas
               doc={doc}
               drawing={tab==='Drawing'&&!preview?drawingSettings:null}
@@ -1421,26 +1332,26 @@ export default function Editor() {
             />}
           </div>
         </div>
-        {doc.video&&<><div className="video-mode-controls"><button aria-pressed={videoPreview} onClick={()=>{setVideoPreview(true);setMobile('');}}>Playback preview</button><button aria-pressed={!videoPreview} onClick={()=>setVideoPreview(false)}>Edit text & graphics</button>{videoClip&&<label><input type="checkbox" checked={videoSection} onChange={e=>setVideoSection(e.target.checked)}/>Preview selected clip only</label>}</div><VideoTimeline doc={doc} time={videoTime} onTime={t=>{setVideoTime(t);setVideoPreview(true);}} onVideo={updateVideo} selected={videoClip} onSelect={selection=>{setVideoClip(selection);if(selection)setTab(selection.key==='audio'?'Audio':'Video');}} selectedIds={selectedIds} selectElements={ids=>{setSelectedIds(ids);setVideoPreview(false);setPanel('selection');}} onError={setError} onElementTiming={()=>openPanel()}/></>}
+        {doc.video&&<><div className="video-mode-controls"><button aria-pressed={videoPreview} onClick={()=>{setVideoPreview(true);setMobile('');}}>Playback preview</button><button aria-pressed={!videoPreview} onClick={()=>setVideoPreview(false)}>Edit text & graphics</button>{videoClip&&<label><input type="checkbox" checked={videoSection} onChange={e=>setVideoSection(e.target.checked)}/>Preview selected clip only</label>}</div><VideoTimeline height={workspace.timelineHeight} onHeightChange={timelineHeight=>setWorkspace({timelineHeight})} open={workspace.timelineOpen} onOpenChange={timelineOpen=>setWorkspace({timelineOpen})} zoom={workspace.timelineZoom} onZoomChange={timelineZoom=>setWorkspace({timelineZoom})} doc={doc} time={videoTime} onTime={t=>{setVideoTime(t);setVideoPreview(true);}} onVideo={updateVideo} selected={videoClip} onSelect={selection=>{setVideoClip(selection);if(selection)setTab(selection.key==='audio'?'Audio':'Video');}} selectedIds={selectedIds} selectElements={ids=>{setSelectedIds(ids);setVideoPreview(false);setPanel('selection');}} onError={setError} onElementTiming={()=>openPanel()}/></>}
         {!preview&&!doc.video&&<PageStrip projectId={id} doc={doc} onAction={pageAction} disabled={exporting||!!cropId}/>}
         <div className="editor-zoom">
           <button
-            onClick={() => setZoom((z) => Math.max(0.05, z - 0.1))}
+            disabled={videoPreview} onClick={() => navigation.zoomTo(zoom/1.15)}
             aria-label="Zoom out"
           >
             <StudioIcon name="zoomOut" />
           </button>
-          <output>{Math.round(zoom * 100)}%</output>
+          <output>{videoPreview?'Preview fits':`${Math.round(zoom * 100)}%`}</output>
           <button
-            onClick={() => setZoom((z) => Math.min(2, z + 0.1))}
+            disabled={videoPreview} onClick={() => navigation.zoomTo(zoom*1.15)}
             aria-label="Zoom in"
           >
             <StudioIcon name="zoomIn" />
           </button>
-          <ToolButton icon="fit" onClick={fit}>
+          <ToolButton icon="fit" disabled={videoPreview} title="Fit to screen · Shift 1" onClick={fit}>
             Fit
           </ToolButton>
-          <button onClick={() => setZoom(1)}>100%</button>
+          <button disabled={videoPreview} title="Actual size · Shift 2" onClick={()=>navigation.zoomTo(1)}>100%</button><ToolButton icon="hand" aria-label="Hand tool for canvas panning" aria-pressed={navigation.hand} disabled={videoPreview||tab==='Drawing'||!!editId||!!cropId} title="Hand tool · H / Space-drag" onClick={()=>navigation.setHand(v=>!v)}/>
           <span className="page-indicator">
             Page {doc.pages?doc.pages.findIndex(p=>p.id===doc.activePageId)+1:1} of {doc.pages?.length||1} · {doc.elements.length}/100 elements
           </span>
@@ -1458,7 +1369,9 @@ export default function Editor() {
           <button className="sheet-close" onClick={() => setMobile("")}>
             <StudioIcon name="close" /> Close panel
           </button>
+          <div className="workspace-panel-heading"><span>{panel==='export'?'Download':'Properties'}</span><button aria-label="Collapse properties panel" onClick={()=>{setWorkspace({rightOpen:false});setMobile('');}}><StudioIcon name="panelRight"/></button></div>
           {properties}
+          <ResizeGrip label="Properties panel width" value={workspace.rightWidth} min={240} max={420} direction={-1} onChange={rightWidth=>setWorkspace({rightWidth})}/>
         </aside>
       )}
       <input

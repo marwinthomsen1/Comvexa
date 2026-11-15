@@ -1,5 +1,8 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
+import {useAssetPreferences} from '@/features/editor/workspace/preferences';
+import {AssetFavorite,AssetViewFilter} from '@/features/editor/workspace/asset-controls';
+import {filterAssetItems} from '@/lib/workspace-ui/preferences';
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -14,6 +17,7 @@ import "./templates.css";
 const { templates, categories, sizes } = metadata;
 const styles = [...new Set(templates.map((t) => t.style))].sort();
 export default function TemplateLibrary() {
+  const assetPrefs=useAssetPreferences(),[assetView,setAssetView]=useState('all');
   const router = useRouter(),
     dialog = useRef(null);
   const [query, setQuery] = useState(""),
@@ -24,7 +28,7 @@ export default function TemplateLibrary() {
     [error, setError] = useState(""),
     [busy, setBusy] = useState(""),
     [limit, setLimit] = useState(24);
-  const items = useMemo(() => discoverTemplates({query, category, ratio, style}), [query, category, ratio, style]);
+  const items = useMemo(() => filterAssetItems(discoverTemplates({query, category, ratio, style}),'template',assetView,assetPrefs), [query, category, ratio, style,assetView,assetPrefs]);
   useEffect(() => {
     function sync(){const params=new URLSearchParams(window.location.search);setCategory(params.get('category')?.split(',').every(id=>categories.some(c=>c[0]===id))?params.get('category'):'All');setQuery(params.get('q')||'');setLimit(24);}
     sync();window.addEventListener('popstate',sync);return()=>window.removeEventListener('popstate',sync);
@@ -53,6 +57,7 @@ export default function TemplateLibrary() {
     }
   }
   function reset() {
+    setAssetView("all");
     setQuery("");
     setCategory("All");
     setRatio("All");
@@ -89,6 +94,7 @@ export default function TemplateLibrary() {
         </div>
       </div>
       <details className="multipage-template-section"><summary>Multi-page collections · 9 editable sets</summary><div className="multipage-template-grid">{multiPageTemplates.map(t=><button key={t.id} disabled={!!busy} onClick={async()=>{if(busy)return;setBusy(t.id);setError("");try{const doc=await generateMultiPageTemplate(t.id),{designStore}=await import("@/lib/editor/store"),id=crypto.randomUUID();await designStore.save(id,doc,0);router.push(`/editor/${id}`);}catch(e){setError(e.message);setBusy("");}}}><Image src={`/images/templates/${t.cover}.webp`} width={160} height={180} alt=""/><strong>{busy===t.id?"Opening…":t.name}</strong><span>3 editable pages</span></button>)}</div></details>
+      <AssetViewFilter value={assetView} onChange={value=>{setAssetView(value);setLimit(24);}}/>
       <div className="curated-category-rail" aria-label="Template categories">
         <button
           aria-pressed={category === "All"}
@@ -170,7 +176,7 @@ export default function TemplateLibrary() {
       )}
       <div className="curated-grid">
         {items.slice(0, limit).map((t, index) => (
-          <article className="curated-card" key={t.id}>
+          <article className="curated-card asset-entry" key={t.id}><AssetFavorite kind="template" id={t.id} name={t.name} prefs={assetPrefs}/>
             <button
               className="curated-artwork"
               aria-label={`Preview ${t.name}`}

@@ -1,5 +1,8 @@
 "use client";
 import {useEffect,useRef,useState} from "react";
+import {useAssetPreferences} from './workspace/preferences';
+import {AssetFavorite,AssetViewFilter} from './workspace/asset-controls';
+import {filterAssetItems,rememberAsset} from '@/lib/workspace-ui/preferences';
 import {fontCategories,searchFonts,ensureFont,FONT_NAMES} from "@/lib/typography/fonts";
 import {TEXT_STYLE_DEFAULTS,TEXT_EFFECTS,effectStyle} from "@/lib/typography/style";
 import {browserMeasure} from "@/lib/templates/fitting";
@@ -10,10 +13,12 @@ function FontPreview({family,children,style}) {
  useEffect(()=>{let active=true;const observer=new IntersectionObserver(entries=>{if(entries.some(e=>e.isIntersecting)){observer.disconnect();ensureFont(family).then(()=>{if(active)setReady(true);}).catch(()=>{});}});observer.observe(ref.current);return()=>{active=false;observer.disconnect();};},[family]);
  return <span ref={ref} style={{...style,fontFamily:ready?family:undefined}}>{children||family}</span>;
 }
-export default function TypographyControls({element:e,onPatch,Field}) {
+export default function TypographyControls({element:e,onPatch,Field,toolRequest}) {
+ const assetPrefs=useAssetPreferences(),[presetView,setPresetView]=useState('all');
  const [query,setQuery]=useState(""),[category,setCategory]=useState("All"),[limit,setLimit]=useState(8),[busy,setBusy]=useState(false),[error,setError]=useState(""),[recent,setRecent]=useState([]);
- const active=useRef(true),request=useRef(0),fontPicker=useRef(null);
+ const active=useRef(true),request=useRef(0),fontPicker=useRef(null),root=useRef(null);
  useEffect(()=>{active.current=true;try{const r=JSON.parse(localStorage.getItem("comvexa-recent-fonts")||"[]");if(Array.isArray(r))setRecent(r.filter(n=>FONT_NAMES.includes(n)).slice(0,6));}catch{/* Font history is optional when local storage is unavailable. */}return()=>{active.current=false;};},[]);
+ useEffect(()=>{if(!toolRequest)return;const section=toolRequest.section;let target;if(section==='font'){if(fontPicker.current)fontPicker.current.open=true;target=fontPicker.current?.querySelector('input');}if(section==='size')target=root.current?.querySelector('.type-size-color input[type="number"]');if(section==='color')target=root.current?.querySelector('.type-size-color input[type="color"]');if(section==='effects')target=root.current?.querySelector('[aria-label="Text effect"]');if(section==='alignment')target=root.current?.querySelector('[aria-label="Align text left"]');target?.focus();target?.scrollIntoView({block:'nearest'});},[toolRequest]);
  const s={...TEXT_STYLE_DEFAULTS,...e.textStyle},fonts=searchFonts(query,category);
  async function patch(values, fit = false) {
   const sequence=++request.current;setBusy(true);setError("");
@@ -26,7 +31,7 @@ export default function TypographyControls({element:e,onPatch,Field}) {
   finally{if(active.current&&sequence===request.current)setBusy(false);}
  }
  const style=(key,value)=>onPatch({textStyle:{...s,[key]:value}});
- return <div className="typography-controls">
+ return <div ref={root} className="typography-controls">
   {error&&<p role="alert" className="typography-error">{error}</p>}
   {busy&&<p role="status">Loading font…</p>}
   <details ref={fontPicker} className="studio-details font-picker"><summary aria-label={`Choose font: ${e.fontFamily}`}><StudioIcon name="type" size={16}/><span>{e.fontFamily}</span><StudioIcon name="chevron" size={14}/></summary>
@@ -58,6 +63,6 @@ export default function TypographyControls({element:e,onPatch,Field}) {
    <Field label="Blur" value={s.shadowBlur} min={0} max={80} onChange={v=>style("shadowBlur",v)}/>
    <div className="editor-fields"><Field label="Shadow X" value={s.shadowOffsetX} min={-100} max={100} onChange={v=>style("shadowOffsetX",v)}/><Field label="Shadow Y" value={s.shadowOffsetY} min={-100} max={100} onChange={v=>style("shadowOffsetY",v)}/></div>
   </details>
-  <details className="studio-details"><summary><StudioIcon name="type" size={16}/> Text style presets</summary><div className="text-preset-grid">{textPresets.map(p=><button key={p.id} disabled={busy} style={{background:["neon","sale"].includes(p.id)?"#17122f":"#f7f4eb",color:["neon","sale"].includes(p.id)?"#ffffff":"#241443"}} onClick={()=>patch(presetPatch(p.id),true)}><FontPreview family={p.fontFamily} style={{color:p.fill,fontWeight:p.fontWeight,textShadow:p.effect==="offset"?"2px 2px #b64e32":p.effect==="neon"?"0 0 7px #f43a9b":"none"}}>Aa</FontPreview><small>{p.name}</small></button>)}</div><p>Apply a style, then customize it. Single-weight fonts use browser-synthesized bold or italic when needed.</p></details>
+  <details className="studio-details"><summary><StudioIcon name="type" size={16}/> Text style presets</summary><AssetViewFilter value={presetView} onChange={setPresetView}/><div className="text-preset-grid">{filterAssetItems(textPresets,'text-preset',presetView,assetPrefs).map(p=><div key={p.id} className="asset-entry"><button disabled={busy} style={{background:["neon","sale"].includes(p.id)?"#17122f":"#f7f4eb",color:["neon","sale"].includes(p.id)?"#ffffff":"#241443"}} onClick={()=>{patch(presetPatch(p.id),true);rememberAsset('text-preset:'+p.id);}}><FontPreview family={p.fontFamily} style={{color:p.fill,fontWeight:p.fontWeight,textShadow:p.effect==="offset"?"2px 2px #b64e32":p.effect==="neon"?"0 0 7px #f43a9b":"none"}}>Aa</FontPreview><small>{p.name}</small></button><AssetFavorite kind="text-preset" id={p.id} name={p.name} prefs={assetPrefs}/></div>)}</div><p>Apply a style, then customize it. Single-weight fonts use browser-synthesized bold or italic when needed.</p></details>
  </div>;
 }
