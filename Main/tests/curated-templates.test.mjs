@@ -165,7 +165,8 @@ test("quality checks reject regression fixtures for clipping, bounds, missing re
 // Exercise the exact lightweight index used by the marketplace UI.
 import { discoverTemplates } from "../src/lib/templates/discovery.js";
 test("marketplace metadata search discovers wedding intent and combines all filters", () => {
- assert.deepEqual(discoverTemplates({query:"wedding"}).map(t=>t.id), ["studio-wedding"]);
+ assert.equal(discoverTemplates({query:"wedding"}).length,21);
+ assert.ok(discoverTemplates({query:"wedding"}).some(t=>t.id==="studio-wedding"));
  assert.equal(discoverTemplates({query:"wedding",category:"food"}).length,0);
  assert.equal(discoverTemplates({query:"wedding",category:"events",ratio:"invitation",style:"Luxury"}).length,1);
  const resumes=discoverTemplates({query:"résumé"});

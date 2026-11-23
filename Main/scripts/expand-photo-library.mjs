@@ -1,0 +1,21 @@
+import {mkdir,writeFile} from 'node:fs/promises';
+import sharp from 'sharp';
+const collections={
+nature:['1501785888041-af3ef285b470:Alpine lake','1464822759023-fed622ff2c3b:Mountain morning','1448375240586-882707db888b:Forest trail','1509316785289-025f5b846b35:Desert dunes','1475924156734-496f6cac6ec1:Ocean horizon','1432405972618-c60b0225b8f9:Waterfall valley','1441974231531-c6227db76b6e:Sunlit forest','1473448912268-2022ce9509d8:Misty woodland'],
+travel:['1499793983690-e29da59ef1c2:Italian coast','1502602898657-3e91760cbb34:Paris streets','1540959733332-eab4deabeeaf:Tokyo lights','1501594907352-04cda38ebc29:Golden Gate','1514890547357-a9ee288728e0:Venice canals','1537996194471-e657df975ab4:Bali retreat','1519501025264-65ba15a82390:City skyline','1507525428034-b723cf961d3e:Tropical shore'],
+food:['1512621776951-a57141f2eefd:Fresh salad','1490645935967-10de6ba17061:Artisan breakfast','1540420773420-3366772f4999:Seasonal bowl','1473093226795-af9932fe5856:Pasta night','1528207776546-365bb710ee93:Pancake morning','1484723091739-30a097e8f929:Breakfast table','1495474472287-4d71bcdd2085:Coffee ritual'],
+interiors:['1600210492486-724fe5c67fb0:Quiet living room','1600607687939-ce8a6c25118c:Modern lounge','1600566753086-00f18fb6b3ea:Bright apartment','1616486338812-3dadae4b4ace:Warm home','1497366811353-6870744d04b2:Studio corner','1497366754035-f200968a6e72:Creative office'],
+architecture:['1487958449943-2429e8be8625:Glass geometry','1486406146926-c627a92ad1ab:Architectural rhythm'],
+flowers:['1490750967868-88aa4486c946:Spring bouquet','1457089328109-e5d9bd499191:Garden petals','1468327768560-75b778cbb551:Pink blossoms','1525310072745-f49212b5ac6d:Botanical detail'],
+wellness:['1544367567-0f2fcb009e0b:Yoga practice','1506126613408-eca07ce68773:Mindful movement'],
+fitness:['1534438327276-14e5300c3a48:Training studio','1517836357463-d25dfeac3438:Dumbbells'],
+fashion:['1445205170230-053b83016050:Everyday wardrobe','1483985988355-763728e1935b:Clothing rail'],
+technology:['1496181133206-80ce9b88a853:Laptop desk','1519389950473-47ba0277781c:Connected workspace','1461749280684-dccba630e2f6:Code studio','1517336714731-489689fd1ca8:Minimal laptop'],
+business:['1522071820081-009f0129c71c:Team workshop','1552664730-d307ca884978:Planning session','1521737711867-e3b97375f902:Creative collaboration'],
+education:['1507842217343-583bb7270b66:Library shelves','1481627834876-b7833e8f5570:Open book','1455390582262-044cdead277a:Study notes'],
+animals:['1552053831-71594a27632d:Golden companion','1514888286974-6c03e2ca1dba:Curious cat','1546182990-dffeafbe841d:Wildlife portrait'],
+textures:['1518837695005-2083093ee35b:Blue water','1518495973542-4542c06a5843:Sunlit canopy','1501004318641-b39e6451bec6:Palm leaves','1470071459604-3b5ec3a7fe05:Mountain mist'],
+celebrations:['1511795409834-ef04bbd61622:Celebration table','1513151233558-d860c5398176:Birthday balloons','1519741497674-611481863552:Wedding flowers','1492684223066-81342ee5ff30:Party lights']};
+const rows=Object.entries(collections).flatMap(([category,items])=>items.map(v=>({category,source:v.split(':')[0],name:v.split(':')[1]}))),photos=[];await mkdir('public/images/library',{recursive:true});
+for(let offset=0;offset<rows.length;offset+=6)await Promise.all(rows.slice(offset,offset+6).map(async p=>{const id='photo-'+p.source,path=`/images/library/${id}.webp`;try{const r=await fetch(`https://images.unsplash.com/photo-${p.source}?auto=format&fit=max&w=2400&q=85`);if(!r.ok)throw Error(r.status);const data=Buffer.from(await r.arrayBuffer());await sharp(data).rotate().resize({width:2400,height:2400,fit:'inside',withoutEnlargement:true}).webp({quality:84}).toFile('public'+path);await sharp(data).rotate().resize(400,400,{fit:'cover'}).webp({quality:76}).toFile(`public/images/library/${id}-thumb.webp`);photos.push({...p,id,path,thumbnail:`/images/library/${id}-thumb.webp`,source:`https://images.unsplash.com/photo-${p.source}`,credit:'Unsplash',license:'https://unsplash.com/license',keywords:`${p.category} ${p.name}`});}catch(e){console.log('Skipped',p.name,e.message);}}));
+photos.sort((a,b)=>a.id.localeCompare(b.id));await writeFile('src/lib/creative/photo-library.json',JSON.stringify(photos,null,2)+'\n');console.log('Downloaded',photos.length,'photos');

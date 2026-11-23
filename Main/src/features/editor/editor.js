@@ -61,7 +61,9 @@ import DesignCanvas from "./design-canvas";
 import { StudioIcon, ToolButton } from "@/components/ui/studio-icon";
 import { STUDIO_TOOLS, toolGroup, selectionLabel, connectionLabel } from "./studio-tools";
 import { leaveStudio } from "./studio-session";
-import { sampleAsset } from "@/lib/templates/assets";
+import { libraryPhoto } from "@/lib/creative/photo-assets";
+import PhotoLibrary from "./photo-library";
+import {rememberAsset} from "@/lib/workspace-ui/preferences";
 import Image from "next/image";
 import {
   PropertiesPanel,
@@ -160,7 +162,7 @@ export default function Editor() {
   const [photoRequest,setPhotoRequest]=useState(null);
   const {value:workspace,update:setWorkspace,error:workspaceError}=useWorkspacePreferences();
   const compactTools=workspace.compact;
-  const [focusMode,setFocusMode]=useState(false),[searchOpen,setSearchOpen]=useState(false),[propertyRequest,setPropertyRequest]=useState(null),[creativeRequest,setCreativeRequest]=useState(null),[clipRequest,setClipRequest]=useState(null),[photoQuery,setPhotoQuery]=useState('');
+  const [focusMode,setFocusMode]=useState(false),[searchOpen,setSearchOpen]=useState(false),[propertyRequest,setPropertyRequest]=useState(null),[creativeRequest,setCreativeRequest]=useState(null),[clipRequest,setClipRequest]=useState(null);
   const initialVideoMode=useRef(false);
   const [videoTime,setVideoTime]=useState(0),[videoPreview,setVideoPreview]=useState(false),[videoClip,setVideoClip]=useState(null),[videoSection,setVideoSection]=useState(false);
   const [drawingSettings,setDrawingSettings]=useState(DEFAULT_DRAWING),[precision,setPrecision]=useState(DEFAULT_PRECISION),[motionPreview,setMotionPreview]=useState(0);
@@ -856,14 +858,16 @@ export default function Editor() {
   async function insertPhoto(kind) {
     setPhotoBusy(true);
     try {
-      const asset = await sampleAsset(kind),
+      const asset = await libraryPhoto(kind),
         assetId = crypto.randomUUID();
       const current = latest.current;
-      const width = Math.min(600, current.canvas.width * 0.8);
+      const width = Math.min(1000, current.canvas.width * 0.8, current.canvas.height * 0.8 * asset.width / asset.height);
       const item = {
         ...makeElement("image", crypto.randomUUID()),
         width,
         height: (width * asset.height) / asset.width,
+        x: (current.canvas.width-width)/2,
+        y: (current.canvas.height-width*asset.height/asset.width)/2,
         assetId,
         crop: { x: 0, y: 0, width: 1, height: 1 },
       };
@@ -873,6 +877,7 @@ export default function Editor() {
           item,
         ),
       );
+      rememberAsset("photo:"+kind);
       setSelected(item.id);
       openPanel();
     } catch (e) {
@@ -927,33 +932,7 @@ export default function Editor() {
           setMobile("properties");
         } catch(e) { setError(e.message); }
       }} />}
-      {tab === "Photos" && (
-        <>
-          <p>
-            Original Comvexa artwork. Choose a photo to add it to your canvas.
-          </p>
-          <label className="editor-field">Find a sample photo<input type="search" value={photoQuery} onChange={e=>setPhotoQuery(e.target.value)} placeholder="Fashion, food, travel, beauty…"/></label>
-          <div className="studio-photos">
-            {["fashion", "food", "travel", "beauty", "motors"].filter(kind=>(kind==='motors'?'motorcycle motors':kind).includes(photoQuery.toLowerCase())).map((kind) => (
-              <button
-                key={kind}
-                disabled={photoBusy}
-                onClick={() => insertPhoto(kind)}
-                aria-label={`Add ${kind === "motors" ? "motorcycle" : kind} photo`}
-              >
-                <Image
-                  src={`/images/previews/${kind === "motors" ? "motorcycle" : kind}.webp`}
-                  width={160}
-                  height={160}
-                  alt=""
-                  loading="lazy"
-                />
-                <span>{kind === "motors" ? "Motorcycle" : kind}</span>
-              </button>
-            ))}
-          </div>
-        </>
-      )}
+      {tab === "Photos" && <PhotoLibrary onChoose={insertPhoto} busy={photoBusy}/>}
       {tab === "Resize" && <SmartTools key={doc.activePageId||"single"} doc={doc} onResize={resizeSmart} onVariations={makeVariations} onTheme={smartStyle} onArrange={mode=>{try{const ids=selectedIds.length?selectedIds:doc.elements.filter(e=>!e.locked&&!e.hidden).map(e=>e.id);apply(layoutAction(doc,ids,mode,precision.margin));}catch(e){setError(e.message);}}}/>}
       {tab === "Backgrounds" && <>
         <label className="editor-field">Canvas color<input type="color" value={doc.canvas.background} onChange={e=>apply({...doc,canvas:{...doc.canvas,background:e.target.value,fillEffect:null,transparent:false}})}/></label>

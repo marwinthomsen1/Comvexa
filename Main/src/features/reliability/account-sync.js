@@ -10,16 +10,18 @@ export default function AccountSync({children}){
  const path=usePathname(),workspace=path.startsWith('/dashboard')||path.startsWith('/editor');
  const [ready,setReady]=useState(false),[status,setStatus]=useState({state:'loading',message:'Opening your account workspace…'}),[user,setUser]=useState(null),[guestCount,setGuestCount]=useState(0),[details,setDetails]=useState(false);
  const engine=useRef(null),sync=useRef(null);
- useEffect(()=>{if(!workspace)return;setReady(false);setStatus({state:"loading",message:"Opening your account workspace…"});let stopped=false,timer,interval,authInterval;
+ useEffect(()=>{if(!workspace){setReady(false);return;}setReady(false);setStatus({state:"loading",message:"Opening your account workspace…"});let stopped=false,timer,interval,authInterval;
   const changed=()=>{setStatus(previous=>['conflict','session'].includes(previous.state)?previous:{...previous,state:'pending',message:'Changes waiting to save to your account…'});clearTimeout(timer);timer=setTimeout(()=>sync.current?.(),1800);};
   async function initialize(){try{
-   const response=await fetch('/api/auth',{cache:'no-store'}),account=await response.json();if(stopped)return;
+   const response=await fetch('/api/auth',{cache:'no-store',signal:AbortSignal.timeout(20000)}),account=await response.json();if(stopped)return;
    if(!response.ok&&account.error!=='development_service_not_configured')throw Error('Could not verify your account. Reconnect and retry.');
    const identity=account.user||null;selectAccount(identity?.id||null);setUser(identity);
+   authInterval=setInterval(async()=>{try{const r=await fetch('/api/auth',{cache:'no-store',signal:AbortSignal.timeout(20000)}),a=await r.json();if(r.ok&&(a.user?.id||null)!==(identity?.id||null)&&!stopped){engine.current?.stop();setReady(false);setStatus({state:'session',message:'Switching to your current account…'});window.location.reload();}}catch{/* Keep the current account cache during network interruptions. */}},15000);
    if(!identity){setStatus({state:'guest',message:'Guest workspace · saved on this device'});setReady(true);return;}
    await repairSettings();const cached=await readAccountRecords();if(stopped)return;
+   if(cached.meta)setReady(true);
    engine.current=createSyncEngine({transport:httpSyncTransport(identity.id),onStatus:next=>{if(!stopped){setStatus(next);if(next.state==='session'){setReady(false);engine.current?.stop();}}}});
-   sync.current=async resolution=>{const run=()=>engine.current.sync(resolution);return navigator.locks? navigator.locks.request('comvexa-sync-'+identity.id,run):Promise.reject(Error('This browser does not support safe account sync. Use a current browser.'));};
+   sync.current=async resolution=>{try{const run=()=>engine.current.sync(resolution);if(!navigator.locks)throw Error('This browser does not support safe account sync. Use a current browser.');return await navigator.locks.request('comvexa-sync-'+identity.id,{signal:AbortSignal.timeout(35000)},run);}catch(error){const next={state:'offline',message:error.name==='TimeoutError'?'Account saving is taking longer than expected. Your device copy is preserved. Retry when connected.':error.message};if(!stopped)setStatus(next);return next;}};
    registerSyncFlusher(async()=>{let result;for(let i=0;i<3;i++){result=await sync.current();if(result?.state!=="pending")return result;}return result;});
    const result=await sync.current();if(stopped)return;
    if(result?.state!=='session'&&(['saved','pending'].includes(result?.state)||cached.meta))setReady(true);
@@ -27,8 +29,8 @@ export default function AccountSync({children}){
    const local=await readAccountRecords();if(!local.meta?.guestImported){const records=await guestRecords();setGuestCount(records.filter(r=>r.key.startsWith('designs/')||r.key.startsWith('brand-kits/')).length);}
    window.addEventListener('comvexa-account-change',changed);window.addEventListener('online',changed);window.addEventListener('focus',changed);window.addEventListener('storage',changed);
    interval=setInterval(()=>sync.current?.(),12000);
-   authInterval=setInterval(async()=>{try{const r=await fetch('/api/auth',{cache:'no-store'}),a=await r.json();if(r.ok&&a.user?.id!==identity.id&&!stopped){engine.current?.stop();setReady(false);setStatus({state:'session',message:'Your account changed or you signed out. Reload to continue safely.'});}}catch{/* The existing account cache remains available during a network interruption. */}},15000);
-  }catch(e){if(!stopped)setStatus({state:'offline',message:e.message});}}
+
+  }catch(e){if(!stopped){if(e.code==='account_changed'){setStatus({state:'session',message:'Switching to your current account…'});window.location.reload();}else setStatus({state:'offline',message:e.message});}}}
   initialize();
   return()=>{stopped=true;registerSyncFlusher(null);engine.current?.stop();clearTimeout(timer);clearInterval(interval);clearInterval(authInterval);window.removeEventListener('comvexa-account-change',changed);window.removeEventListener('online',changed);window.removeEventListener('focus',changed);window.removeEventListener('storage',changed);};
  },[workspace]);

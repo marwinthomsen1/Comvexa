@@ -32,7 +32,10 @@ export function contrast(a, b) {
   return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
 }
 export function generateCurated(id, assets = {}, measure = approximateMeasure) {
-  const t = getCuratedTemplate(id),
+  return generateRecipe(getCuratedTemplate(id), assets, measure);
+}
+export function generateRecipe(t, assets = {}, measure = approximateMeasure) {
+  const id=t.id,
     size = CURATED_SIZES[t.ratio],
     scale = size.width / 1000,
     doc = newDesign(t.name, size.width, size.height);

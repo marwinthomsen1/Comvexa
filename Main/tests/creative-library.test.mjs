@@ -7,9 +7,9 @@ import {stickers,stickerSVG} from '../src/lib/creative/stickers.js';
 import {adjustPhotoPixels,validatePhotoStyle} from '../src/lib/editor/photo-style.js';
 import {newDesign,makeElement,patchElement,validateDocument} from '../src/lib/editor/document.js';
 test('creative catalogs retain distinct IDs and original sticker illustrations',()=>{
- assert.equal(photoFilters.length,42);assert.equal(photoEffects.length,32);assert.equal(photoFrames.length,50);assert.equal(stickers.length,200);
+ assert.equal(photoFilters.length,42);assert.equal(photoEffects.length,32);assert.equal(photoFrames.length,50);assert.equal(stickers.length,400);
  for(const collection of [photoFilters,photoEffects,photoFrames,stickers])assert.equal(new Set(collection.map(i=>i.id)).size,collection.length);
- assert.equal(new Set(stickers.map(s=>stickerSVG(s.id))).size,200);
+ assert.equal(new Set(stickers.map(s=>stickerSVG(s.id))).size,400);
  for(const s of stickers){const svg=stickerSVG(s.id);assert.ok(svg.startsWith('<svg'));assert.ok(!/<script|<foreignObject|https?:\/\/(?!www.w3.org)/.test(svg));}
 });
 test('all filters process pixels deterministically, preserve alpha and obey zero intensity',()=>{

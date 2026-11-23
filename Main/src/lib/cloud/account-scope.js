@@ -1,6 +1,6 @@
 let owner=null,selected=false;
 export function accountOwner(){return owner;}
-export function selectAccount(value){if(value!==null&&!/^[0-9a-f-]{36}$/i.test(value))throw Error('Invalid account identity.');if(selected&&owner!==value)throw Error('Account changed. Reload to switch workspaces safely.');owner=value;selected=true;}
+export function selectAccount(value){if(value!==null&&!/^[0-9a-f-]{36}$/i.test(value))throw Error('Invalid account identity.');if(selected&&owner!==value)throw Object.assign(Error('Account changed. Reload to switch workspaces safely.'),{code:'account_changed'});owner=value;selected=true;}
 export function accountKey(key,account=owner){return account?`${key}:account:${account}`:key;}
 export function accountDatabase(name,account=owner){return account?`${name}-account-${account}`:name;}
 export function accountChanged(){if(typeof window!=='undefined')window.dispatchEvent(new Event('comvexa-account-change'));}
