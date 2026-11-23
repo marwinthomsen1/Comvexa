@@ -23,3 +23,10 @@ test('60 locally stored stock photos have full-size images, small thumbnails and
 test('account identity changes remain isolated and produce a recoverable session transition',async()=>{
  const scope=await import('../src/lib/cloud/account-scope.js?identity-regression');const A='00000000-0000-4000-8000-000000000001';scope.selectAccount(null);scope.selectAccount(null);assert.throws(()=>scope.selectAccount(A),e=>e.code==='account_changed');assert.equal(scope.accountOwner(),null);
 });
+
+test('template shuffle mixes formats and categories without losing IDs or moving results during filtering',async()=>{
+ const {shuffleTemplates}=await import('../src/lib/templates/shuffle.js');const source=metadata.templates.map(t=>t.id),mixed=shuffleTemplates(metadata.templates);
+ assert.deepEqual(metadata.templates.map(t=>t.id),source);assert.deepEqual(new Set(mixed.map(t=>t.id)),new Set(source));assert.deepEqual(shuffleTemplates(metadata.templates),mixed);
+ assert.ok(new Set(mixed.slice(0,24).map(t=>t.category)).size>=6);assert.ok(new Set(mixed.slice(0,24).map(t=>t.style)).size>=8);
+ assert.deepEqual(discoverTemplates({category:'events'}),mixed.filter(t=>t.category==='events'));
+});
