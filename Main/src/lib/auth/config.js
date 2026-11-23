@@ -1,5 +1,5 @@
 export function cloudConfig(env=process.env){
- const url=env.NEXT_PUBLIC_SUPABASE_URL,key=env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,ref=env.SUPABASE_DEV_PROJECT_REF;
+ const url=env.COMVEXA_SUPABASE_URL || env.NEXT_PUBLIC_SUPABASE_URL,key=env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,ref=env.SUPABASE_DEV_PROJECT_REF;
  if(env.COMVEXA_CLOUD_AUTH_ENABLED!=='true'||typeof ref!=='string'||!/^[a-z]{20}$/.test(ref)||url!==`https://${ref}.supabase.co`||typeof key!=='string'||!/^sb_publishable_[a-zA-Z0-9_-]+$/.test(key))return null;
  try{const origin=new URL(env.APP_ORIGIN);if(!['http:','https:'].includes(origin.protocol)||origin.username||origin.password||origin.origin!==env.APP_ORIGIN)return null;return{url,key,ref,origin:origin.origin};}catch{return null;}
 }

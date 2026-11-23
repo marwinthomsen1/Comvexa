@@ -164,3 +164,8 @@ Changes debounce for about 1.8 seconds after a device save; active workspaces ch
 Current development limits: 400 MB of account data, 5,000 manifest records and 100 MB per individual record; existing design/media limits still apply. Old immutable cloud chunks are retained; automated garbage collection and storage-quota management are not implemented. Thumbnails are regenerated locally, and clipboard contents and device recovery snapshots remain device-specific. No deployment or DNS changes were made; access from another physical device still requires hosting the app at an accessible URL.
 
 Validation includes multi-device simulations, stale-write rejection, offline replay, concurrent local edits, media/history/brand/profile transfer, account namespace isolation, actual PostgreSQL RLS/CAS tests and a development-only read-only browser check at `/dev/account-sync-validation`. The latter loads a real signed-in account into two empty in-memory clients without browser-cache reads or cloud writes.
+
+
+### Hosted environment setup
+
+The hosting application root is `Main/` and Node.js 24 is required. Production uses its canonical HTTPS origin in `APP_ORIGIN`; local development keeps `http://localhost:3000`. The server accepts an optional `COMVEXA_SUPABASE_URL` override before `NEXT_PUBLIC_SUPABASE_URL`, allowing a hosting project with a locked legacy public URL to use the verified new Supabase project without deleting its old configuration. Project-reference matching and explicit cloud-auth enablement remain required. Environment values belong in the hosting dashboard or ignored `.env.local`, never in Git.
