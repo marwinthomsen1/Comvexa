@@ -1,6 +1,6 @@
 # Comvexa — Create once. Use everywhere.
 
-Creative design platform by Marwin Thomsen. Worldwide audience, initially focusing on the Philippines. Phase 5 adds connected campaign fields and shared updates to editable templates and automatic design packages to the browser-local editor and approved website. Cloud services remain unavailable.
+Creative design platform by Marwin Thomsen. Worldwide audience, initially focusing on the Philippines. Phase 5 adds connected campaign fields and shared updates to editable templates and automatic design packages to the browser-local editor and approved website. Development Supabase accounts now automatically save and load the signed-in workspace across devices. Local caches support editing between syncs; optional backups remain available.
 
 ## Product direction and roadmap
 
@@ -33,15 +33,15 @@ npm run test:http
 - IndexedDB autosave with revision conflict checks and portable JSON project import/export.
 - Responsive workspace, project/campaign creation, linking and listings, search/sort, detail views.
 - Local profile settings, template concept filtering, persistent light/dark themes.
-- Login/registration form previews with local validation and explicit unavailable states.
+- Supabase email registration/login, verified cookie sessions and automatic account workspaces. Guest mode remains available.
 - Validated browser-local persistence with load/save error states. Up to 100 projects and 100 campaigns.
 - Prepared PostgreSQL migration with ownership policies, tested in isolated PGlite.
 
 ## Important boundaries
 
-The local workspace is public and **not authenticated**. Its data belongs to this browser profile and origin, not an account. Anyone using the same browser profile can see it. It is neither encrypted storage nor a durable backup. Clearing browser data loses drafts. Do not enter sensitive information. Workspace planning drafts still use localStorage. Design documents use separate IndexedDB transactions with revision conflict checks. Cloud persistence must preserve those checks. No local draft is automatically uploaded later.
+Guest work belongs to the browser profile and is not authenticated. Signed-in work uses an account-specific cache and automatically synchronizes designs, campaigns, embedded images, original media, version history, reviews, brand kits, profile/planning drafts and workspace preferences. Accounts do not share the same local design, media, clipboard, brand or preference namespace. Guest work is preserved separately and can be brought into the signed-in account with the one-time **Bring existing work into my account** action. Local caches are not encrypted; someone with control of the browser profile or device can inspect local storage. Wait for **Saved to your account** before switching devices.
 
-Cloud registration, login, sessions, recovery emails and persistence are **not implemented or enabled**. `/api/auth` POST and `/api/projects` GET/POST fail closed with HTTP 503 and never accept a fake preview identity. The form previews do not transmit, log or store passwords. Do not enter real passwords. Adding environment variables alone will not activate a service.
+Development email registration, password login, session refresh and logout are enabled only when the verified project configuration and `COMVEXA_CLOUD_AUTH_ENABLED=true` are present. `/api/auth` verifies identity through Supabase; its session cookies are HTTP-only. Registration can require email confirmation. Manual cloud library backups use a private Storage bucket with per-user folder policies. Signed-in workspace changes now save automatically. Shared team access and password-recovery UI are not implemented. `/api/projects` still returns HTTP 503 because remote project metadata CRUD has not been integrated.
 
 The editable template library and four-format package generator are available. Connected campaign fields propagate across saved linked designs locally. Preview artwork and the price illustration are not generated designs. No payment, ads, analytics, remote fonts or image services are connected. The site remains noindex.
 
@@ -123,3 +123,44 @@ The editor's **Elements** tool now includes 79 original editable shapes and grap
 ## Editor upgrade — Stage C
 
 [Stage C report](docs/editor-upgrade-stage-c.md): 54 fonts, searchable previews/categories/recent fonts, italic/underline/spacing, native editable shadows/outlines/glow/offset/neon/gradients and ten text presets. Fonts are self-hosted and loaded on demand; selected fonts are awaited before project rendering/export. Curved text is deferred. Stage D has not started.
+
+## Local workflow and recovery update
+
+- **Guided creation** at `/dashboard/start` takes a product, restaurant offer or event brief into the existing four-format package builder. Open it from Home’s **Guide me** button.
+- **Review & history** in the editor includes checks across all pages for text overflow, off-canvas text, low image resolution, contrast against identifiable solid backgrounds, and optional print text margins. Checks are advisory; gradient/photo contrast and printer-specific bleed are not inferred.
+- **Version history** archives the previous saved document and its connected campaign snapshot in the same transaction as each edit. Retention is up to 10 previous revisions within a 40 MB budget per design (the latest previous revision is retained even when larger than the budget). Restore creates a new independent design/campaign copy. History begins with this update; it cannot reconstruct earlier saves.
+- **Local review notes** support comments, resolution and Draft / Ready for review / Changes requested / Approved states. Reviews reference a saved design revision and reject conflicting edits. Names are self-reported, and approval is not authenticated team sign-off. A newer design revision requires review again.
+- **Campaign review** shows changed fields, affected element counts and preserved overrides, plus saved/proposed previews. Campaign-wide styles apply to all pages and save atomically with shared information. Unused empty fields are collapsed by default.
+- **Backups & recovery** at `/dashboard/backups` is linked from Account and Settings. JSON backups include the design library, connected campaigns, embedded photos, original video/audio files and local review notes, including trashed designs. Imports validate first and restore new copies; designs, campaigns, reviews and restored media commit in one IndexedDB transaction. Limits: 200 designs, 100 campaigns, 200 original media sources, 100 MB per backup. Larger libraries can use individual project/video ZIP downloads. Version history, brand kits, profile settings and planning drafts are excluded. Restored discussions are retained as context and review status resets to Draft.
+
+Editing, history and review remain browser-local. Development cloud accounts and manual backup uploads were subsequently added as described below. Continuous cloud sync, authenticated team access and remote review sharing remain deferred. No old database or production website is connected. The storage upgrade preserves existing design, campaign and thumbnail stores.
+
+Validation: `npm test`, `npm run lint`, `npm run build`, and `npm run test:http`. `tests/reliability.test.mjs` covers revision retention, stale writes, storage rollback, all-page checks/styles, exact-revision review, connected library copy imports and original media recovery.
+
+
+## Development Supabase connection — November 22, 2026
+
+The newly provided development project has been verified through its public Auth endpoint. `.env.local` is ignored by Git and contains the URL, publishable key, expected project reference, localhost origin and explicit auth enablement. No service-role key is used. Package versions are pinned.
+
+- `/register` and `/login` now submit to server-side Supabase Auth. `/api/auth` also provides verified account status and local session logout. All session operations run in route handlers, where refreshed cookies can be written; there is no browser-side session-token storage. Requests use origin checks, bounded input and a bounded process-local attempt limit alongside Supabase provider limits. The process-local limit is not a distributed production rate limiter.
+- `/dashboard/backups` offers manual private cloud uploads (50 MB maximum), lists the 100 newest copies, and downloads a chosen copy into the existing validation/restore preview. Uploads include designs, campaigns, embedded photos, original media and local review notes. Restore remains an explicit local action and creates new copies. Uploads and downloads verify the account on every server request and derive the storage folder from that identity.
+- `supabase/migrations/202611220001_cloud_library_backups.sql` was applied manually to the new development project through its SQL Editor, after verifying that Storage had no buckets or policies. It creates only the private `comvexa-library-backups` bucket and authenticated owner-folder SELECT/INSERT policies. No anonymous read policy, overwrite or delete policy is added. The earlier metadata migration remains unapplied.
+- Registration confirmation and the first authenticated upload/download still require a real user to create/confirm a Comvexa account. A Supabase dashboard account is separate from a Comvexa app account. No test signup emails or user-library uploads are sent by the development checks.
+- Localhost remains the development origin. No deployment, DNS, old project, account password, or existing local design was changed.
+
+`tests/cloud.test.mjs` covers explicit config gating, project-reference matching, trusted origins, bounded JSON bodies, attempt limits and actual PostgreSQL storage-policy isolation for two users and anonymous access. HTTP smoke tests reject spoofed identities and cross-origin writes.
+
+
+## Automatic account saving — November 23, 2026
+
+Signed-in work now syncs automatically and loads before the workspace/editor opens on a new device. Existing guest data stays intact; the one-time import action associates it with the selected account. No manual backup upload or restore is required for subsequent signed-in work. Successful login/logout performs a full navigation so in-memory state cannot leak between account namespaces. Session changes block the workspace until identity is verified again.
+
+The sync engine sends content-addressed chunks (4 MB each) to the private `comvexa-account-sync` bucket, then publishes a manifest through the `commit_account_sync` PostgreSQL function. Identity is verified server-side for every request and matched against the expected account. The function uses a row lock and expected revision so a stale device cannot silently replace a newer manifest. The schema and owner-only policies in `supabase/migrations/202611230001_account_sync.sql` were applied to the new development project.
+
+Three-way comparison merges changes to separate records. When both devices edit the same record, saving pauses with explicit version choices; replaced device data is retained in up to three local recovery snapshots, accessible from Backups & recovery. An atomic local transaction preserves design revisions, campaigns, review approval state, history and original media without creating duplicate/restored design IDs. Generation checks prevent downloading an account snapshot over edits that completed while a network request was in flight. Brand Kit forms also reject stale saves after a synchronized update.
+
+Changes debounce for about 1.8 seconds after a device save; active workspaces check account changes every 12 seconds and retry on focus/reconnection. Logout attempts to flush account changes first. An already-open workspace retains edits during a network interruption and retries automatically; a cold start still needs account verification. The save indicator distinguishes pending, saving, saved, offline, expired-session and conflicting states. Manual local/cloud backup features remain extra recovery options.
+
+Current development limits: 400 MB of account data, 5,000 manifest records and 100 MB per individual record; existing design/media limits still apply. Old immutable cloud chunks are retained; automated garbage collection and storage-quota management are not implemented. Thumbnails are regenerated locally, and clipboard contents and device recovery snapshots remain device-specific. No deployment or DNS changes were made; access from another physical device still requires hosting the app at an accessible URL.
+
+Validation includes multi-device simulations, stale-write rejection, offline replay, concurrent local edits, media/history/brand/profile transfer, account namespace isolation, actual PostgreSQL RLS/CAS tests and a development-only read-only browser check at `/dev/account-sync-validation`. The latter loads a real signed-in account into two empty in-memory clients without browser-cache reads or cloud writes.

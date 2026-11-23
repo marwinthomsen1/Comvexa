@@ -23,8 +23,8 @@ export default function Home() {
               <span className="heading-underline" />
             </h2>
             <p>
-              The workflow we’re building. A simpler way to bring your ideas
-              together.
+              Bring your ideas together with editable templates and connected
+              designs saved in this browser.
             </p>
           </div>
           <div className="how-grid">
@@ -79,7 +79,7 @@ export default function Home() {
                 your next big thing. Make them feel like they belong together.
               </p>
               <span className="availability-label">
-                DESIGN PACKAGES · COMING SOON
+                DESIGN PACKAGES · AVAILABLE LOCALLY
               </span>
             </div>
           </div>
@@ -102,9 +102,10 @@ export default function Home() {
                 <span>Posters</span>
               </div>
               <p className="fine-print">
-                Example artwork only. Generating designs and exports is not
-                available yet.
+                Example artwork shown. Create your own editable package and
+                download designs from the local studio.
               </p>
+              <Link className="button" href="/dashboard/packages">Create a design package <Icon name="arrow" /></Link>
             </div>
             <div className="package-stack">
               <DesignPreview concept="beauty" format="story" />
@@ -129,7 +130,7 @@ export default function Home() {
                 everyday ideas you want to share.
               </p>
               <Link className="text-link" href="/dashboard/templates">
-                Explore template concepts <Icon name="arrow" />
+                Browse editable templates <Icon name="arrow" />
               </Link>
             </div>
           </div>
@@ -157,12 +158,11 @@ export default function Home() {
               <span className="gradient-text">Not a big budget.</span>
             </h2>
             <p>
-              We’re building towards free basic design tools, free templates,
-              and standard exports without watermarks. More room for your
-              creativity.
+              Use free local design tools, editable templates, and standard
+              PNG/JPG exports without watermarks. More room for your creativity.
             </p>
             <span className="availability-label">
-              PLANNED FOR LAUNCH · NOT AVAILABLE YET
+              AVAILABLE NOW · SAVED IN THIS BROWSER
             </span>
           </div>
           <div className="creative-tool-list">
@@ -179,8 +179,8 @@ export default function Home() {
               Watermark-free standard exports
             </span>
             <p>
-              Formats, quality, and usage limits will be confirmed after
-              testing. No subscriptions or payments are connected.
+              Your designs stay in this browser. Download a project backup
+              to keep a portable copy. No payments are connected.
             </p>
           </div>
         </section>
@@ -194,7 +194,7 @@ export default function Home() {
             <br />
             <span className="gradient-text">worth sharing.</span>
           </h2>
-          <p>Explore the foundation of your future creative space.</p>
+          <p>Start with a template or a blank canvas. Make it yours.</p>
           <Link className="button" href="/dashboard">
             Start Creating Free <Icon name="arrow" />
           </Link>

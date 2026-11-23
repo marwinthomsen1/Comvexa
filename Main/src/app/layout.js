@@ -1,3 +1,4 @@
+import AccountSync from "@/features/reliability/account-sync";
 import { site } from "@/config/site";
 import "./globals.css";
 import "./creative.css";
@@ -22,7 +23,7 @@ export default function RootLayout({ children }) {
         <a className="skip-link" href="#main-content">
           Skip to content
         </a>
-        {children}
+        <AccountSync>{children}</AccountSync>
       </body>
     </html>
   );

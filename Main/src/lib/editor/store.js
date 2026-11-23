@@ -189,7 +189,7 @@ export const designStore = {
       db.close();
     }
   },
-  async save(id, document, expectedRevision) {
-    return connectedStore.saveConnected(id, document, expectedRevision);
+  async save(id, document, expectedRevision, options) {
+    return connectedStore.saveConnected(id, document, expectedRevision, options);
   },
 };

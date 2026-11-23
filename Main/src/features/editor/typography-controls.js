@@ -1,4 +1,6 @@
 "use client";
+import {accountStorage} from "@/lib/cloud/account-scope";
+
 import {useEffect,useRef,useState} from "react";
 import {useAssetPreferences} from './workspace/preferences';
 import {AssetFavorite,AssetViewFilter} from './workspace/asset-controls';
@@ -17,7 +19,7 @@ export default function TypographyControls({element:e,onPatch,Field,toolRequest}
  const assetPrefs=useAssetPreferences(),[presetView,setPresetView]=useState('all');
  const [query,setQuery]=useState(""),[category,setCategory]=useState("All"),[limit,setLimit]=useState(8),[busy,setBusy]=useState(false),[error,setError]=useState(""),[recent,setRecent]=useState([]);
  const active=useRef(true),request=useRef(0),fontPicker=useRef(null),root=useRef(null);
- useEffect(()=>{active.current=true;try{const r=JSON.parse(localStorage.getItem("comvexa-recent-fonts")||"[]");if(Array.isArray(r))setRecent(r.filter(n=>FONT_NAMES.includes(n)).slice(0,6));}catch{/* Font history is optional when local storage is unavailable. */}return()=>{active.current=false;};},[]);
+ useEffect(()=>{active.current=true;try{const r=JSON.parse(accountStorage().getItem("comvexa-recent-fonts")||"[]");if(Array.isArray(r))setRecent(r.filter(n=>FONT_NAMES.includes(n)).slice(0,6));}catch{/* Font history is optional when local storage is unavailable. */}return()=>{active.current=false;};},[]);
  useEffect(()=>{if(!toolRequest)return;const section=toolRequest.section;let target;if(section==='font'){if(fontPicker.current)fontPicker.current.open=true;target=fontPicker.current?.querySelector('input');}if(section==='size')target=root.current?.querySelector('.type-size-color input[type="number"]');if(section==='color')target=root.current?.querySelector('.type-size-color input[type="color"]');if(section==='effects')target=root.current?.querySelector('[aria-label="Text effect"]');if(section==='alignment')target=root.current?.querySelector('[aria-label="Align text left"]');target?.focus();target?.scrollIntoView({block:'nearest'});},[toolRequest]);
  const s={...TEXT_STYLE_DEFAULTS,...e.textStyle},fonts=searchFonts(query,category);
  async function patch(values, fit = false) {
@@ -26,7 +28,7 @@ export default function TypographyControls({element:e,onPatch,Field,toolRequest}
    await ensureFont(values.fontFamily||e.fontFamily,values.fontWeight||e.fontWeight);
    if(!active.current||sequence!==request.current)return;
    onPatch(fit ? fitPresetToBox(e,values,browserMeasure) : values);
-   if(values.fontFamily) {if(fontPicker.current)fontPicker.current.open=false;const next=[values.fontFamily,...recent.filter(n=>n!==values.fontFamily)].slice(0,6);setRecent(next);try{localStorage.setItem("comvexa-recent-fonts",JSON.stringify(next));}catch{/* Font history is optional when local storage is unavailable. */}}
+   if(values.fontFamily) {if(fontPicker.current)fontPicker.current.open=false;const next=[values.fontFamily,...recent.filter(n=>n!==values.fontFamily)].slice(0,6);setRecent(next);try{accountStorage().setItem("comvexa-recent-fonts",JSON.stringify(next));}catch{/* Font history is optional when local storage is unavailable. */}}
   }catch(err){if(active.current&&sequence===request.current)setError(err.message);}
   finally{if(active.current&&sequence===request.current)setBusy(false);}
  }

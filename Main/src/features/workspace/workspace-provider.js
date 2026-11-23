@@ -1,4 +1,6 @@
 "use client";
+import {accountStorage} from "@/lib/cloud/account-scope";
+
 import {
   createContext,
   useCallback,
@@ -19,7 +21,7 @@ export function WorkspaceProvider({ children }) {
   useEffect(() => {
     function load() {
       try {
-        setData(readWorkspace(localStorage));
+        setData(readWorkspace(accountStorage()));
         setError("");
       } catch {
         setData(null);
@@ -34,7 +36,7 @@ export function WorkspaceProvider({ children }) {
   }, []);
   const create = useCallback((kind, input) => {
     // Read latest storage before each write to avoid replacing another tab's changes.
-    const current = readWorkspace(localStorage);
+    const current = readWorkspace(accountStorage());
     const next = addDraft(
       current,
       kind,
@@ -42,14 +44,14 @@ export function WorkspaceProvider({ children }) {
       crypto.randomUUID(),
       new Date().toISOString(),
     );
-    writeWorkspace(localStorage, next);
+    writeWorkspace(accountStorage(), next);
     setData(next);
     return next[kind === "campaign" ? "campaigns" : "projects"][0];
   }, []);
   const saveProfile = useCallback((input) => {
-    const current = readWorkspace(localStorage);
+    const current = readWorkspace(accountStorage());
     const next = { ...current, profile: validateProfile(input) };
-    writeWorkspace(localStorage, next);
+    writeWorkspace(accountStorage(), next);
     setData(next);
   }, []);
   return (

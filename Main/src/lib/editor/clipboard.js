@@ -1,3 +1,4 @@
+import {accountDatabase} from "../cloud/account-scope.js";
 import {pageDocuments,allElements} from "./pages.js";
 import { validateDocument } from "./document.js";
 import { expandSelection } from "./selection.js";
@@ -81,7 +82,7 @@ export function pasteSelection(
 // Browser-local clipboard shared across same-origin design tabs. No system clipboard permission.
 async function db() {
   return new Promise((resolve, reject) => {
-    const r = indexedDB.open("comvexa-clipboard-v1", 1);
+    const r = indexedDB.open(accountDatabase("comvexa-clipboard-v1"), 1);
     r.onupgradeneeded = () => r.result.createObjectStore("clipboard");
     r.onsuccess = () => resolve(r.result);
     r.onerror = () => reject(new Error("Local clipboard is unavailable."));

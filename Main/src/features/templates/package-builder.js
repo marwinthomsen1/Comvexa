@@ -26,16 +26,17 @@ const limits = {
   contact: 120,
   link: 160,
 };
-export default function PackageBuilder() {
-  const initial = TEMPLATE_FAMILIES[0];
+export default function PackageBuilder({initialBrief=null}) {
+  const initial = initialBrief?getFamily(initialBrief.styleId):TEMPLATE_FAMILIES[0];
   const [fields, setFields] = useState({
       ...initial.sample,
+      ...(initialBrief||{}),
       styleId: initial.id,
       background: initial.background,
       ink: initial.ink,
       accent: initial.accent,
     }),
-    [step, setStep] = useState(1),
+    [step, setStep] = useState(initialBrief?2:1),
     [asset, setAsset] = useState(null),
     [assetLabel, setAssetLabel] = useState("Original example photo"),
     [assetId, setAssetId] = useState(""),
@@ -55,7 +56,7 @@ export default function PackageBuilder() {
   useEffect(() => {
     try {
       const id = new URLSearchParams(window.location.search).get("template");
-      if (id) {
+      if (id && !initialBrief) {
         const t = getTemplate(id),
           f = getFamily(t.familyId);
         setFields({
@@ -327,8 +328,8 @@ export default function PackageBuilder() {
               updated from Campaigns.
             </p>
             <p className="local-note">
-              Saved only in this browser. Download editable project files for
-              backup.
+              Account saving status appears above. You can also download
+              editable project files for backup.
             </p>
           </aside>
         </div>

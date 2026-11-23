@@ -14,6 +14,8 @@ for (const path of [
   "/dashboard/designs",
   "/dashboard/campaigns",
   "/dashboard/settings",
+  "/dashboard/start",
+  "/dashboard/backups",
   "/dashboard/templates",
   "/dashboard/packages",
   "/dashboard/connected/qa-campaign",
@@ -28,7 +30,6 @@ for (const path of [
   console.log(`PASS ${path}: 200`);
 }
 for (const [path, method] of [
-  ["/api/auth", "POST"],
   ["/api/projects", "GET"],
   ["/api/projects", "POST"],
 ]) {
@@ -59,3 +60,8 @@ for (const [path,target] of [["/editor","/dashboard/designs"],["/editor/new","/d
  const response=await fetch(new URL(path,origin),{redirect:"manual"});
  assert.equal(response.status,307);assert.equal(response.headers.get("location"),target);console.log(`PASS ${path}: redirects to ${target}`);
 }
+
+const auth=await fetch(new URL('/api/auth',origin),{headers:{Cookie:'preview_user=spoofed',Authorization:'Bearer not-a-session'}});
+const account=await auth.json(),enabled=account.configured===true;
+assert.equal(auth.status,enabled?200:503);if(enabled)assert.equal(account.user,null);
+for(const [path,method,status] of [['/api/auth','POST',enabled?403:503],['/api/cloud-backups','GET',enabled?401:503],['/api/account-sync','GET',enabled?401:503],['/api/account-sync','POST',enabled?403:503],['/api/account-sync','PUT',enabled?403:503],['/api/cloud-backups','POST',enabled?403:503]]){const response=await fetch(new URL(path,origin),{method,headers:{Cookie:'preview_user=spoofed',Authorization:'Bearer fake'}});assert.equal(response.status,status,path);assert.equal(response.headers.get('cache-control'),'no-store');console.log(`PASS ${method} ${path}: rejects unauthenticated or untrusted requests`);}

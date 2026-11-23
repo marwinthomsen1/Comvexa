@@ -58,7 +58,7 @@ export function CreateDialog({ kind, onClose, initialCampaignId = "" }) {
         {kind === "campaign"
           ? "Group designs around one product, event, or idea."
           : "Give your next design a name and a place to start."}{" "}
-        Saved only on this browser.
+        Account saving status appears above.
       </p>
       <form onSubmit={submit}>
         <label>

@@ -19,7 +19,7 @@ test('thumbnail cache carries revision without mutating design revision or docum
  const d=newDesign('Cache');await designStore.save('library-cache',d,0);
  const blob=new Blob(['preview'],{type:'image/png'});await previewCache.put({id:'library-cache',revision:1,blob});assert.equal((await previewCache.get('library-cache')).revision,1);
  await renameDesign('library-cache','Updated');assert.notEqual((await previewCache.get('library-cache')).revision,(await designStore.load('library-cache')).revision);
- const db=await openDesignDB();assert.equal(db.version,3);assert.ok(db.objectStoreNames.contains('designs'));assert.ok(db.objectStoreNames.contains('packages'));db.close();
+ const db=await openDesignDB();assert.equal(db.version,6);assert.ok(db.objectStoreNames.contains("revisions"));assert.ok(db.objectStoreNames.contains("reviews"));assert.ok(db.objectStoreNames.contains('designs'));assert.ok(db.objectStoreNames.contains('packages'));db.close();
 });
 test('v2 database upgrade preserves saved designs and campaigns',async()=>{
  const {IDBFactory}=await import('fake-indexeddb');const previous=globalThis.indexedDB;globalThis.indexedDB=new IDBFactory();

@@ -4,7 +4,6 @@ import { readFile } from "node:fs/promises";
 import { PGlite } from "@electric-sql/pglite";
 import {
   validateAuth,
-  CLOUD_AUTH_ENABLED,
   unavailableResponse,
 } from "../src/lib/auth/foundation.js";
 import {
@@ -21,7 +20,7 @@ import {
 import { createBlankDocument } from "../src/lib/design-document/schema.js";
 
 test("auth fails closed without fabricating a session or accepting a local workspace as identity", async () => {
-  assert.equal(CLOUD_AUTH_ENABLED, false);
+
   const response = unavailableResponse();
   assert.equal(response.status, 503);
   assert.equal(response.headers.get("cache-control"), "no-store");

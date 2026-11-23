@@ -1,4 +1,6 @@
 "use client";
+import {accountStorage} from "@/lib/cloud/account-scope";
+
 
 import { Icon } from "@/components/ui/icon";
 
@@ -8,7 +10,7 @@ export function ThemeToggle() {
     const next = root.dataset.theme === "dark" ? "light" : "dark";
     root.dataset.theme = next;
     try {
-      localStorage.setItem("comvexa-theme", next);
+      accountStorage().setItem("comvexa-theme", next);
     } catch {
       /* Theme still works when storage is unavailable. */
     }

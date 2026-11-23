@@ -37,6 +37,7 @@ export function Settings() {
       <div className="settings-grid">
         <section className="detail-panel">
           <h2>Local profile</h2>
+          <p><Link className="text-link" href="/dashboard/backups">Back up or restore your design library →</Link></p>
           <p className="muted">
             These preferences stay in your browser. They are not an account.
           </p>
@@ -81,11 +82,10 @@ export function Settings() {
           <section className="detail-panel">
             <h2>Cloud account</h2>
             <p className="muted">
-              Secure cloud accounts will be available after a separate
-              development service is configured.
+              Your workspace saves automatically to your account while online. Optional backups provide extra recovery copies.
             </p>
-            <Link className="text-link" href="/register">
-              View account setup preview ↗
+            <Link className="text-link" href="/dashboard/backups">
+              Open cloud backups ↗
             </Link>
           </section>
         </div>

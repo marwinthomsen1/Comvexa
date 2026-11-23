@@ -1,3 +1,4 @@
+import {accountStorage} from "../cloud/account-scope.js";
 export const WORKSPACE_KEY='comvexa-editor-workspace-v1';
 export const DEFAULT_WORKSPACE={version:1,leftOpen:true,rightOpen:false,leftWidth:248,rightWidth:278,compact:true,pinned:['Design','Text','Elements','Uploads'],recent:[],timelineHeight:190,timelineOpen:true,timelineZoom:65};
 const number=(v,min,max,fallback)=>typeof v==='number'&&Number.isFinite(v)?Math.round(Math.max(min,Math.min(max,v))):fallback;
@@ -6,8 +7,8 @@ export const rememberTool=(prefs,id)=>({...prefs,recent:[id,...prefs.recent.filt
 export const togglePinned=(prefs,id)=>({...prefs,pinned:prefs.pinned.includes(id)?prefs.pinned.filter(v=>v!==id):[...prefs.pinned.slice(-5),id]});
 const assetKey='comvexa-asset-preferences-v1';
 let sessionAssets=null;
-export function assetPreferences(){if(sessionAssets)return sessionAssets;try{const value=JSON.parse(localStorage.getItem(assetKey)||'{}');const list=a=>Array.isArray(a)?[...new Set(a.filter(v=>typeof v==='string'&&/^[a-z0-9-]+:[a-zA-Z0-9-]+$/.test(v)&&v.length<=120))].slice(0,200):[];return {favorites:list(value.favorites),recent:list(value.recent)};}catch{return {favorites:[],recent:[]};}}
-export function updateAssetPreferences(fn){const next=fn(assetPreferences());try{localStorage.setItem(assetKey,JSON.stringify(next));sessionAssets=null;}catch{sessionAssets=next;/* Preferences fall back to this session; designs use independent IndexedDB storage. */}window.dispatchEvent(new CustomEvent('comvexa-asset-preferences',{detail:next}));return next;}
+export function assetPreferences(){if(sessionAssets)return sessionAssets;try{const value=JSON.parse(accountStorage().getItem(assetKey)||'{}');const list=a=>Array.isArray(a)?[...new Set(a.filter(v=>typeof v==='string'&&/^[a-z0-9-]+:[a-zA-Z0-9-]+$/.test(v)&&v.length<=120))].slice(0,200):[];return {favorites:list(value.favorites),recent:list(value.recent)};}catch{return {favorites:[],recent:[]};}}
+export function updateAssetPreferences(fn){const next=fn(assetPreferences());try{accountStorage().setItem(assetKey,JSON.stringify(next));sessionAssets=null;}catch{sessionAssets=next;/* Preferences fall back to this session; designs use independent IndexedDB storage. */}window.dispatchEvent(new CustomEvent('comvexa-asset-preferences',{detail:next}));return next;}
 export const favoriteAsset=key=>updateAssetPreferences(value=>({...value,favorites:value.favorites.includes(key)?value.favorites.filter(v=>v!==key):[key,...value.favorites].slice(0,200)}));
 export const rememberAsset=key=>updateAssetPreferences(value=>({...value,recent:[key,...value.recent.filter(v=>v!==key)].slice(0,100)}));
 export function filterAssetItems(items,kind,mode,prefs){if(mode==='all')return items;const list=mode==='favorites'?prefs.favorites:prefs.recent;return list.filter(v=>v.startsWith(kind+':')).map(key=>items.find(item=>item.id===key.slice(kind.length+1))).filter(Boolean);}

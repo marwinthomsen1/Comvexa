@@ -1,4 +1,6 @@
 "use client";
+import {accountStorage} from "@/lib/cloud/account-scope";
+
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
@@ -9,6 +11,7 @@ import ToolNavigation from './workspace/tool-navigation';
 import ResizeGrip from './workspace/resize-grip';
 import CommandPalette from './workspace/command-palette';
 import ContextToolbar from './workspace/context-toolbar';
+const DesignReview=dynamic(()=>import('@/features/reliability/design-review'),{ssr:false});
 import {workspaceShortcut} from '@/lib/workspace-ui/commands';
 import {rememberTool} from '@/lib/workspace-ui/preferences';
 import { SelectionControls } from "./selection-controls";
@@ -144,6 +147,7 @@ export default function Editor() {
     mounted = useRef(true),
     conflict = useRef(false);
   const [nameDraft, setNameDraft] = useState("");
+  const [reviewOpen,setReviewOpen]=useState(false),[reviewBusy,setReviewBusy]=useState(false);
   const doc = state?.present;
   const selected = selectedIds.length === 1 ? selectedIds[0] : null;
   useEffect(() => {
@@ -394,7 +398,7 @@ export default function Editor() {
         } else {
           let project;
           try {
-            project = readWorkspace(localStorage).projects.find(
+            project = readWorkspace(accountStorage()).projects.find(
               (p) => p.id === id,
             );
           } catch {
@@ -417,7 +421,7 @@ export default function Editor() {
         conflict.current = false;
         setState(history(document));
         setDimensions(document.canvas);
-        setStatus(record ? "Saved in this browser" : "Unsaved local design");
+        setStatus(record ? "Saved on this device" : "Unsaved local design");
       } catch (e) {
         if (active) {
           setError(e.message);
@@ -451,7 +455,7 @@ export default function Editor() {
             throw new Error(
               "Another tab changed this design. Download a project file and reload.",
             );
-          const next = await designStore.save(id, snapshot, revision.current);
+          const next = await designStore.save(id, snapshot, revision.current,{expectedDocument:saved.current});
           revision.current = next;
           if (snapshot.schemaVersion >= 2)
             designStore
@@ -465,7 +469,7 @@ export default function Editor() {
           if (mounted.current)
             setStatus(
               JSON.stringify(latest.current) === saved.current
-                ? "Saved in this browser"
+                ? "Saved on this device"
                 : "Unsaved changes",
             );
           return true;
@@ -515,7 +519,7 @@ export default function Editor() {
     try {
       const record = await designStore.loadConnected(id);
       if (!record) return;
-      if (record.revision === revision.current && !force) return;
+      if (record.revision === revision.current && JSON.stringify(record.document)===JSON.stringify(validateDocument(JSON.parse(saved.current))) && !force) return;
       if (
         !force &&
         latest.current &&
@@ -533,7 +537,7 @@ export default function Editor() {
       conflict.current = false;
       setCampaigns(record.campaigns);
       setState((old) => ({ ...old, present: record.document }));
-      setStatus("Updated from shared campaign");
+      setStatus("Updated from your account or shared campaign");
       setError(record.connectionWarnings.join(" "));
     } catch (e) {
       setError(e.message);
@@ -839,6 +843,11 @@ export default function Editor() {
       save,
       navigate: () => router.push(destination),
     });
+  }
+  async function openReview(){
+    if(cropId||gestureActive.current){setError("Finish the current crop or gesture before reviewing.");return;}
+    setReviewBusy(true);clearTimeout(autoSaveTimer.current);
+    try{await queue.current;if(JSON.stringify(latest.current)!==saved.current&&!(await save(latest.current)))return;setReviewOpen(true);}finally{setReviewBusy(false);}
   }
   async function browseTemplates() {
     await navigateSafely("/dashboard/templates");
@@ -1239,9 +1248,10 @@ export default function Editor() {
         >
           Download
         </ToolButton>
-        <div className="workspace-top-actions"><ToolButton icon="search" title="Search tools · Ctrl/⌘ K" aria-label="Search tools" onClick={()=>setSearchOpen(true)}/><ToolButton icon="panelLeft" aria-label="Toggle tools panel" aria-pressed={workspace.leftOpen&&!focusMode} onClick={()=>{setFocusMode(false);setWorkspace({leftOpen:focusMode?true:!workspace.leftOpen});}}/><ToolButton icon="panelRight" aria-label="Toggle properties panel" aria-pressed={workspace.rightOpen&&!focusMode} onClick={()=>{setFocusMode(false);setWorkspace({rightOpen:focusMode?true:!workspace.rightOpen});}}/><ToolButton icon={focusMode?'unfocus':'focus'} title="Focus Mode · F" aria-label={focusMode?'Exit Focus Mode':'Enter Focus Mode'} aria-pressed={focusMode} onClick={()=>{setFocusMode(v=>!v);setMobile('');}}>{focusMode?'Exit Focus':'Focus'}</ToolButton></div>
+        <div className="workspace-top-actions"><ToolButton icon="check" aria-label="Review and version history" title="Design checks, version history and local review" disabled={reviewBusy} onClick={openReview}>Review & history</ToolButton><ToolButton icon="search" title="Search tools · Ctrl/⌘ K" aria-label="Search tools" onClick={()=>setSearchOpen(true)}/><ToolButton icon="panelLeft" aria-label="Toggle tools panel" aria-pressed={workspace.leftOpen&&!focusMode} onClick={()=>{setFocusMode(false);setWorkspace({leftOpen:focusMode?true:!workspace.leftOpen});}}/><ToolButton icon="panelRight" aria-label="Toggle properties panel" aria-pressed={workspace.rightOpen&&!focusMode} onClick={()=>{setFocusMode(false);setWorkspace({rightOpen:focusMode?true:!workspace.rightOpen});}}/><ToolButton icon={focusMode?'unfocus':'focus'} title="Focus Mode · F" aria-label={focusMode?'Exit Focus Mode':'Enter Focus Mode'} aria-pressed={focusMode} onClick={()=>{setFocusMode(v=>!v);setMobile('');}}>{focusMode?'Exit Focus':'Focus'}</ToolButton></div>
         <ThemeToggle />
       </header>
+      {reviewOpen&&<DesignReview id={id} doc={doc} revision={revision.current} onClose={()=>setReviewOpen(false)} onOpen={nextId=>navigateSafely(`/editor/${nextId}`)} onSelect={issue=>{if(doc.pages&&doc.activePageId!==issue.pageId)apply(switchPage(doc,issue.pageId));setSelected(issue.elementId);openPanel();}}/>}
       {overflowWarnings.length > 0 && (
         <div className="editor-overflow-warning" role="status">
           {overflowWarnings.length} text frame(s) may overflow. Enlarge the text
@@ -1251,7 +1261,7 @@ export default function Editor() {
       <div className="editor-notice">
         BROWSER-LOCAL STUDIO{" "}
         <span>
-          · Cloud backup unavailable. Download project files to keep a backup.
+          · Account saving status appears above. Guest work stays on this device.
         </span>
       </div>
       {error && (

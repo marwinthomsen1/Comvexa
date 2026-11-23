@@ -1,3 +1,5 @@
+import {archiveRevision} from "../editor/revisions.js";
+import {applyCampaignStyle} from "./summary.js";
 import {allElements,mapAllElements} from "../editor/pages.js";
 import { openDesignDB } from "../editor/database.js";
 import { validateDocument } from "../editor/document.js";
@@ -78,14 +80,14 @@ async function transaction(mode, operation) {
   const db = await openDesignDB();
   try {
     const value = await new Promise((resolve, reject) => {
-      const t = db.transaction(["designs", "packages"], mode),
+      const t = db.transaction(["designs", "packages", "revisions"], mode),
         ref = {};
       t.oncomplete = () => resolve(ref.value);
       t.onabort = t.onerror = () =>
         reject(
           ref.error ||
             new Error(
-              "Local transaction failed. Storage may be full, disabled or interrupted. Previous saved records were preserved.",
+              mode === "readwrite" ? "Local save failed. Storage may be full, disabled or interrupted. Previous saved records were preserved." : "Local transaction failed. Previous saved records were preserved.",
             ),
         );
       all(t, (records, raw) => {
@@ -153,7 +155,7 @@ export const connectedStore = {
       };
     });
   },
-  async saveConnected(id, document, expectedRevision) {
+  async saveConnected(id, document, expectedRevision, {expectedDocument} = {}) {
     document = validateDocument(document);
     return transaction("readwrite", (t, ref, records, raw) => {
       const current = records.find((r) => r.id === id);
@@ -161,6 +163,8 @@ export const connectedStore = {
         throw new Error(
           "This design changed in another tab or campaign. Download your project file, then reload to avoid overwriting it.",
         );
+      if(current && expectedDocument !== undefined && JSON.stringify(resolveDocument(current.document,campaignsFor(current.document,records,raw)).document)!==JSON.stringify(validateDocument(JSON.parse(expectedDocument))))
+        throw new Error("This design changed in another tab or device. Download your unsaved project, then reload before saving.");
       const campaigns = campaignsFor(document, records, raw);
       if (
         new Set(
@@ -174,6 +178,7 @@ export const connectedStore = {
         if (!raw.find((c) => c.id === campaign.id)?.connectedVersion)
           t.objectStore("packages").put(campaign);
       const resolved = resolveDocument(document, campaigns).document;
+      archiveRevision(t,current,campaignsFor(current?.document || document,records,raw));
       const revision = expectedRevision + 1;
       const upgradeBackup =
         current?.legacyV1Backup ||
@@ -199,7 +204,7 @@ export const connectedStore = {
     id,
     next,
     expectedRevision,
-    { detachFields = [], expectedDesignRevisions } = {},
+    { detachFields = [], expectedDesignRevisions, styleId } = {},
   ) {
     return transaction("readwrite", (t, ref, records, raw) => {
       const stored = raw.find((c) => c.id === id);
@@ -225,13 +230,16 @@ export const connectedStore = {
           "A design changed while you reviewed the campaign. Refresh the preview before saving.",
         );
       const plan = planUpdate(current, next, associated, { detachFields });
+      if(styleId) plan.records=plan.records.map(r=>({...r,document:applyCampaignStyle(r.document,styleId)}));
       const now = new Date().toISOString();
-      for (const r of plan.records)
+      for (const r of plan.records) {
+        archiveRevision(t,associated.find(old=>old.id===r.id),[current]);
         t.objectStore("designs").put({
           ...r,
           revision: r.revision + 1,
           updatedAt: now,
         });
+      }
       t.objectStore("packages").put({
         ...plan.campaign,
         designIds: plan.records.map((r) => r.id),
@@ -326,6 +334,7 @@ export const connectedStore = {
       doc = resolveDocument(doc, sources).document;
       for (const c of campaigns) t.objectStore("packages").add(c);
       const revision = expectedRevision + 1;
+      archiveRevision(t,current,campaignsFor(current?.document || doc,records,raw));
       t.objectStore("designs").put({
         ...(current?.legacyV1Backup
           ? { legacyV1Backup: current.legacyV1Backup }

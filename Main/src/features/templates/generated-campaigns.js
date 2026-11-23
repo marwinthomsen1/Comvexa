@@ -8,10 +8,8 @@ export function GeneratedCampaigns() {
   const [items, setItems] = useState(null),
     [error, setError] = useState("");
   useEffect(() => {
-    designStore
-      .listPackages()
-      .then(setItems)
-      .catch((e) => setError(e.message));
+    const refresh=()=>designStore.listPackages().then(setItems).catch(e=>setError(e.message));
+    refresh();window.addEventListener("comvexa-design-change",refresh);return()=>window.removeEventListener("comvexa-design-change",refresh);
   }, []);
   return (
     <section className="generated-campaigns">

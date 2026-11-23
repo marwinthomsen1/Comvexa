@@ -28,8 +28,9 @@ test("font loading is deduplicated by family/face, allows system fonts without r
  try{await ensureFont("Arial");assert.equal(loads,0);await Promise.all([ensureFont("Inter"),ensureFont("Inter")]);assert.equal(loads,1);assert.equal(adds,1);await ensureFont("Inter","bold");assert.equal(loads,2);await assert.rejects(ensureFont("Sacramento"));fail=false;await ensureFont("Sacramento");assert.equal(loads,4);await assert.rejects(ensureFont("untrusted-url"));}
  finally{if(previousFace===undefined)delete globalThis.FontFace;else globalThis.FontFace=previousFace;if(previousDoc===undefined)delete globalThis.document;else globalThis.document=previousDoc;}
 });
-test("all ten presets are editable native text, survive history/storage/clipboard and preserve text content",async()=>{
- assert.equal(textPresets.length,10);
+test("all available presets are editable native text, survive history/storage/clipboard and preserve text content",async()=>{
+ assert.ok(textPresets.length>=14);
+ assert.equal(new Set(textPresets.map(p=>p.id)).size,textPresets.length);
  for(const p of textPresets){const old=textDoc(),next=patchElement(old,"text-one",presetPatch(p.id));assert.equal(next.schemaVersion,2);assert.equal(next.elements[0].text,old.elements[0].text);assert.deepEqual(validateDocument(next),next);
  const h=commit(history(old),next);assert.deepEqual(undo(h).present,old);assert.deepEqual(redo(undo(h)).present,next);
  await designStore.save(`type-${p.id}`,next,0);assert.deepEqual((await designStore.loadConnected(`type-${p.id}`)).document,next);

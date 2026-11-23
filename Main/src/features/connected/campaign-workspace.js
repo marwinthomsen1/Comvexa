@@ -16,9 +16,17 @@ import { generateDesign } from "@/lib/templates/generate";
 import { documentWarnings, browserMeasure } from "@/lib/templates/fitting";
 import { readImage, verifyAssets } from "@/lib/editor/images";
 import "./connected.css";
+import {campaignChangeSummary,applyCampaignStyle} from "@/lib/connected/summary";
+import {designThemes} from "@/lib/editor/smart-create";
+import {allElements} from "@/lib/editor/pages";
+import {ensureFont} from "@/lib/typography/fonts";
+import "@/features/reliability/reliability.css";
 export default function CampaignWorkspace() {
   const { id } = useParams();
   const [mobileView,setMobileView]=useState("fields");
+  const [styleId,setStyleId]=useState("");
+  const [showUnused,setShowUnused]=useState(false),[fontEpoch,setFontEpoch]=useState(0);
+  useEffect(()=>{if(!styleId)return;let active=true;const theme=designThemes.find(t=>t.id===styleId);Promise.all([ensureFont(theme.heading),ensureFont(theme.body)]).then(()=>{if(active)setFontEpoch(n=>n+1);}).catch(e=>{if(active)setError(e.message);});return()=>{active=false;};},[styleId]);
   const [snapshot, setSnapshot] = useState(null),
     [draft, setDraft] = useState(null),
     [error, setError] = useState(""),
@@ -34,7 +42,7 @@ export default function CampaignWorkspace() {
     imageField = useRef(null),
     previewGrid = useRef(null);
   const dirty =
-    !!snapshot && JSON.stringify(draft) !== JSON.stringify(snapshot.campaign);
+    !!snapshot && (JSON.stringify(draft) !== JSON.stringify(snapshot.campaign) || !!styleId);
   dirtyRef.current = dirty;
   const reload = useCallback(
     async (force = false) => {
@@ -49,6 +57,7 @@ export default function CampaignWorkspace() {
         }
         setSnapshot(next);
         setDraft(next.campaign);
+        setStyleId("");
         setDetached([]);
         setPast([]);
         setFuture([]);
@@ -114,16 +123,13 @@ export default function CampaignWorkspace() {
   const plan = useMemo(() => {
     if (!snapshot || !draft) return null;
     try {
-      return {
-        ...planUpdate(snapshot.campaign, draft, snapshot.records, {
-          detachFields: detached,
-        }),
-        error: "",
-      };
+      const result=planUpdate(snapshot.campaign,draft,snapshot.records,{detachFields:detached});
+      if(styleId) result.records=result.records.map(r=>({...r,document:applyCampaignStyle(r.document,styleId)}));
+      return {...result,error:""};
     } catch (e) {
       return { error: e.message, records: [] };
     }
-  }, [snapshot, draft, detached]);
+  }, [snapshot, draft, detached, styleId]);
   async function save() {
     setBusy(true);
     setError("");
@@ -136,11 +142,13 @@ export default function CampaignWorkspace() {
         snapshot.campaign.revision,
         {
           detachFields: detached,
+          styleId:styleId || undefined,
           expectedDesignRevisions: Object.fromEntries(
             snapshot.records.map((r) => [r.id, r.revision]),
           ),
         },
       );
+      setStyleId("");
       setSnapshot(result);
       setDraft(result.campaign);
       setPast([]);
@@ -162,7 +170,7 @@ export default function CampaignWorkspace() {
     const count = snapshot.records.reduce(
       (n, r) =>
         n +
-        r.document.elements.filter(
+        allElements(r.document).filter(
           (e) => e.binding?.campaignId === id && e.binding.fieldId === f.id,
         ).length,
       0,
@@ -327,8 +335,7 @@ export default function CampaignWorkspace() {
         </button>
       </div>
       <p role="status" className="connected-save-status">
-        {notice} · Revision {snapshot.campaign.revision} · Browser-local, no
-        cloud backup
+        {notice} · Revision {snapshot.campaign.revision} · Device cache + automatic account saving
       </p>
       {error && (
         <p className="form-error" role="alert">
@@ -340,6 +347,7 @@ export default function CampaignWorkspace() {
           {plan.error}
         </p>
       )}
+      <CampaignChanges snapshot={snapshot} draft={draft} styleId={styleId} onStyle={setStyleId} busy={busy} plan={plan}/>
       <nav className="connected-mobile-tabs" aria-label="Campaign view"><button aria-pressed={mobileView==="fields"} onClick={()=>setMobileView("fields")}>Shared information</button><button aria-pressed={mobileView==="designs"} onClick={()=>setMobileView("designs")}>Design previews</button></nav>
       <div className={`connected-layout mobile-${mobileView}`}>
         <section className="shared-fields">
@@ -368,7 +376,8 @@ export default function CampaignWorkspace() {
               </button>
             </div>
           </div>
-          {draft.sharedFields.map((f) => (
+          <button className="text-link" aria-expanded={showUnused} onClick={()=>setShowUnused(v=>!v)}>{showUnused?"Hide unused empty fields":"Show all optional fields"}</button>
+          {draft.sharedFields.filter(f=>showUnused||f.value||snapshot.records.some(r=>allElements(r.document).some(e=>e.binding?.campaignId===id&&e.binding.fieldId===f.id))).map((f) => (
             <article className="shared-field" key={f.id}>
               <div className="shared-field-title">
                 {f.id.startsWith("custom-") ? (
@@ -441,7 +450,7 @@ export default function CampaignWorkspace() {
                 {snapshot.records.reduce(
                   (n, r) =>
                     n +
-                    r.document.elements.filter(
+                    allElements(r.document).filter(
                       (e) =>
                         e.binding?.campaignId === id &&
                         e.binding.fieldId === f.id &&
@@ -453,7 +462,7 @@ export default function CampaignWorkspace() {
                 {snapshot.records.reduce(
                   (n, r) =>
                     n +
-                    r.document.elements.filter(
+                    allElements(r.document).filter(
                       (e) =>
                         e.binding?.campaignId === id &&
                         e.binding.fieldId === f.id &&
@@ -514,18 +523,15 @@ export default function CampaignWorkspace() {
             <h2>Your connected designs</h2>
             <span>{snapshot.records.length} designs</span>
           </div>
-          <div ref={previewGrid} className="connected-design-grid">
+          <div key={fontEpoch} ref={previewGrid} className="connected-design-grid">
             {plan?.records.map((r) => {
               const warnings = documentWarnings(r.document, browserMeasure),
-                overrides = r.document.elements.filter(
+                overrides = allElements(r.document).filter(
                   (e) => e.binding?.campaignId === id && e.localOverride,
                 );
               return (
                 <article key={r.id} className="connected-design-card">
-                  <DocumentPreview
-                    document={r.document}
-                    label={`${r.document.name} live connected preview`}
-                  />
+                  {dirty?<div className="reliability-before-after"><div><small>Saved</small><DocumentPreview document={snapshot.records.find(old=>old.id===r.id).document} label={`${r.document.name} saved version`}/></div><div><small>After changes</small><DocumentPreview document={r.document} label={`${r.document.name} live connected preview`}/></div></div>:<DocumentPreview document={r.document} label={`${r.document.name} live connected preview`}/>}
                   <div>
                     <h3>{r.document.name}</h3>
                     <p>
@@ -617,3 +623,5 @@ export default function CampaignWorkspace() {
     </section>
   );
 }
+
+function CampaignChanges({snapshot,draft,styleId,onStyle,busy,plan}){const summary=campaignChangeSummary(snapshot.campaign,draft,snapshot.records);return <section className="campaign-diff"><h2>Review your changes</h2><p>{summary.fields.length} shared fields changed · {styleId?snapshot.records.length:summary.designs.filter(d=>d.updated>0).length} designs affected</p><label>Style across every design<select value={styleId} disabled={busy} onChange={e=>onStyle(e.target.value)}><option value="">Keep current styles</option>{designThemes.map(t=><option value={t.id} key={t.id}>{t.name}</option>)}</select></label><p className="reliability-note">Styles update colors and fonts on all pages, preserving layouts, photos, locked layers and local text values. Review the previews before saving.</p>{summary.fields.length>0&&<table><thead><tr><th>Field</th><th>Saved</th><th>After changes</th></tr></thead><tbody>{summary.fields.map(f=><tr key={f.id}><th>{f.label}</th><td>{f.type==='image'?'Previous photo':f.before||'(empty)'}</td><td>{f.type==='image'?(f.after==='Removed'?'Removed':'Photo replaced'):f.after||'(empty)'}</td></tr>)}</tbody></table>}{(summary.fields.length>0||styleId)&&<ul>{summary.designs.map(d=><li key={d.id}>{d.name}: {d.updated} linked elements update, {d.overridden} local overrides kept{styleId?' · style updates on all pages':''}</li>)}</ul>}{!plan?.error&&<p className="reliability-note">Save shared changes applies the reviewed update atomically. Previous saved versions will appear in each design’s Review & history.</p>}</section>;}

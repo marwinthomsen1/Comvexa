@@ -168,6 +168,11 @@ test("marketplace metadata search discovers wedding intent and combines all filt
  assert.deepEqual(discoverTemplates({query:"wedding"}).map(t=>t.id), ["studio-wedding"]);
  assert.equal(discoverTemplates({query:"wedding",category:"food"}).length,0);
  assert.equal(discoverTemplates({query:"wedding",category:"events",ratio:"invitation",style:"Luxury"}).length,1);
- assert.equal(discoverTemplates({query:"résumé"}).length,1);
+ const resumes=discoverTemplates({query:"résumé"});
+ assert.ok(resumes.length>=1);
+ assert.deepEqual(resumes,discoverTemplates({query:"resume"}));
+ assert.ok(resumes.some(t=>t.id==="studio-cv"));
+ assert.deepEqual(discoverTemplates({query:"  wedding   luxury  "}),discoverTemplates({query:"luxury wedding"}));
+ assert.ok(discoverTemplates({query:"wedding luxury"}).some(t=>t.id==="studio-wedding"));
  assert.equal(discoverTemplates({query:"nothing-match-xyz"}).length,0);
 });

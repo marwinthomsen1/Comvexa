@@ -30,7 +30,7 @@ export default function TemplateLibrary() {
     [limit, setLimit] = useState(24);
   const items = useMemo(() => filterAssetItems(discoverTemplates({query, category, ratio, style}),'template',assetView,assetPrefs), [query, category, ratio, style,assetView,assetPrefs]);
   useEffect(() => {
-    function sync(){const params=new URLSearchParams(window.location.search);setCategory(params.get('category')?.split(',').every(id=>categories.some(c=>c[0]===id))?params.get('category'):'All');setQuery(params.get('q')||'');setLimit(24);}
+    function sync(){const params=new URLSearchParams(window.location.search);setCategory(params.get('category')?.split(',').every(id=>categories.some(c=>c[0]===id))?params.get('category'):'All');setQuery(params.get('q')||'');setRatio(Object.hasOwn(sizes,params.get('ratio'))?params.get('ratio'):'All');setStyle(styles.includes(params.get('style'))?params.get('style'):'All');setLimit(24);}
     sync();window.addEventListener('popstate',sync);return()=>window.removeEventListener('popstate',sync);
   }, []);
   useEffect(() => {
@@ -38,7 +38,10 @@ export default function TemplateLibrary() {
   }, [selected]);
   function filter(set, value) {
     set(value);
-    if(set===setCategory){const url=new URL(window.location.href);value==='All'?url.searchParams.delete('category'):url.searchParams.set('category',value);window.history.replaceState(null,'',url);}
+    const key=set===setCategory?'category':set===setQuery?'q':set===setRatio?'ratio':'style';
+    const url=new URL(window.location.href);
+    value==='All'||!value.trim()?url.searchParams.delete(key):url.searchParams.set(key,value);
+    window.history.replaceState(null,'',url);
     setLimit(24);
   }
   async function start(t) {
@@ -237,6 +240,7 @@ export default function TemplateLibrary() {
         <dialog
           ref={dialog}
           className="template-preview-dialog curated-dialog"
+          aria-labelledby="template-preview-title"
           onClose={() => setSelected(null)}
           onCancel={() => setSelected(null)}
           onClick={(e) => {
@@ -266,7 +270,7 @@ export default function TemplateLibrary() {
             <span className="eyebrow">
               {selected.style} / {sizes[selected.ratio].label}
             </span>
-            <h2>{selected.name}</h2>
+            <h2 id="template-preview-title">{selected.name}</h2>
             <p>{selected.pageCount || 1} editable {(selected.pageCount || 1)===1?'page':'pages'}</p>
             {error && <p role="alert">{error}</p>}
             <p>{selected.description}</p>

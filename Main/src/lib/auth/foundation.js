@@ -1,6 +1,5 @@
 import { cleanText } from "../workspace/validation.js";
-// Deliberately fail closed until a separate development Supabase project is verified.
-export const CLOUD_AUTH_ENABLED = false;
+// Configuration and explicit enablement are checked server-side in config.js.
 export const AUTH_UNAVAILABLE =
   "Cloud accounts are not connected yet. Explore the local workspace while development setup is completed.";
 export function validateAuth(mode, input) {

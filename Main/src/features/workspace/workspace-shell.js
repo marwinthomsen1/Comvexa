@@ -49,11 +49,11 @@ export function WorkspaceShell({ children }) {
           <header className="workspace-topbar">
             <span>
               <span className="status-dot" />
-              SAVED IN THIS BROWSER
+              YOUR CREATIVE WORKSPACE
             </span>
             <div>
               <ThemeToggle />
-              <details className="workspace-account"><summary><Icon name="user"/> Account</summary><div><Link href="/dashboard/settings">Profile & settings</Link><Link href="/dashboard/projects">Organize projects</Link><Link href="/login">Cloud login</Link></div></details>
+              <details className="workspace-account"><summary><Icon name="user"/> Account</summary><div><Link href="/dashboard/settings">Profile & settings</Link><Link href="/dashboard/backups">Backups & recovery</Link><Link href="/dashboard/start">Guided creation</Link><Link href="/dashboard/projects">Organize projects</Link><Link href="/login">Cloud login</Link></div></details>
             </div>
           </header>
           <main id="main-content" className="workspace-main">

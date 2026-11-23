@@ -5,18 +5,23 @@ import { AUTH_UNAVAILABLE, validateAuth } from "@/lib/auth/foundation";
 import { Brand } from "@/components/layout/brand";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Icon } from "@/components/ui/icon";
-export function AuthForm({ mode }) {
+
+export function AuthForm({ mode, enabled=false }) {
+
+  const [busy,setBusy]=useState(false);
   const register = mode === "register";
   const [message, setMessage] = useState("");
-  function submit(event) {
-    event.preventDefault();
+  async function submit(event) {
+    event.preventDefault();const form=event.currentTarget;setMessage("");setBusy(true);
     try {
-      validateAuth(mode, Object.fromEntries(new FormData(event.currentTarget)));
-      event.currentTarget.reset();
-      setMessage(AUTH_UNAVAILABLE);
-    } catch (error) {
-      setMessage(error.message);
-    }
+      const values=Object.fromEntries(new FormData(form));validateAuth(mode,values);
+      if(!enabled){setMessage(AUTH_UNAVAILABLE);return;}
+      const response=await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode,...values})});const result=await response.json();
+      if(!response.ok)throw Error(result.error||'Could not connect. Try again.');
+      form.reset();
+      if(result.confirmationRequired)setMessage('Check your email to confirm your account, then return here to log in.');
+      else{window.location.assign(window.location.origin+'/dashboard');}
+    } catch (error) {setMessage(error.message);}finally{setBusy(false);}
   }
   return (
     <div className="auth-page">
@@ -46,21 +51,17 @@ export function AuthForm({ mode }) {
           </div>
         </div>
         <div className="auth-panel">
-          <span className="pill">ACCOUNT PREVIEW</span>
+          <span className="pill">{enabled?"YOUR COMVEXA ACCOUNT":"ACCOUNT PREVIEW"}</span>
           <h1>
             {register ? "A space for your ideas." : "Welcome back, creator."}
           </h1>
           <p className="muted">
-            {register
-              ? "Preview the registration form for your future creative space."
-              : "Preview the login form for your future cloud account."}
+            {enabled?(register?"Create an account to save your work automatically.":"Log in to access your automatic account saving."):(register?"Preview registration while cloud setup is completed.":"Preview login while cloud setup is completed.")}
           </p>
           <div className="auth-notice">
             <Icon name="link" />
             <p>
-              <strong>Cloud accounts aren’t connected yet.</strong> This form
-              validates locally only. Details are never submitted or stored. Use
-              test details only.
+              {enabled?<>Login is handled by Supabase. Your work saves automatically to your account after you sign in.</>:<><strong>Cloud accounts aren’t connected yet.</strong> This form validates locally only. Use test details only.</>}
             </p>
           </div>
           <form onSubmit={submit}>
@@ -69,7 +70,7 @@ export function AuthForm({ mode }) {
                 Your name
                 <input
                   name="displayName"
-                  autoComplete="off"
+                  autoComplete="name"
                   placeholder="How should we call you?"
                   maxLength={60}
                   required
@@ -81,7 +82,7 @@ export function AuthForm({ mode }) {
               <input
                 type="email"
                 name="email"
-                autoComplete="off"
+                autoComplete="email"
                 maxLength={254}
                 placeholder="you@example.com"
                 required
@@ -100,22 +101,22 @@ export function AuthForm({ mode }) {
               />
             </label>
             <p className="fine-print">
-              Do not enter a real password in this preview.
+              {enabled?"Use a unique password. Email confirmation may be required.":"Do not enter a real password in this preview."}
             </p>
             {message && (
               <p role="status" className="form-error">
                 {message}
               </p>
             )}
-            <button className="button auth-submit">
-              Check {register ? "registration" : "login"} form{" "}
+            <button className="button auth-submit" disabled={busy}>
+              {busy?"Connecting…":enabled?(register?"Create account":"Log in"):`Check ${register?"registration":"login"} form`}{" "}
               <Icon name="arrow" />
             </button>
           </form>
           <p className="auth-switch">
             {register ? "Already have an account?" : "New to Comvexa?"}{" "}
             <Link href={register ? "/login" : "/register"}>
-              {register ? "Log in preview" : "Registration preview"}
+              {enabled?(register?"Log in":"Create an account"):(register?"Log in preview":"Registration preview")}
             </Link>
           </p>
           <Link className="button button-ghost auth-submit" href="/dashboard">
