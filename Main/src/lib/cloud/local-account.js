@@ -10,6 +10,7 @@ import {validateVideo,blankVideo} from '../video/document.js';
 import {readWorkspace} from '../workspace/local-store.js';
 const validId=id=>typeof id==='string'&&/^[a-zA-Z0-9.:-]{1,120}$/.test(id);
 async function rows(db,stores){return new Promise((resolve,reject)=>{const t=db.transaction(stores),result={};for(const store of stores){const r=t.objectStore(store).getAll();r.onsuccess=()=>result[store]=r.result;}t.oncomplete=()=>resolve(result);t.onabort=t.onerror=()=>reject(Error('Account cache could not be read.'));});}
+export async function readSyncMeta(){const db=await openDesignDB();try{const data=await rows(db,['sync-meta']);return data['sync-meta'].find(r=>r.id==='state')||null;}finally{db.close();}}
 export async function readAccountRecords(owner=accountOwner()){
  const db=await openDesignDB(owner);let data;try{data=await rows(db,[...SYNC_STORES,'sync-meta']);}finally{db.close();}
  const records=[];for(const store of SYNC_STORES)for(const raw of data[store]){const value={...raw};if(store==='media-backups'){const blob=value.blob;delete value.blob;records.push({key:`${store}/${raw.id}/source`,kind:'blob',value:blob});}records.push({key:`${store}/${raw.id}`,kind:'json',value});}

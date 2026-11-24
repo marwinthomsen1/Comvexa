@@ -19,3 +19,4 @@
  .account-sync-frame>.account-sync-bar:is(.sync-offline,.sync-conflict,.sync-session){bottom:calc(12px + env(safe-area-inset-bottom));right:12px;max-width:calc(100vw - 24px)}
  .account-sync-editor>.account-sync-bar:is(.sync-offline,.sync-conflict,.sync-session){bottom:calc(84px + env(safe-area-inset-bottom))}
 }
+.account-loading-status{grid-column:1/-1;color:var(--muted);font-size:13px;line-height:1.7;margin:0;padding:5px 0}.account-loading-status small{display:block;font-size:11px;opacity:.8;margin-top:5px}

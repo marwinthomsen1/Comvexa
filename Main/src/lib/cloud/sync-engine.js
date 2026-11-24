@@ -9,8 +9,9 @@ export function createSyncEngine({transport,read=readAccountRecords,write=writeA
   const plan=mergeManifests(base,packed.manifest,remote.manifest,resolution);
   if(plan.conflicts.length&&!resolution){const status={state:'conflict',message:`${plan.conflicts.length} items changed on both devices. Choose which version to keep.`,conflicts:plan.conflicts,cached:!!local.meta};onStatus(status);return status;}
   if(stopped)return;
-  const getChunk=async hash=>packed.chunks.get(hash)||transport.download(hash);
-  const mergedRecords=await unpackEntries(plan.manifest,getChunk);validateAccountRecords(mergedRecords);
+  const downloads=new Map();
+  const getChunk=async hash=>{if(stopped)throw Error('Account loading cancelled.');if(packed.chunks.has(hash))return packed.chunks.get(hash);if(!downloads.has(hash))downloads.set(hash,transport.download(hash));return downloads.get(hash);};
+  const mergedRecords=await unpackEntries(plan.manifest,getChunk,(done,total)=>{if(!stopped)onStatus({state:'saving',message:`Loading account items ${done} of ${total}…`,progress:done/total});});validateAccountRecords(mergedRecords);
   let revision=remote.revision;
   if(signature(plan.manifest)!==signature(remote.manifest)){
    const known=new Set(remote.manifest.entries.flatMap(e=>e.chunks));
