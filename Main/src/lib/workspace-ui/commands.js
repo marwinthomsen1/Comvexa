@@ -1,3 +1,4 @@
+import {finishingTools} from '../premium/finishing-tools.js';
 // Commands describe existing routes/actions; there are no future-only entries.
 export const EDITOR_COMMANDS=[
  {id:'templates',title:'Browse Templates',group:'Design',keywords:'resume cv presentation gallery',action:{tool:'Templates'}},
@@ -12,6 +13,10 @@ export const EDITOR_COMMANDS=[
  {id:'filters',title:'Apply photo filter',group:'Photos',keywords:'filters looks photography',requires:'image',action:{photo:'filters'}},
  {id:'adjust',title:'Enhance or adjust photo',group:'Photos',keywords:'auto enhance lighting contrast saturation color balance',requires:'image',action:{photo:'adjust'}},
  {id:'photo-effects',title:'Photo effects',group:'Photos',keywords:'vignette grain texture bokeh',requires:'image',action:{photo:'effects'}},
+ ...finishingTools.map(t=>({id:t.id,title:t.name,group:'Creative Tools',keywords:t.description,action:{creative:t.id}})),
+ {id:'photo-palette',title:'Extract photo color palette',group:'Creative Tools',keywords:'dominant colors colour eyedropper palette',requires:'image',action:{creative:'palette'}},
+ {id:'contrast-checker',title:'Check color contrast',group:'Creative Tools',keywords:'accessibility readability wcag color colour contrast',action:{creative:'contrast'}},
+ {id:'text-cleanup',title:'Text cleanup and case',group:'Creative Tools',keywords:'uppercase lowercase title case spacing word count',requires:'text',action:{creative:'text-cleanup'}},
  {id:'background',title:'Remove solid background / replace background',group:'Creative Tools',keywords:'remove background remover transparent cutout bg',requires:'image',action:{creative:'background'}},
  {id:'brand',title:'Open Brand Kit',group:'Creative Tools',keywords:'logo colors palette fonts branding',action:{creative:'brands'}},
  {id:'bulk',title:'Bulk Create',group:'Creative Tools',keywords:'csv product prices multiple ads images zip',action:{creative:'bulk'}},

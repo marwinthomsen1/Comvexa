@@ -14,6 +14,7 @@ const VideoTemplatePreview=dynamic(()=>import("@/features/video/template-preview
 import { StudioIcon } from "@/components/ui/studio-icon";
 import {multiPageTemplates,generateMultiPageTemplate} from "@/lib/templates/multipage";
 import "./templates.css";
+import "./collection-refresh.css";
 const { templates, categories, sizes } = metadata;
 const styles = [...new Set(templates.map((t) => t.style))].sort();
 export default function TemplateLibrary() {
@@ -72,31 +73,21 @@ export default function TemplateLibrary() {
     <section className="templates-page curated-library">
       <div className="curated-heading">
         <div>
-          <span className="eyebrow">THE COMVEXA COLLECTION</span>
+          <span className="eyebrow"><span className="collection-live-dot"/> THE COMVEXA COLLECTION</span>
           <h1>
-            Your next idea.
+            Find your next
             <br />
-            <em>A great beginning.</em>
+            <em>“that’s the one.”</em>
           </h1>
           <p>
-            {templates.length} original compositions for everyday ideas and extraordinary
-            moments. Pick your starting point. Make every detail yours.
+            A little inspiration. A head start on something great. Explore {templates.length} original designs, then make every detail yours.
           </p>
         </div>
-        <div className="curated-heading-aside">
-          <span className="collection-number">{templates.length}</span>
-          <span>
-            COMPOSITIONS
-            <br />
-            ENDLESS POSSIBILITIES
-          </span>
-          <Link className="button" href="/editor/new">
-            <StudioIcon name="plus" />
-            Start from blank
-          </Link>
-        </div>
+        <div className="collection-hero-art" aria-hidden="true"><div className="collection-hero-ring"/>{[templates.find(t=>t.category==='events'),templates.find(t=>t.category==='social'),templates.find(t=>t.category==='resumes')].filter(Boolean).map((t,i)=><div className={`collection-floating-card collection-float-${i}`} key={t.id}><Image src={templateThumbnail(t)} alt="" width={180} height={230}/></div>)}<span className="collection-art-sticker"><StudioIcon name="spark" size={14}/> A starting point. Uniquely you.</span><span className="collection-star">✳</span></div>
+        <div className="collection-hero-footer"><div><span><strong>{templates.length}</strong> original designs</span><span><StudioIcon name="layers" size={13}/> Fully editable</span><span><StudioIcon name="download" size={13}/> Free standard exports</span></div><Link href="/editor/new"><StudioIcon name="plus" size={15}/> Start from blank <span aria-hidden="true">↗</span></Link></div>
       </div>
-      <details className="multipage-template-section"><summary>Multi-page collections · 9 editable sets</summary><div className="multipage-template-grid">{multiPageTemplates.map(t=><button key={t.id} disabled={!!busy} onClick={async()=>{if(busy)return;setBusy(t.id);setError("");try{const doc=await generateMultiPageTemplate(t.id),{designStore}=await import("@/lib/editor/store"),id=crypto.randomUUID();await designStore.save(id,doc,0);router.push(`/editor/${id}`);}catch(e){setError(e.message);setBusy("");}}}><Image src={`/images/templates/${t.cover}.webp`} width={160} height={180} alt=""/><strong>{busy===t.id?"Opening…":t.name}</strong><span>3 editable pages</span></button>)}</div></details>
+      <details className="multipage-template-section"><summary><span className="collection-set-icon"><StudioIcon name="layers" size={20}/></span><span><strong>Big ideas deserve a few more pages.</strong><small>{multiPageTemplates.length} coordinated, editable sets · Explore multi-page collections</small></span><span className="collection-set-arrow" aria-hidden="true">↗</span></summary><div className="multipage-template-grid">{multiPageTemplates.map(t=><button key={t.id} disabled={!!busy} onClick={async()=>{if(busy)return;setBusy(t.id);setError("");try{const doc=await generateMultiPageTemplate(t.id),{designStore}=await import("@/lib/editor/store"),id=crypto.randomUUID();await designStore.save(id,doc,0);router.push(`/editor/${id}`);}catch(e){setError(e.message);setBusy("");}}}><Image src={`/images/templates/${t.cover}.webp`} width={160} height={180} alt=""/><strong>{busy===t.id?"Opening…":t.name}</strong><span>3 editable pages</span></button>)}</div></details>
+      <div className="collection-browse-heading"><div><span>THE POSSIBILITIES START HERE</span><h2>Find your kind of creative.</h2></div><span>Pick a mood. Make it yours.</span></div>
       <AssetViewFilter value={assetView} onChange={value=>{setAssetView(value);setLimit(24);}}/>
       <div className="curated-category-rail" aria-label="Template categories">
         <button
@@ -179,7 +170,7 @@ export default function TemplateLibrary() {
       )}
       <div className="curated-grid">
         {items.slice(0, limit).map((t, index) => (
-          <article className="curated-card asset-entry" key={t.id}><AssetFavorite kind="template" id={t.id} name={t.name} prefs={assetPrefs}/>
+          <article className="curated-card asset-entry" style={{"--template-index":Math.min(index,7)}} key={t.id}><AssetFavorite kind="template" id={t.id} name={t.name} prefs={assetPrefs}/>
             <button
               className="curated-artwork"
               aria-label={`Preview ${t.name}`}

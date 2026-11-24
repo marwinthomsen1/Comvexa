@@ -23,7 +23,18 @@ for (const path of [
   "/editor/new",
   "/editor/qa-route",
 ]) {
-  const response = await fetch(new URL(path, origin));
+  const response = await fetch(new URL(path, origin), {redirect:'manual',headers:{Cookie:'preview_user=spoofed',Authorization:'Bearer not-a-real-session'}});
+  if(path.startsWith('/dashboard')||path.startsWith('/editor')){
+    assert.equal(response.status,307,path);
+    const target=new URL(response.headers.get('location'),origin);
+    if(target.pathname!=='/login'){
+      const gate=await fetch(target,{redirect:'manual'});
+      assert.equal(gate.status,307,path);
+      assert.equal(new URL(gate.headers.get('location'),origin).pathname,'/login',path);
+    }
+    console.log(`PASS ${path}: requires login`);
+    continue;
+  }
   assert.equal(response.status, 200, path);
   const html = await response.text();
   assert.ok(html.includes("noindex"), `${path}: preview must stay noindex`);
@@ -58,7 +69,7 @@ console.log("PASS unknown route: 404");
 
 for (const [path,target] of [["/editor","/dashboard/designs"],["/editor/new","/dashboard/designs?create=1"]]) {
  const response=await fetch(new URL(path,origin),{redirect:"manual"});
- assert.equal(response.status,307);assert.equal(response.headers.get("location"),target);console.log(`PASS ${path}: redirects to ${target}`);
+ assert.equal(response.status,307);assert.equal(response.headers.get("location"),target);console.log(`PASS ${path}: redirects to protected ${target}`);
 }
 
 const auth=await fetch(new URL('/api/auth',origin),{headers:{Cookie:'preview_user=spoofed',Authorization:'Bearer not-a-session'}});

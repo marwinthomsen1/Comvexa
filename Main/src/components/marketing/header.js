@@ -14,7 +14,7 @@ export function Header() {
           <div>
             <Link href="/#connected">Connected designs</Link>
             <Link href="/#packages">Design packages</Link>
-            <Link href="/dashboard">Local workspace preview</Link>
+            <Link href="/dashboard">Your workspace</Link>
           </div>
         </details>
         <Link href="/#templates">Templates</Link>
@@ -26,7 +26,7 @@ export function Header() {
         <Link className="login-link" href="/login">
           Log In
         </Link>
-        <Link className="button button-small" href="/dashboard">
+        <Link className="button button-small" href="/register">
           Get Started Free <Icon name="spark" />
         </Link>
         <details className="mobile-nav">
@@ -38,8 +38,8 @@ export function Header() {
             <Link href="/#templates">Templates</Link>
             <Link href="/#how-it-works">How it works</Link>
             <Link href="/#free-tools">Pricing & free tools</Link>
-            <Link href="/login">Login preview</Link>
-            <Link href="/dashboard">Workspace preview ↗</Link>
+            <Link href="/login">Log in</Link>
+            <Link href="/dashboard">Your workspace ↗</Link>
           </nav>
         </details>
       </div>

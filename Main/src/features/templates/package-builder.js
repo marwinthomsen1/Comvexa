@@ -19,6 +19,8 @@ import { readImage } from "@/lib/editor/images";
 import { designStore } from "@/lib/editor/store";
 import { DocumentPreview } from "./document-preview";
 import "./templates.css";
+import "./package-refresh.css";
+import {StudioIcon} from "@/components/ui/studio-icon";
 const limits = {
   name: 160,
   description: 600,
@@ -216,7 +218,7 @@ export default function PackageBuilder({initialBrief=null}) {
     try {
       await designStore.savePackage(bundle);
       setSaved(true);
-      setSaveStatus("Saved in this browser. Your designs are ready to edit.");
+      setSaveStatus("Saved to your workspace. Your designs are ready to edit.");
     } catch (e) {
       setSaveStatus(
         "Save failed. Nothing from this package was committed. Your preview is still here; retry or download it.",
@@ -240,22 +242,20 @@ export default function PackageBuilder({initialBrief=null}) {
       <div className="workspace-heading">
         <div>
           <span className="eyebrow">CREATE ONCE. USE EVERYWHERE.</span>
-          <h1>Your idea. A whole design package.</h1>
+          <h1>One idea.<br/><em>A whole creative world.</em></h1>
           <p>
-            One brief becomes four coordinated, editable designs. No AI
-            subscription or cloud account needed.
+            Turn your story into four coordinated designs. Tell it once, choose your look, and make every format feel like you.
           </p>
         </div>
         <Link className="text-link" href="/dashboard/templates">
-          Browse templates ↗
+          Explore templates <span aria-hidden="true">↗</span>
         </Link>
       </div>
       <ol className="package-steps">
         {["Your information", "Creative direction", "Review & save"].map(
           (label, i) => (
-            <li key={label} aria-current={step === i + 1 ? "step" : undefined}>
-              <span>{i + 1}</span>
-              {label}
+            <li className={step>i+1?'package-step-complete':''} key={label} aria-current={step === i + 1 ? "step" : undefined}>
+              <span>{step>i+1?<StudioIcon name="check" size={15}/>:String(i+1).padStart(2,'0')}</span><div><small>{['THE ESSENTIALS','THE LOOK & FEEL','THE FINAL TOUCH'][i]}</small><strong>{label}</strong></div>
             </li>
           ),
         )}
@@ -316,21 +316,13 @@ export default function PackageBuilder({initialBrief=null}) {
               Choose a direction →
             </button>
           </form>
-          <aside>
-            <span className="eyebrow">THE SAME STORY. A DIFFERENT CANVAS.</span>
-            <h2>
-              A post. A story.
-              <br />A campaign that belongs together.
-            </h2>
-            <p>
-              Every text block, photo and shape stays editable. Shared
-              references are prepared now; shared campaign information can be
-              updated from Campaigns.
-            </p>
-            <p className="local-note">
-              Account saving status appears above. You can also download
-              editable project files for backup.
-            </p>
+          <aside className="package-story-preview">
+            <span className="eyebrow">YOUR STORY. EVERYWHERE IT NEEDS TO BE.</span>
+            <h2>A matching set.<br/><em>Unmistakably you.</em></h2>
+            <div className="package-format-art" aria-hidden="true" style={{"--preview-bg":fields.background,"--preview-ink":fields.ink,"--preview-accent":fields.accent}}><div className="package-art-ring"/><div className="package-mini mini-landscape"><small>THE NEXT BIG THING</small><strong>{fields.name||'Your idea here.'}</strong><span>↗</span></div><div className="package-mini mini-story"><small>MADE TO STAND OUT</small><strong>{fields.name||'Your idea here.'}</strong><span>✳</span></div><div className="package-mini mini-square"><small>THE CREATIVE EDIT</small><strong>{fields.name||'Your idea here.'}</strong><span>✳</span></div></div>
+            <div className="package-format-tags"><span>Post</span><span>Portrait</span><span>Story</span><span>Flyer</span></div>
+            <div className="package-preview-benefits"><p><StudioIcon name="layers" size={15}/><span><strong>Four formats. One visual story.</strong><small>Coordinated layouts, ready for every channel.</small></span></p><p><StudioIcon name="edit" size={15}/><span><strong>Every detail stays yours.</strong><small>Edit text, photos, colors, and layers.</small></span></p><p><StudioIcon name="link" size={15}/><span><strong>Keep your campaign connected.</strong><small>Update shared details from Campaigns.</small></span></p></div>
+            <p className="local-note"><StudioIcon name="save" size={13}/> Save your set to your workspace when it’s ready.</p>
           </aside>
         </div>
       )}
@@ -416,8 +408,7 @@ export default function PackageBuilder({initialBrief=null}) {
               </button>
               <p>
                 PNG, JPG or WebP · up to 8 MB and 4096 × 4096. Images are
-                optimized locally and stored with the designs. Nothing is
-                uploaded to a server.
+                prepared in your browser and saved with your designs. Account sync keeps your saved work available across devices.
               </p>
               <p>
                 Center cropping adapts your photo to each composition. You can

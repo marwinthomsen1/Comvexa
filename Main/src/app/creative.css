@@ -2587,3 +2587,26 @@ form select:focus-visible {
   }
 }
 .workspace-main .filter-tabs { flex-wrap: wrap; }
+/* Keep expensive paint work off the scrolling path. */
+.landing-page::before{animation:none}
+.landing-page>main>section:not(:first-child){content-visibility:auto;contain-intrinsic-size:auto 650px}
+.page-idle .landing-page *,.page-idle .landing-page::before,.page-idle .brand-c,
+.page-idle .dashboard-hero *,.page-idle .library-hero *,.page-idle .curated-heading *,
+.page-idle .campaigns-hero *,.page-idle .sidebar-inspiration *,.page-idle .package-format-art *,
+[data-motion-visible="false"] *,[data-motion-visible="false"] *::after{animation-play-state:paused!important}
+@media(max-width:760px),(pointer:coarse){
+ .landing-page::before{height:650px;background:radial-gradient(ellipse at 80% 20%,#ae5aff0b,transparent 65%)}
+ .landing-page .ribbon,.landing-page .showcase-card,.landing-page .entrance,.brand-c{animation:none!important}
+ .landing-page .ribbon-backdrop{height:750px;width:100%;opacity:.3}
+ .landing-page .reveal,.motion-ready .landing-page .reveal{opacity:1;transform:none;transition:none}
+ .landing-page .creative-glass,.landing-page .creative-pill,.landing-page .site-header{backdrop-filter:none;-webkit-backdrop-filter:none}
+ .landing-page .showcase-card,.landing-page .design-preview{filter:none}
+ .dashboard-hero-art *,.library-hero-art *,.collection-hero-art *,.campaigns-hero-art *,
+ .sidebar-orbit *,.package-format-art *{animation:none!important}
+ .hero-art-tag,.collection-art-sticker{backdrop-filter:none;-webkit-backdrop-filter:none}
+ .landing-page>main>section:not(:first-child){contain-intrinsic-size:auto 800px}
+}
+@media(max-width:760px),(pointer:coarse){
+ .landing-page .demo-bar{backdrop-filter:none;-webkit-backdrop-filter:none;background:var(--surface);box-shadow:0 3px 10px #6f4bdb0a}
+ .landing-page .showcase-stage::before{display:none}
+}

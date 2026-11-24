@@ -119,9 +119,6 @@ export function AuthForm({ mode, enabled=false }) {
               {enabled?(register?"Log in":"Create an account"):(register?"Log in preview":"Registration preview")}
             </Link>
           </p>
-          <Link className="button button-ghost auth-submit" href="/dashboard">
-            Explore without an account ↗
-          </Link>
           <Link className="text-link auth-back" href="/">
             ← Back to Comvexa
           </Link>

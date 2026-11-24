@@ -1,4 +1,4 @@
-import AccountSync from "@/features/reliability/account-sync";
+import {MotionBudget} from "@/components/ui/motion-budget";
 import { site } from "@/config/site";
 import "./globals.css";
 import "./creative.css";
@@ -20,10 +20,11 @@ export default function RootLayout({ children }) {
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body>
+        <MotionBudget />
         <a className="skip-link" href="#main-content">
           Skip to content
         </a>
-        <AccountSync>{children}</AccountSync>
+        {children}
       </body>
     </html>
   );

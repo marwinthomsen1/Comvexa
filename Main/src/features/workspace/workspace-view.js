@@ -1,4 +1,5 @@
 "use client";
+import "./campaigns-refresh.css";
 import { useState } from "react";
 import { GeneratedCampaigns } from "@/features/templates/generated-campaigns";
 import Link from "next/link";
@@ -33,7 +34,7 @@ function DraftCard({ item, kind, campaigns }) {
               : "Standalone project")}
         </p>
         <span>
-          Local draft <span aria-hidden="true">↗</span>
+          Project collection <span aria-hidden="true">↗</span>
         </span>
       </div>
     </Link>
@@ -65,7 +66,8 @@ export function WorkspaceView({ mode = "overview" }) {
         )
     : [];
   return (
-    <>
+    <section className={mode === "campaigns" ? "campaigns-page" : "workspace-collection"}>
+      {mode === "campaigns" && <header className="campaigns-hero"><div><span className="eyebrow">THE BIG PICTURE, BEAUTIFULLY CONNECTED</span><h1>One story.<br/><em>Every moving part.</em></h1><p>Bring your matching designs and creative projects together.<br/>A little more organized. A lot more possibility.</p><Link href="/dashboard/packages">Create a design package <span aria-hidden="true">↗</span></Link></div><div className="campaigns-hero-art" aria-hidden="true"><span className="campaign-connection connection-one"/><span className="campaign-connection connection-two"/><div className="campaign-node node-one"><Icon name="image"/><span>THE POST</span></div><div className="campaign-node node-center"><Icon name="link"/><strong>One<br/><em>big idea.</em></strong></div><div className="campaign-node node-two"><Icon name="layers"/><span>THE WHOLE SET</span></div><span className="campaign-art-caption">CONNECTED BY DESIGN. MADE BY YOU.</span></div></header>}
       {mode === "campaigns" && <GeneratedCampaigns />}
       <div className="workspace-heading">
         <div>
@@ -77,7 +79,7 @@ export function WorkspaceView({ mode = "overview" }) {
           <h1>{title}</h1>
           <p>
             {mode === "campaigns"
-              ? "One place for the projects that belong together."
+              ? "Give every collection, launch, and next chapter a home."
               : "Start small. Keep creating. Everything begins with an idea."}
           </p>
         </div>
@@ -212,6 +214,6 @@ export function WorkspaceView({ mode = "overview" }) {
       {creating && (
         <CreateDialog kind={creating} onClose={() => setCreating(null)} />
       )}
-    </>
+    </section>
   );
 }
